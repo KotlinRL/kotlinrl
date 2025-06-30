@@ -16,8 +16,8 @@ While most reinforcement learning libraries focus on Python ecosystems, KotlinRL
 - ✅ **Embedded and Lightweight**  
   Runs directly inside microservices, data pipelines, streaming agents, or real-time control systems.
 
-- ✅ **Tensor-powered (KotlinDL backend)**  
-  Leverages KotlinDL for deep learning model definition, tensor operations, and model persistence.
+- ✅ **Tensor-powered (DJL backend)**  
+  Leverages DJL for deep learning model definition, tensor operations, and model persistence.
 
 - ✅ **Extensible, Modular Architecture**  
   Separates core RL algorithms, environments, experience buffers, optimizers, and training loops.
@@ -62,7 +62,6 @@ KotlinRL enables JVM developers to:
 ---
 ## Initial Algorithms (Phase 1)
 
-- Multi-armed Bandits (UCB, Thompson Sampling)
 - Tabular Q-learning
 - Policy Gradient (REINFORCE)
 - PPO-lite (Proximal Policy Optimization)
@@ -75,7 +74,7 @@ KotlinRL enables JVM developers to:
 
 - JVM production systems need adaptive control agents.
 - Python-based RL frameworks introduce complexity when embedding into JVM stacks.
-- KotlinDL and Koog give us modern tensor and streaming data structures — KotlinRL builds the control logic on top.
+- DJL gives us modern tensor and streaming data structures — KotlinRL builds the control logic on top.
 
 ---
 
