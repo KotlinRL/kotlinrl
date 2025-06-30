@@ -34,16 +34,12 @@ fun main() {
     var episodeOver = false
     var totalReward = 0.0f
 
-    val display = createDisplay(env.render() as Rendering.RenderFrame)
-
     while (!episodeOver) {
         val action = env.actionSpace.sample()
         val (observation, reward, terminated, truncated, _) = env.step(action)
         totalReward += reward
         episodeOver = terminated || truncated
         println("Observation: $observation, Reward: $reward")
-        display(env.render() as Rendering.RenderFrame)
-        Thread.sleep(50)
     }
     println("Episode finished!: Total reward: $totalReward")
     env.close()
