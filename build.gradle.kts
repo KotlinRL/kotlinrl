@@ -9,6 +9,19 @@ repositories {
     mavenCentral()
 }
 
+allprojects {
+    tasks.withType<KotlinJvmCompile>().configureEach {
+        compilerOptions {
+            jvmTarget.set(JvmTarget.JVM_17)
+        }
+    }
+}
+java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(17)) // Explicitly set Java target to 17
+    }
+}
+
 subprojects {
     apply(plugin = "org.jetbrains.kotlin.jvm")
     apply(plugin = "maven-publish")
@@ -48,13 +61,12 @@ subprojects {
         }
     }
 
-    tasks.withType<KotlinJvmCompile>().configureEach {
-        compilerOptions {
-            jvmTarget.set(JvmTarget.JVM_17)
-        }
-    }
-
     tasks.withType<Test> {
         useJUnitPlatform() // Enable JUnit 5
+    }
+    java {
+        toolchain {
+            languageVersion.set(JavaLanguageVersion.of(17)) // Explicitly set Java target to 17
+        }
     }
 }

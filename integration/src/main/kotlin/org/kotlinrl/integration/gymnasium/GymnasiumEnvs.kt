@@ -10,7 +10,7 @@ enum class GymnasiumEnvs(val envName: String) {
     CliffWalking_v0("CliffWalking-v0"),
     FrozenLake_v1("FrozenLake-v1"),
     LunarLander_v3("LunarLander-v3"),
-    MountatCarContinuous_v0("MountainCarContinuous-v0"),
+    MountainCarContinuous_v0("MountainCarContinuous-v0"),
     MountainCar_v0("MountainCar-v0"),
     Pendulum_v1("Pendulum-v1"),
     Taxi_v3("Taxi-v3");

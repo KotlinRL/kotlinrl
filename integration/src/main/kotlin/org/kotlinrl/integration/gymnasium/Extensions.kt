@@ -11,12 +11,22 @@ import org.kotlinrl.core.env.Rendering.RenderFrame
 import org.kotlinrl.core.env.Rendering.Text
 import org.kotlinrl.core.space.*
 import org.kotlinrl.open.env.*
+import java.nio.ByteBuffer
 
-fun EnvOuterClass.Space.toBoxNDArrayD1Float(seed: Int?): BoxNDArrayD1<Float> {
+fun EnvOuterClass.Space.toBoxNDArrayFloatD1(seed: Int?): BoxNDArrayD1<Float> {
     return BoxNDArrayD1(
         low = this.box.low.toNDArrayFloat1(),
         high = this.box.high.toNDArrayFloat1(),
         type = Float::class.java,
+        seed = seed,
+    )
+}
+
+fun EnvOuterClass.Space.toBoxNDArrayDoubleD1(seed: Int?): BoxNDArrayD1<Double> {
+    return BoxNDArrayD1(
+        low = this.box.low.toNDArrayDouble1(),
+        high = this.box.high.toNDArrayDouble1(),
+        type = Double::class.java,
         seed = seed,
     )
 }
@@ -33,6 +43,10 @@ fun EnvOuterClass.NDArray.toNDArrayFloat1(): NDArray<Float, D1> {
     return mk.ndarray(this.data.toFloatArray())
 }
 
+fun EnvOuterClass.NDArray.toNDArrayDouble1(): NDArray<Double, D1> {
+    return mk.ndarray(this.data.toDoubleArray())
+}
+
 fun Struct.toMap(): Map<String, Any> {
     return this.fieldsMap.mapValues { (_, v) -> v.stringValue }
 }
@@ -41,8 +55,16 @@ fun NDArray<Float, D1>.toNDArray(): EnvOuterClass.NDArray {
     return EnvOuterClass.NDArray.newBuilder()
         .setDtype(this.dtype.toDType())
         .addAllShape(this.shape.toList())
-        .setData(this.data.getByteArray().toByteString())
+        .setData(this.toByteArray().toByteString())
         .build()
+}
+
+fun NDArray<Float, D1>.toByteArray(): ByteArray {
+    val byteBuffer = ByteBuffer.allocate(this.size * 4)
+    for (i in 0 until this.size) {
+        byteBuffer.putFloat(this[i])
+    }
+    return byteBuffer.array()
 }
 
 fun DataType.toDType(): EnvOuterClass.DType {

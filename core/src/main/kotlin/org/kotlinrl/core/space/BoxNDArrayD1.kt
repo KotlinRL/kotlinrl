@@ -33,28 +33,59 @@ class BoxNDArrayD1<T : Number>(
             "No high value can be equal to the minimum possible value for the type, high=${high.data.toList()}"
         }
         require(
-            bounds
-                .all { (l, h) -> l.toDouble() <= h.toDouble() }) {
+            bounds.all { (l, h) ->
+                val lo = l.toDouble()
+                val hi = h.toDouble()
+                when {
+                    lo.isNaN() && hi.isNaN() -> true   // no bounds
+                    lo.isNaN() || hi.isNaN() -> false  // only one NaN? invalid
+                    lo.isInfinite() && hi.isInfinite() -> true
+                    lo <= hi -> true
+                    else -> false
+                }
+            }
+        ) {
             "Each low value must be less than or equal to its corresponding high value."
         }
         require(bounds.isNotEmpty()) { "Low and high arrays must not be empty." }
 
     }
 
-    @Suppress("UNCHECKED_CAST") // Suppress this warning since we've controlled the type above
+    @Suppress("UNCHECKED_CAST")
     override fun sample(): NDArray<T, D1> {
         val sampledList: List<T> = bounds.map { (l, h) ->
+            val lo = l.toDouble()
+            val hi = h.toDouble()
             when (type) {
-                Double::class.java -> random.nextDouble(l.toDouble(), h.toDouble()) as T
-                Float::class.java -> random.nextDouble(l.toDouble(), h.toDouble()).toFloat() as T
-                Int::class.java -> random.nextInt(l.toInt(), h.toInt()) as T
-                Long::class.java -> random.nextLong(l.toLong(), h.toLong()) as T
-                Short::class.java -> random.nextInt(l.toInt(), h.toInt()).toShort() as T
-                Byte::class.java -> random.nextInt(l.toInt(), h.toInt()).toByte() as T
-                else -> throw UnsupportedOperationException("Unsupported data type.")
-            }
-        }
+                Double::class.java -> {
+                    val v = if (lo == hi) lo else random.nextDouble(lo, hi)
+                    v.coerceIn(lo, hi)
+                }
 
+                Float::class.java -> {
+                    val v = if (lo == hi) lo.toFloat() else random.nextDouble(lo, hi).toFloat()
+                    v.coerceIn(lo.toFloat(), hi.toFloat())
+                }
+
+                Int::class.java -> {
+                    if (lo == hi) lo.toInt() else random.nextInt(lo.toInt(), hi.toInt() + 1)
+                }
+
+                Long::class.java -> {
+                    if (lo == hi) lo.toLong() else random.nextLong(lo.toLong(), hi.toLong() + 1)
+                }
+
+                Short::class.java -> {
+                    if (lo == hi) lo.toInt().toShort() else random.nextInt(lo.toInt(), hi.toInt() + 1).toShort()
+                }
+
+                Byte::class.java -> {
+                    if (lo == hi) lo.toInt().toByte() else random.nextInt(lo.toInt(), hi.toInt() + 1).toByte()
+                }
+
+                else -> throw UnsupportedOperationException("Unsupported data type.")
+            } as T
+        }
         return mk.ndarray(sampledList, shape = low.shape, dim = D1)
     }
 

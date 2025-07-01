@@ -9,10 +9,9 @@ object GymnasiumEnv {
     fun <
             Observation,
             Action,
-            Reward,
             OS: Space<Observation>,
             AS : Space<Action>,
-            E : Env<Observation, Action, Reward, OS, AS>>
+            E : Env<Observation, Action, OS, AS>>
             make(envType: GymnasiumEnvs,
                  seed: Int? = null,
                  render: Boolean = true,
@@ -24,8 +23,7 @@ object GymnasiumEnv {
             CartPole_v1,
             Acrobot_v1,
             MountainCar_v0,
-            LunarLander_v3,
-            MountatCarContinuous_v0 -> RemoteFloatBoxNDArrayD1DiscreteEnv(
+            LunarLander_v3-> RemoteBoxNDArrayFloatD1DiscreteEnv(
                 envName = envType.envName,
                 seed = seed,
                 render = render,
@@ -34,7 +32,7 @@ object GymnasiumEnv {
             )
             FrozenLake_v1,
             CliffWalking_v0,
-            Taxi_v3 -> RemoteFloatDiscreteDiscreteEnv(
+            Taxi_v3 -> RemoteDiscreteDiscreteEnv(
                 envName = envType.envName,
                 seed = seed,
                 render = render,
@@ -42,8 +40,15 @@ object GymnasiumEnv {
                 host = host
             )
             Pendulum_v1,
-            Ant_v5,
-            BipedalWalker_v3 -> RemoteFloatBoxNDArrayD1BoxNDArrayD1Env(
+            BipedalWalker_v3,
+            MountainCarContinuous_v0  -> RemoteBoxNDArrayFloatD1BoxNDArrayFloatD1Env(
+                envName = envType.envName,
+                seed = seed,
+                render = render,
+                options = options,
+                host = host
+            )
+            Ant_v5 -> RemoteBoxNDArrayDoubleD1BoxNDArrayFloatD1Env(
                 envName = envType.envName,
                 seed = seed,
                 render = render,

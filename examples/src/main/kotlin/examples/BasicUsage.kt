@@ -1,7 +1,5 @@
 package examples
 
-import org.kotlinrl.core.env.*
-import org.kotlinrl.integration.display.*
 import org.kotlinrl.integration.gymnasium.*
 import org.kotlinrl.integration.gymnasium.GymnasiumEnvs.*
 
@@ -27,12 +25,12 @@ Python Gymnasium code example
     env.close()
  */
 fun main() {
-    val env: FloatBoxNDArrayD1DiscreteEnv = gymnasium.make(CartPole_v1, seed=123, render=true)
+    val env: CartPoleEnv = gymnasium.make(CartPole_v1, seed=123, render=true)
     val (observation, _) = env.reset()
     println("Starting observation: $observation")
 
     var episodeOver = false
-    var totalReward = 0.0f
+    var totalReward = 0.0
 
     while (!episodeOver) {
         val action = env.actionSpace.sample()

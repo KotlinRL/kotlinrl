@@ -22,7 +22,7 @@ class RenderDisplay(
     }
 }
 
-fun createDisplay(renderFrame: RenderFrame): (RenderFrame) -> Unit {
+fun createDisplay(renderFrame: RenderFrame, exitOnClose: Boolean = false): (RenderFrame) -> Unit {
     val width = renderFrame.width
     val height = renderFrame.height
     val bgrBytes = renderFrame.bytes.toBGRArray(height, width)
@@ -31,10 +31,17 @@ fun createDisplay(renderFrame: RenderFrame): (RenderFrame) -> Unit {
     val panel = RenderDisplay(initialImage)
     panel.preferredSize = Dimension(renderFrame.width, renderFrame.height)
     val frame = JFrame("Env Rendering")
-    frame.defaultCloseOperation = JFrame.EXIT_ON_CLOSE
+    frame.defaultCloseOperation = if(exitOnClose) JFrame.EXIT_ON_CLOSE else JFrame.DISPOSE_ON_CLOSE
     frame.add(panel)
     frame.pack()
-    SwingUtilities.invokeLater { frame.isVisible = true }
+
+    SwingUtilities.invokeLater {
+        frame.setLocationRelativeTo(null)
+        frame.isVisible = true
+        frame.toFront()
+        frame.requestFocus()
+        frame.isAlwaysOnTop = true
+    }
     return panel::updateRenderFrame
 }
 
