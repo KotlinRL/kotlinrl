@@ -23,7 +23,7 @@ env.close()
 
 ### Basic Usage in Kotlin: statically typed data
 ```kotlin
-val env: FloatBoxNDArrayD1DiscreteEnv = gymnasium.make(CartPole_v1, seed=123, render=true)
+val env: CartPoleEnv = gymnasium.make(CartPole_v1, seed=123, render=true)
 val (observation, _) = env.reset()
 println("Starting observation: $observation")
 
