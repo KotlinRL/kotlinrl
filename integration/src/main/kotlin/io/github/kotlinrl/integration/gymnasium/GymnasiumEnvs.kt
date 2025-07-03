@@ -14,5 +14,6 @@ enum class GymnasiumEnvs(val envName: String) {
     MountainCar_v0("MountainCar-v0"),
     Pendulum_v1("Pendulum-v1"),
     Taxi_v3("Taxi-v3"),
-    HalfCheetah_v5("HalfCheetah-v5");
+    HalfCheetah_v5("HalfCheetah-v5"),
+    Hopper_v5("Hopper-v5");
 }
