@@ -94,11 +94,12 @@ class Box<T : Number, D : Dimension>(
         return mk.ndarray(elements = sampledList, shape = low.shape, dim = low.dim)
     }
 
-    override fun contains(value: NDArray<T, D>): Boolean {
+    override fun contains(value: Any?): Boolean {
+        if (value !is NDArray<*, *>) return false
         if (!value.shape.contentEquals(low.shape)) return false
 
         return value.data.zip(bounds) { v, (l, h) ->
-            v.toDouble() in l.toDouble()..h.toDouble()
+            (v as Number).toDouble() in l.toDouble()..h.toDouble()
         }.all { it }
     }
 

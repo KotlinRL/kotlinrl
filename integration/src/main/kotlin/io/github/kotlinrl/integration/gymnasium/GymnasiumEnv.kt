@@ -64,6 +64,14 @@ object GymnasiumEnv {
                 host = host
             )
 
+            Blackjack_v1 -> RemoteEnvClient<List<Any>, Int, Tuple, Discrete>(
+                envName = envType.envName,
+                seed = seed,
+                render = render,
+                options = options,
+                host = host
+            )
+
             else -> TODO("Add support for $envType")
         } as E
     }
