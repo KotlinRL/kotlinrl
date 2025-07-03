@@ -18,6 +18,7 @@ fun EnvOuterClass.Space.toTypedSpace(seed: Int?): Space<*> {
     return when {
         hasDiscrete() -> this.toDiscrete(seed)
         hasBox() -> this.toBox(seed)
+        hasTuple() -> this.toTuple(seed)
         else -> TODO()
     }
 }
@@ -33,7 +34,7 @@ fun <Observation> EnvOuterClass.Observation.toTypedObservation(): Observation {
         FLOAT -> this.float
         STRING -> this.string
         ARRAY -> this.array.toNDArray()
-        TUPLE -> TODO()
+        TUPLE -> this.tuple.itemsList.map { it.toTypedObservation() as Observation }.toList()
         MAP -> TODO()
         VALUE_NOT_SET -> error("Observation value not set.")
     } as Observation
@@ -142,6 +143,11 @@ private fun EnvOuterClass.Space.toBox(seed: Int?): Box<*, *> {
 
         UNRECOGNIZED -> error("Unknown dtype: ${this.box.dtype.name}")
     }
+}
+
+@Suppress("UNCHECKED_CAST")
+private fun EnvOuterClass.Space.toTuple(seed: Int?): Tuple {
+    return Tuple(this.tuple.spacesList.map { it.toTypedSpace(seed) }.toList() as List<Space<Any>>, seed)
 }
 
 private fun ByteString.toIntArray(): IntArray {
