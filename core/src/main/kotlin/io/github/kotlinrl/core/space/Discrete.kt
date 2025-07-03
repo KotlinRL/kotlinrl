@@ -20,7 +20,7 @@ class Discrete(
             start + validIndices[random.nextInt(validIndices.size)]
         } ?: sample()
 
-    override fun contains(value: Int): Boolean =
+    override fun contains(value: Any?): Boolean =
         value in start until (start + n)
 
     override fun toString(): String {

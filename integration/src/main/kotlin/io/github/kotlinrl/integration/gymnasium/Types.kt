@@ -20,3 +20,5 @@ typealias MountainCarContinuousEnv = Env<NDArray<Float, D1>, NDArray<Float, D1>,
 typealias AntEnv = Env<NDArray<Double, D1>, NDArray<Float, D1>, Box<Double, D1>, Box<Float, D1>>
 
 typealias CarRacingEnv = Env<NDArray<Float, D1>, NDArray<Byte, D3>, Box<Float, D1>, Box<Byte, D3>>
+
+typealias BlackjackEnv = Env<List<Any>, Int, Tuple, Discrete>
