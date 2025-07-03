@@ -1,0 +1,238 @@
+package io.github.kotlinrl.integration.gymnasium
+
+import com.google.protobuf.*
+import io.github.kotlinrl.core.env.*
+import io.github.kotlinrl.core.env.Rendering.*
+import io.github.kotlinrl.core.env.Rendering.Empty
+import io.github.kotlinrl.core.space.*
+import io.github.kotlinrl.open.env.*
+import open.rl.env.*
+import open.rl.env.EnvOuterClass.DType.*
+import open.rl.env.EnvOuterClass.Observation.ValueCase.*
+import open.rl.env.EnvOuterClass.RenderResponse.FrameCase.*
+import org.jetbrains.kotlinx.multik.api.*
+import org.jetbrains.kotlinx.multik.ndarray.data.*
+import java.nio.*
+
+fun EnvOuterClass.Space.toTypedSpace(seed: Int?): Space<*> {
+    return when {
+        hasDiscrete() -> this.toDiscrete(seed)
+        hasBox() -> this.toBox(seed)
+        else -> TODO()
+    }
+}
+
+fun Struct.toMap(): Map<String, Any> {
+    return this.fieldsMap.mapValues { (_, v) -> v.stringValue }
+}
+
+@Suppress("UNCHECKED_CAST")
+fun <Observation> EnvOuterClass.Observation.toTypedObservation(): Observation {
+    return when (this.valueCase) {
+        INT32 -> this.int32
+        FLOAT -> this.float
+        STRING -> this.string
+        ARRAY -> this.array.toNDArray()
+        TUPLE -> TODO()
+        MAP -> TODO()
+        VALUE_NOT_SET -> error("Observation value not set.")
+    } as Observation
+}
+
+fun EnvOuterClass.RenderResponse.toRendering(): Rendering {
+    return when (this.frameCase) {
+        RGB_ARRAY -> {
+            val (height, width) = this.rgbArray.shapeList
+            RenderFrame(
+                width = width,
+                height = height,
+                bytes = this.rgbArray.data.toByteArray()
+            )
+        }
+
+        ANSI -> Text(this.ansi)
+        else -> Empty
+    }
+}
+
+private fun EnvOuterClass.Space.toDiscrete(seed: Int?): Discrete {
+    return Discrete(
+        n = this.discrete.n,
+        start = this.discrete.start,
+        seed = seed
+    )
+}
+
+private fun EnvOuterClass.Space.toBox(seed: Int?): Box<*, *> {
+    return when (this.box.dtype) {
+        float32 -> Box(
+            low = mk.ndarray(
+                elements = this.box.low.data.toFloatArray().toList(),
+                shape = this.box.shapeList.toIntArray(),
+                dim = dimensionOf(this.box.shapeCount)
+            ),
+            high = mk.ndarray(
+                elements = this.box.high.data.toFloatArray().toList(),
+                shape = this.box.shapeList.toIntArray(),
+                dim = dimensionOf(this.box.shapeCount)
+            ),
+            type = Float::class.java,
+            seed = seed
+        )
+
+        float64 -> Box(
+            low = mk.ndarray(
+                elements = this.box.low.data.toDoubleArray().toList(),
+                shape = this.box.shapeList.toIntArray(),
+                dim = dimensionOf(this.box.shapeCount)
+            ),
+            high = mk.ndarray(
+                elements = this.box.high.data.toDoubleArray().toList(),
+                shape = this.box.shapeList.toIntArray(),
+                dim = dimensionOf(this.box.shapeCount)
+            ),
+            type = Double::class.java,
+            seed = seed
+        )
+
+        int32 -> Box(
+            low = mk.ndarray(
+                elements = this.box.low.data.toIntArray().toList(),
+                shape = this.box.shapeList.toIntArray(),
+                dim = dimensionOf(this.box.shapeCount)
+            ),
+            high = mk.ndarray(
+                elements = this.box.high.data.toIntArray().toList(),
+                shape = this.box.shapeList.toIntArray(),
+                dim = dimensionOf(this.box.shapeCount)
+            ),
+            type = Int::class.java,
+            seed = seed
+        )
+
+        int64 -> Box(
+            low = mk.ndarray(
+                elements = this.box.low.data.toLongArray().toList(),
+                shape = this.box.shapeList.toIntArray(),
+                dim = dimensionOf(this.box.shapeCount)
+            ),
+            high = mk.ndarray(
+                elements = this.box.high.data.toLongArray().toList(),
+                shape = this.box.shapeList.toIntArray(),
+                dim = dimensionOf(this.box.shapeCount)
+            ),
+            type = Long::class.java,
+            seed = seed
+        )
+
+        bool, uint8 -> Box(
+            low = mk.ndarray(
+                elements = this.box.low.data.toByteArray().toList(),
+                shape = this.box.shapeList.toIntArray(),
+                dim = dimensionOf(this.box.shapeCount)
+            ),
+            high = mk.ndarray(
+                elements = this.box.high.data.toByteArray().toList(),
+                shape = this.box.shapeList.toIntArray(),
+                dim = dimensionOf(this.box.shapeCount)
+            ),
+            type = Byte::class.java,
+            seed = seed
+        )
+
+        UNRECOGNIZED -> error("Unknown dtype: ${this.box.dtype.name}")
+    }
+}
+
+private fun ByteString.toIntArray(): IntArray {
+    val bb = ByteBuffer.wrap(this.toByteArray()).order(ByteOrder.LITTLE_ENDIAN)
+    val arr = IntArray(this.size() / 4)
+    for (i in arr.indices) {
+        arr[i] = bb.int
+    }
+    return arr
+}
+
+private fun ByteString.toLongArray(): LongArray {
+    val bb = ByteBuffer.wrap(this.toByteArray()).order(ByteOrder.LITTLE_ENDIAN)
+    val arr = LongArray(this.size() / 8)
+    for (i in arr.indices) {
+        arr[i] = bb.long
+    }
+    return arr
+}
+
+private fun EnvOuterClass.NDArray.toNDArray(): NDArray<*, *> {
+    return when (this.dtype) {
+        float32 -> mk.ndarray(
+            elements = this.data.toFloatArray().toList(),
+            shape = this.shapeList.toIntArray(),
+            dim = dimensionOf(this.shapeCount)
+        )
+
+        float64 -> mk.ndarray(
+            elements = this.data.toDoubleArray().toList(),
+            shape = this.shapeList.toIntArray(),
+            dim = dimensionOf(this.shapeCount)
+        )
+
+        int32 -> mk.ndarray(
+            elements = this.data.toIntArray().toList(),
+            shape = this.shapeList.toIntArray(),
+            dim = dimensionOf(this.shapeCount)
+        )
+
+        int64 -> mk.ndarray(
+            elements = this.data.toLongArray().toList(),
+            shape = this.shapeList.toIntArray(),
+            dim = dimensionOf(this.shapeCount)
+        )
+
+        bool, uint8 -> mk.ndarray(
+            elements = this.data.toByteArray().toList(),
+            shape = this.shapeList.toIntArray(),
+            dim = dimensionOf(this.shapeCount)
+        )
+
+        UNRECOGNIZED -> error("Invalid data type: ${this.dtype}")
+    } as NDArray<*, *>
+}
+
+fun toDType(type: Class<*>): EnvOuterClass.DType =
+    when (type) {
+        Float::class.java -> float32
+        Double::class.java -> float64
+        Int::class.java -> int32
+        Long::class.java -> int64
+        Byte::class.java -> uint8
+        else -> error("Invalid type: $type")
+    }
+
+fun IntArray.toByteArray(): ByteArray {
+    val bb = ByteBuffer.allocate(this.size * 4).order(ByteOrder.LITTLE_ENDIAN)
+    for (i in this.indices) {
+        bb.putInt(this[i])
+    }
+    return bb.array()
+}
+fun LongArray.toByteArray(): ByteArray {
+    val bb = ByteBuffer.allocate(this.size * 8).order(ByteOrder.LITTLE_ENDIAN)
+    for (i in this.indices) {
+        bb.putLong(this[i])
+    }
+    return bb.array()
+}
+fun FloatArray.toByteArray(): ByteArray {
+    val bb = ByteBuffer.allocate(this.size * 4).order(ByteOrder.LITTLE_ENDIAN)
+    for (i in this.indices) {
+        bb.putFloat(this[i])
+    }
+    return bb.array()
+}
+fun DoubleArray.toByteArray(): ByteArray {
+    val bb = ByteBuffer.allocate(this.size * 8).order(ByteOrder.LITTLE_ENDIAN)
+    for (i in this.indices) {
+        bb.putDouble(this[i])
+    }
+    return bb.array()
+}

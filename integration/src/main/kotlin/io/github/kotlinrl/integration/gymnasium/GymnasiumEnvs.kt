@@ -1,4 +1,4 @@
-package org.kotlinrl.integration.gymnasium
+package io.github.kotlinrl.integration.gymnasium
 
 enum class GymnasiumEnvs(val envName: String) {
     Acrobot_v1("Acrobot-v1"),

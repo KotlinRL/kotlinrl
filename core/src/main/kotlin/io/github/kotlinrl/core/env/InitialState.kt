@@ -1,4 +1,4 @@
-package org.kotlinrl.core.env
+package io.github.kotlinrl.core.env
 
 data class InitialState<Observation>(
     val observation: Observation,

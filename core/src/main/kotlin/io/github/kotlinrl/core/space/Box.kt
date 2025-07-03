@@ -1,27 +1,28 @@
-package org.kotlinrl.core.space
+package io.github.kotlinrl.core.space
 
 import org.jetbrains.kotlinx.multik.api.*
 import org.jetbrains.kotlinx.multik.ndarray.data.*
+import org.jetbrains.kotlinx.multik.ndarray.data.DataType.*
 import kotlin.random.*
 
-class BoxNDArrayD1<T : Number>(
-    val low: NDArray<T, D1>,
-    val high: NDArray<T, D1>,
+class Box<T : Number, D : Dimension>(
+    val low: NDArray<T, D>,
+    val high: NDArray<T, D>,
     val type: Class<T>,
     val seed: Int? = null
-) : Space<NDArray<T, D1>> {
+) : Space<NDArray<T, D>> {
     override val random: Random = seed?.let { Random(it) } ?: Random.Default
     private val bounds = low.data.zip(high.data)
     val dtype: DataType = when (type) {
-        Double::class.java -> DataType.DoubleDataType
-        Float::class.java -> DataType.FloatDataType
-        Int::class.java -> DataType.IntDataType
-        Long::class.java -> DataType.LongDataType
-        Short::class.java -> DataType.ShortDataType
-        Byte::class.java -> DataType.ByteDataType
+        Double::class.java -> DoubleDataType
+        Float::class.java -> FloatDataType
+        Int::class.java -> IntDataType
+        Long::class.java -> LongDataType
+        Short::class.java -> ShortDataType
+        Byte::class.java -> ByteDataType
+        Boolean::class.java -> ByteDataType
         else -> throw IllegalArgumentException("Invalid type parameter: $type. Only Number subclasses are supported.")
     }
-
     init {
         require(low.shape.contentEquals(high.shape)) {
             "Low and high bounds must have the same shape. Found low=${low.shape} and high=${high.shape}"
@@ -52,7 +53,7 @@ class BoxNDArrayD1<T : Number>(
     }
 
     @Suppress("UNCHECKED_CAST")
-    override fun sample(): NDArray<T, D1> {
+    override fun sample(): NDArray<T, D> {
         val sampledList: List<T> = bounds.map { (l, h) ->
             val lo = l.toDouble()
             val hi = h.toDouble()
@@ -83,13 +84,17 @@ class BoxNDArrayD1<T : Number>(
                     if (lo == hi) lo.toInt().toByte() else random.nextInt(lo.toInt(), hi.toInt() + 1).toByte()
                 }
 
+                Boolean::class.java -> {
+                    if (lo == hi) lo.toInt() == 1 else if(random.nextBoolean()) 1.toByte() else 0.toByte()
+                }
+
                 else -> throw UnsupportedOperationException("Unsupported data type.")
             } as T
         }
-        return mk.ndarray(sampledList, shape = low.shape, dim = D1)
+        return mk.ndarray(elements = sampledList, shape = low.shape, dim = low.dim)
     }
 
-    override fun contains(value: NDArray<T, D1>): Boolean {
+    override fun contains(value: NDArray<T, D>): Boolean {
         if (!value.shape.contentEquals(low.shape)) return false
 
         return value.data.zip(bounds) { v, (l, h) ->

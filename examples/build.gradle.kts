@@ -1,4 +1,4 @@
 dependencies {
-    implementation(project(":core"))
-    implementation(project(":integration"))
+    api(project(":core"))
+    api(project(":integration"))
 }

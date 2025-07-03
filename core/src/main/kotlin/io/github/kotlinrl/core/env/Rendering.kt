@@ -1,4 +1,4 @@
-package org.kotlinrl.core.env
+package io.github.kotlinrl.core.env
 
 sealed class Rendering {
     data class Text(val ansi: String) : Rendering()

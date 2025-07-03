@@ -1,6 +1,6 @@
-package org.kotlinrl.integration.display
+package io.github.kotlinrl.integration.display
 
-import org.kotlinrl.core.env.Rendering.*
+import io.github.kotlinrl.core.env.Rendering.*
 import java.awt.*
 import java.awt.image.*
 import javax.swing.*

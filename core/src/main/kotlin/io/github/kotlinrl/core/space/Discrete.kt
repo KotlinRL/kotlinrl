@@ -1,4 +1,4 @@
-package org.kotlinrl.core.space
+package io.github.kotlinrl.core.space
 
 import kotlin.random.*
 

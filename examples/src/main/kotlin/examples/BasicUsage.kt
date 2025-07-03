@@ -1,7 +1,7 @@
 package examples
 
-import org.kotlinrl.integration.gymnasium.*
-import org.kotlinrl.integration.gymnasium.GymnasiumEnvs.*
+import io.github.kotlinrl.integration.gymnasium.*
+import io.github.kotlinrl.integration.gymnasium.GymnasiumEnvs.*
 
 /*
 Python Gymnasium code example
@@ -25,7 +25,7 @@ Python Gymnasium code example
     env.close()
  */
 fun main() {
-    val env: CartPoleEnv = gymnasium.make(CartPole_v1, seed=123, render=true)
+    val env = gymnasium.make<CartPoleEnv>(CartPole_v1, seed=123, render=true)
     val (observation, _) = env.reset()
     println("Starting observation: $observation")
 
