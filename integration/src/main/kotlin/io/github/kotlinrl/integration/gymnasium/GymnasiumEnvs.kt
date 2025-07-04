@@ -15,5 +15,13 @@ enum class GymnasiumEnvs(val envName: String) {
     Pendulum_v1("Pendulum-v1"),
     Taxi_v3("Taxi-v3"),
     HalfCheetah_v5("HalfCheetah-v5"),
-    Hopper_v5("Hopper-v5");
+    Hopper_v5("Hopper-v5"),
+    Humanoid_v5("Humanoid-v5"),
+    HumanoidStandup_v5("HumanoidStandup-v5"),
+    InvertedDoublePendulum_v5("InvertedDoublePendulum-5"),
+    InvertedPendulum_v5("InvertedPendulum-5"),
+    Pusher_v5("Pusher-v5"),
+    Reacher_v5("Reacher-v5"),
+    Swimmer_v5("Swimmer-v5"),
+    Walker2d_v5("Walker-v5");
 }

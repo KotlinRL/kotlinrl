@@ -50,7 +50,15 @@ object GymnasiumEnv {
 
             Ant_v5 ,
             HalfCheetah_v5,
-            Hopper_v5 -> RemoteEnvClient<NDArray<Double, D1>, NDArray<Float, D1>, Box<Double, D1>, Box<Float, D1>>(
+            Hopper_v5,
+            Humanoid_v5,
+            HumanoidStandup_v5,
+            InvertedDoublePendulum_v5,
+            InvertedPendulum_v5,
+            Pusher_v5,
+            Reacher_v5,
+            Swimmer_v5,
+            Walker2d_v5 -> RemoteEnvClient<NDArray<Double, D1>, NDArray<Float, D1>, Box<Double, D1>, Box<Float, D1>>(
                 envName = envType.envName,
                 seed = seed,
                 render = render,
