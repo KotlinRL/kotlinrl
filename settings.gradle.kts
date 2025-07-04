@@ -5,6 +5,5 @@ include(
 //    "algorithms",
 //    "training",
 //    "serialization",
-    "integration",
-    "examples"
+    "integration"
 )
