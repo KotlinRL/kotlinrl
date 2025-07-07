@@ -2,8 +2,6 @@ package io.github.kotlinrl.core.wrapper
 
 import io.github.kotlinrl.core.env.*
 import io.github.kotlinrl.core.space.*
-import renderFrameToBufferedImage
-import saveEpisodeAsMp4JCodec
 import java.awt.image.*
 
 class RecordVideo<

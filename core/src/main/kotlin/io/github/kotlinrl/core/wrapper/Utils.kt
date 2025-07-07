@@ -1,25 +1,18 @@
-import io.github.kotlinrl.core.env.Rendering
+package io.github.kotlinrl.core.wrapper
+
+import io.github.kotlinrl.core.env.*
 import io.github.kotlinrl.core.space.*
-import javafx.application.Application
-import javafx.scene.Scene
-import javafx.scene.layout.StackPane
-import javafx.scene.media.Media
-import javafx.scene.media.MediaPlayer
-import javafx.scene.media.MediaView
-import javafx.stage.Stage
-import org.jcodec.api.SequenceEncoder
-import org.jcodec.api.awt.AWTSequenceEncoder
-import org.jcodec.common.io.NIOUtils
-import org.jcodec.common.model.Rational
-import org.jetbrains.kotlinx.multik.api.mk
-import org.jetbrains.kotlinx.multik.api.ndarray
+import javafx.application.*
+import javafx.scene.*
+import javafx.scene.layout.*
+import javafx.scene.media.*
+import javafx.stage.*
+import org.jcodec.api.awt.*
+import org.jetbrains.kotlinx.multik.api.*
 import org.jetbrains.kotlinx.multik.ndarray.data.*
 import org.jetbrains.kotlinx.multik.ndarray.data.DataType.*
-import java.awt.Desktop
-import java.awt.image.BufferedImage
-import java.io.File
-import javax.swing.Spring.height
-import kotlin.reflect.KClass
+import java.awt.image.*
+import java.io.*
 
 fun flattenObservation(obs: Any?, dtype: DataType): List<Number> = when (obs) {
     is Number -> listOf(obs)

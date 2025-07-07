@@ -1,6 +1,5 @@
 package io.github.kotlinrl.core.wrapper
 
-import clipToBox
 import io.github.kotlinrl.core.env.*
 import io.github.kotlinrl.core.space.*
 import org.jetbrains.kotlinx.multik.ndarray.data.*
