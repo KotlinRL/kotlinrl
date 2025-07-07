@@ -131,8 +131,8 @@ fun saveEpisodeAsMp4JCodec(frames: List<BufferedImage>, folder: String, episode:
 fun renderMp4(file: File, width: Double = 640.0, height: Double = 480.0) {
     // Try notebook HTML
     try {
-//        val htmlClass = Class.forName("org.jetbrains.kotlinx.jupyter.api.HTML")
-//        val htmlCtor = htmlClass.getConstructor(String::class.java)
+        val htmlClass = Class.forName("org.jetbrains.kotlinx.jupyter.api.HTML")
+        val htmlCtor = htmlClass.getConstructor(String::class.java)
         val encoded = file.toURI().toString()
         val html = """
             <video width="$width" height="$height" controls>
@@ -140,13 +140,12 @@ fun renderMp4(file: File, width: Double = 640.0, height: Double = 480.0) {
                 Your browser does not support the video tag.
             </video>
         """.trimIndent()
-//        val htmlObj = htmlCtor.newInstance(html)
-//        val displayFunc = Class.forName("org.jetbrains.kotlinx.jupyter.api.DisplayResult").getMethod("display", Any::class.java)
-//        displayFunc.invoke(null, htmlObj)
-        println(html)
+        val htmlObj = htmlCtor.newInstance(html)
+        val displayFunc = Class.forName("org.jetbrains.kotlinx.jupyter.api.DisplayResult").getMethod("display", Any::class.java)
+        displayFunc.invoke(null, htmlObj)
         return
-    } catch (_: Exception) {
-        // Not in notebook, try JavaFX
+    } catch (e: Exception) {
+       e.printStackTrace()
         try {
             Application.launch(
                 Mp4PlayerApp::class.java,
@@ -157,6 +156,7 @@ fun renderMp4(file: File, width: Double = 640.0, height: Double = 480.0) {
             return
         } catch (e: Exception) {
             println("Could not render with JavaFX: ${e.message}")
+            e.printStackTrace()
         }
     }
 
