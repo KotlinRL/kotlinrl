@@ -4,6 +4,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinJvmCompile
 plugins {
     kotlin("jvm") version "1.9.21"
     id("com.vanniktech.maven.publish") version "0.33.0"
+    id("pl.allegro.tech.build.axion-release") version "1.18.7"
 }
 
 repositories {
@@ -11,13 +12,22 @@ repositories {
 }
 
 allprojects {
+    apply(plugin = "pl.allegro.tech.build.axion-release")
+
     tasks.withType<KotlinJvmCompile>().configureEach {
         compilerOptions {
             jvmTarget.set(JvmTarget.JVM_17)
         }
     }
     group = "io.github.kotlinrl"
-    version = "0.1.0-SNAPSHOT"
+
+    scmVersion {
+        tag {
+            prefix = ""
+        }
+    }
+
+    project.version = scmVersion.version
 
     repositories {
         mavenCentral()
@@ -43,12 +53,12 @@ subprojects {
     }
 
     tasks.withType<Test> {
-        useJUnitPlatform() // Enable JUnit 5
+        useJUnitPlatform()
     }
 
     java {
         toolchain {
-            languageVersion.set(JavaLanguageVersion.of(17)) // Explicitly set Java target to 17
+            languageVersion.set(JavaLanguageVersion.of(17))
         }
     }
     mavenPublishing {

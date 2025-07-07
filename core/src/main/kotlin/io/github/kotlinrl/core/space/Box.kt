@@ -8,21 +8,11 @@ import kotlin.random.*
 class Box<T : Number, D : Dimension>(
     val low: NDArray<T, D>,
     val high: NDArray<T, D>,
-    val type: Class<T>,
+    val dtype: DataType,
     val seed: Int? = null
 ) : Space<NDArray<T, D>> {
     override val random: Random = seed?.let { Random(it) } ?: Random.Default
     private val bounds = low.data.zip(high.data)
-    val dtype: DataType = when (type) {
-        Double::class.java -> DoubleDataType
-        Float::class.java -> FloatDataType
-        Int::class.java -> IntDataType
-        Long::class.java -> LongDataType
-        Short::class.java -> ShortDataType
-        Byte::class.java -> ByteDataType
-        Boolean::class.java -> ByteDataType
-        else -> throw IllegalArgumentException("Invalid type parameter: $type. Only Number subclasses are supported.")
-    }
     init {
         require(low.shape.contentEquals(high.shape)) {
             "Low and high bounds must have the same shape. Found low=${low.shape} and high=${high.shape}"
@@ -57,35 +47,31 @@ class Box<T : Number, D : Dimension>(
         val sampledList: List<T> = bounds.map { (l, h) ->
             val lo = l.toDouble()
             val hi = h.toDouble()
-            when (type) {
-                Double::class.java -> {
+            when (dtype) {
+                DoubleDataType -> {
                     val v = if (lo == hi) lo else random.nextDouble(lo, hi)
                     v.coerceIn(lo, hi)
                 }
 
-                Float::class.java -> {
+                FloatDataType -> {
                     val v = if (lo == hi) lo.toFloat() else random.nextDouble(lo, hi).toFloat()
                     v.coerceIn(lo.toFloat(), hi.toFloat())
                 }
 
-                Int::class.java -> {
+                IntDataType -> {
                     if (lo == hi) lo.toInt() else random.nextInt(lo.toInt(), hi.toInt() + 1)
                 }
 
-                Long::class.java -> {
+                LongDataType -> {
                     if (lo == hi) lo.toLong() else random.nextLong(lo.toLong(), hi.toLong() + 1)
                 }
 
-                Short::class.java -> {
+                ShortDataType -> {
                     if (lo == hi) lo.toInt().toShort() else random.nextInt(lo.toInt(), hi.toInt() + 1).toShort()
                 }
 
-                Byte::class.java -> {
+                ByteDataType -> {
                     if (lo == hi) lo.toInt().toByte() else random.nextInt(lo.toInt(), hi.toInt() + 1).toByte()
-                }
-
-                Boolean::class.java -> {
-                    if (lo == hi) lo.toInt() == 1 else if(random.nextBoolean()) 1.toByte() else 0.toByte()
                 }
 
                 else -> throw UnsupportedOperationException("Unsupported data type.")
@@ -104,24 +90,24 @@ class Box<T : Number, D : Dimension>(
     }
 
     @Suppress("UNCHECKED_CAST") // Suppress this warning since we've controlled the type above
-    private fun maxValueForType(): T = when (type) {
-        Double::class.java -> Double.POSITIVE_INFINITY as T
-        Float::class.java -> Float.POSITIVE_INFINITY as T
-        Int::class.java -> Int.MAX_VALUE as T
-        Long::class.java -> Long.MAX_VALUE as T
-        Short::class.java -> Short.MAX_VALUE as T
-        Byte::class.java -> Byte.MAX_VALUE as T
-        else -> throw IllegalArgumentException("Unsupported type: $type")
+    private fun maxValueForType(): T = when (dtype) {
+        DoubleDataType -> Double.POSITIVE_INFINITY as T
+        FloatDataType -> Float.POSITIVE_INFINITY as T
+        IntDataType -> Int.MAX_VALUE as T
+        LongDataType -> Long.MAX_VALUE as T
+        ShortDataType -> Short.MAX_VALUE as T
+        ByteDataType -> Byte.MAX_VALUE as T
+        else -> throw IllegalArgumentException("Unsupported type: $dtype")
     }
 
     @Suppress("UNCHECKED_CAST") // Suppress this warning since we've controlled the type above
-    private fun minValueForType(): T = when (type) {
-        Double::class.java -> Double.NEGATIVE_INFINITY as T
-        Float::class.java -> Float.NEGATIVE_INFINITY as T
-        Int::class.java -> Int.MIN_VALUE as T
-        Long::class.java -> Long.MIN_VALUE as T
-        Short::class.java -> Short.MIN_VALUE as T
-        Byte::class.java -> Byte.MIN_VALUE as T
-        else -> throw IllegalArgumentException("Unsupported type: $type")
+    private fun minValueForType(): T = when (dtype) {
+        DoubleDataType -> Double.NEGATIVE_INFINITY as T
+        FloatDataType -> Float.NEGATIVE_INFINITY as T
+        IntDataType -> Int.MIN_VALUE as T
+        LongDataType -> Long.MIN_VALUE as T
+        ShortDataType -> Short.MIN_VALUE as T
+        ByteDataType -> Byte.MIN_VALUE as T
+        else -> throw IllegalArgumentException("Unsupported type: $dtype")
     }
 }
