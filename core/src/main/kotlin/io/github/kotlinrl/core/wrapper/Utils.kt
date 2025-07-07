@@ -11,6 +11,7 @@ import org.jcodec.api.awt.*
 import org.jetbrains.kotlinx.multik.api.*
 import org.jetbrains.kotlinx.multik.ndarray.data.*
 import org.jetbrains.kotlinx.multik.ndarray.data.DataType.*
+import java.awt.Desktop
 import java.awt.image.*
 import java.io.*
 
@@ -128,7 +129,7 @@ fun saveEpisodeAsMp4JCodec(frames: List<BufferedImage>, folder: String, episode:
     encoder.finish()
 }
 
-fun renderMp4(file: File, width: Double = 640.0, height: Double = 480.0) {
+fun displayVideo(file: File, width: Double = 640.0, height: Double = 480.0) {
     // Try notebook HTML
     try {
         val htmlClass = Class.forName("org.jetbrains.kotlinx.jupyter.api.HTML")
@@ -145,7 +146,6 @@ fun renderMp4(file: File, width: Double = 640.0, height: Double = 480.0) {
         displayFunc.invoke(null, htmlObj)
         return
     } catch (e: Exception) {
-       println("Could not render with Jupyter: ${e.stackTraceToString()}")
         try {
             Application.launch(
                 Mp4PlayerApp::class.java,
@@ -155,14 +155,16 @@ fun renderMp4(file: File, width: Double = 640.0, height: Double = 480.0) {
             )
             return
         } catch (e: Exception) {
-            println("Could not render with JavaFX: ${e.stackTraceToString()}")
-            e.printStackTrace()
         }
     }
 
     // Fallback
-    println("MP4 saved to: ${file.absolutePath}")
-    println("Please open it with your video player.")
+    if (Desktop.isDesktopSupported()) {
+        Desktop.getDesktop().open(file)
+    } else {
+        println("MP4 saved to: ${file.absolutePath}")
+        println("Please open it with your video player.")
+    }
 }
 
 class Mp4PlayerApp : Application() {
