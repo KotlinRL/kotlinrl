@@ -165,11 +165,7 @@ fun renderMp4(file: File, width: Double = 640.0, height: Double = 480.0) {
     println("Please open it with your video player.")
 }
 
-class Mp4PlayerApp(
-    private val mp4File: File,
-    private val width: Double,
-    private val height: Double
-) : Application() {
+class Mp4PlayerApp : Application() {
     override fun start(stage: Stage) {
         val params = parameters.raw
         val mp4Path = params[0]
