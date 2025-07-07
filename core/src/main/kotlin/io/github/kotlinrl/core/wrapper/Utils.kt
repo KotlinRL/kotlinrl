@@ -145,7 +145,7 @@ fun renderMp4(file: File, width: Double = 640.0, height: Double = 480.0) {
         displayFunc.invoke(null, htmlObj)
         return
     } catch (e: Exception) {
-       e.printStackTrace()
+       println("Could not render with Jupyter: ${e.stackTraceToString()}")
         try {
             Application.launch(
                 Mp4PlayerApp::class.java,
@@ -155,7 +155,7 @@ fun renderMp4(file: File, width: Double = 640.0, height: Double = 480.0) {
             )
             return
         } catch (e: Exception) {
-            println("Could not render with JavaFX: ${e.message}")
+            println("Could not render with JavaFX: ${e.stackTraceToString()}")
             e.printStackTrace()
         }
     }
