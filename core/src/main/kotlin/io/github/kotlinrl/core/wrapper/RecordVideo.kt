@@ -17,6 +17,10 @@ class RecordVideo<
 
     private var episodeCount = 0
     private var record = false
+    var width = 640.0
+        private set
+    var height = 480.0
+        private set
     private val frames = mutableListOf<BufferedImage>()
 
     override fun reset(seed: Int?, options: Map<String, String>?): InitialState<O> {
@@ -31,6 +35,8 @@ class RecordVideo<
         if (record) {
             val rendering = env.render()
             if (rendering is Rendering.RenderFrame) {
+                width = rendering.width.toDouble()
+                height = rendering.height.toDouble()
                 frames.add(renderFrameToBufferedImage(rendering))
             }
         }
@@ -55,7 +61,7 @@ class RecordVideo<
     override fun close() {
         super.close()
         if(displayLastOnClose) {
-            displayVideo(File(folder, "episode_${episodeCount}.mp4"))
+            displayVideo(File(folder, "episode_${episodeCount}.mp4"), width, height)
         }
     }
 }

@@ -146,6 +146,7 @@ fun displayVideo(file: File, width: Double = 640.0, height: Double = 480.0) {
         displayFunc.invoke(null, htmlObj)
         return
     } catch (e: Exception) {
+        println(e)
         try {
             Application.launch(
                 Mp4PlayerApp::class.java,
