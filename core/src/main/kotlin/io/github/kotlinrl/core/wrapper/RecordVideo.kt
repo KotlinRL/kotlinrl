@@ -3,14 +3,16 @@ package io.github.kotlinrl.core.wrapper
 import io.github.kotlinrl.core.env.*
 import io.github.kotlinrl.core.space.*
 import java.awt.image.*
+import java.io.File
 
 class RecordVideo<
         O, A, OS : Space<O>, AS : Space<A>
         >(
     env: Env<O, A, OS, AS>,
     private val folder: String = "videos",
-    private val every: Int = 1,   // record every Nth episode
-    private val fps: Int = 30     // frames per second
+    private val every: Int = 1,
+    private val fps: Int = 30,
+    private val displayLastOnClose: Boolean = true,
 ) : SimpleWrapper<O, A, OS, AS>(env) {
 
     private var episodeCount = 0
@@ -48,5 +50,12 @@ class RecordVideo<
             frames.clear()
         }
         return t
+    }
+
+    override fun close() {
+        super.close()
+        if(displayLastOnClose) {
+            displayVideo(File(folder, "episode_${episodeCount}.mp4"))
+        }
     }
 }
