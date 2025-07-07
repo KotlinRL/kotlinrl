@@ -1,0 +1,42 @@
+package io.github.kotlinrl.core.wrapper
+
+import io.github.kotlinrl.core.env.*
+import io.github.kotlinrl.core.space.*
+
+class RecordEpisodeStatistics<
+        O, A, OS : Space<O>, AS : Space<A>
+        >(
+    env: Env<O, A, OS, AS>
+) : SimpleWrapper<O, A, OS, AS>(env) {
+
+    private var episodeReward = 0.0
+    private var episodeLength = 0
+
+    override fun reset(seed: Int?, options: Map<String, String>?): InitialState<O> {
+        episodeReward = 0.0
+        episodeLength = 0
+        return env.reset(seed, options)
+    }
+
+    override fun step(act: A): Transition<O> {
+        val t = env.step(act)
+        episodeReward += t.reward
+        episodeLength += 1
+
+        val done = t.terminated || t.truncated
+        val newInfo = t.info.toMutableMap()
+        if (done) {
+            // Gymnasium convention: "episode" is a dict with "r" (reward), "l" (length)
+            val episodeStats = mapOf(
+                "r" to episodeReward.toString(),
+                "l" to episodeLength.toString()
+            )
+            newInfo["episode"] = episodeStats.toString() // as String, or use JSON if desired
+
+            // Reset counters for next episode
+            episodeReward = 0.0
+            episodeLength = 0
+        }
+        return t.copy(info = newInfo)
+    }
+}

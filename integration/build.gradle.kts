@@ -1,3 +1,4 @@
+project.description = "Integration of KotlinRL with open-rl-env"
 
 dependencies {
     api(project(":core"))
