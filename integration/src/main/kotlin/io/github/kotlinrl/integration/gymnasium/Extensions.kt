@@ -3,7 +3,6 @@ package io.github.kotlinrl.integration.gymnasium
 import com.google.protobuf.*
 import io.github.kotlinrl.core.env.*
 import io.github.kotlinrl.core.env.Rendering.*
-import io.github.kotlinrl.core.env.Rendering.Empty
 import io.github.kotlinrl.core.space.*
 import io.github.kotlinrl.open.env.*
 import open.rl.env.*
@@ -12,6 +11,7 @@ import open.rl.env.EnvOuterClass.Observation.ValueCase.*
 import open.rl.env.EnvOuterClass.RenderResponse.FrameCase.*
 import org.jetbrains.kotlinx.multik.api.*
 import org.jetbrains.kotlinx.multik.ndarray.data.*
+import org.jetbrains.kotlinx.multik.ndarray.data.DataType.*
 import java.nio.*
 
 fun EnvOuterClass.Space.toTypedSpace(seed: Int?): Space<*> {
@@ -51,8 +51,8 @@ fun EnvOuterClass.RenderResponse.toRendering(): Rendering {
             )
         }
 
-        ANSI -> Text(this.ansi)
-        else -> Empty
+        ANSI -> Rendering.Text(this.ansi)
+        else -> Rendering.Empty
     }
 }
 
@@ -77,7 +77,7 @@ private fun EnvOuterClass.Space.toBox(seed: Int?): Box<*, *> {
                 shape = this.box.shapeList.toIntArray(),
                 dim = dimensionOf(this.box.shapeCount)
             ),
-            type = Float::class.java,
+            dtype = FloatDataType,
             seed = seed
         )
 
@@ -92,7 +92,7 @@ private fun EnvOuterClass.Space.toBox(seed: Int?): Box<*, *> {
                 shape = this.box.shapeList.toIntArray(),
                 dim = dimensionOf(this.box.shapeCount)
             ),
-            type = Double::class.java,
+            dtype = DoubleDataType,
             seed = seed
         )
 
@@ -107,7 +107,7 @@ private fun EnvOuterClass.Space.toBox(seed: Int?): Box<*, *> {
                 shape = this.box.shapeList.toIntArray(),
                 dim = dimensionOf(this.box.shapeCount)
             ),
-            type = Int::class.java,
+            dtype = IntDataType,
             seed = seed
         )
 
@@ -122,7 +122,7 @@ private fun EnvOuterClass.Space.toBox(seed: Int?): Box<*, *> {
                 shape = this.box.shapeList.toIntArray(),
                 dim = dimensionOf(this.box.shapeCount)
             ),
-            type = Long::class.java,
+            dtype = LongDataType,
             seed = seed
         )
 
@@ -137,7 +137,7 @@ private fun EnvOuterClass.Space.toBox(seed: Int?): Box<*, *> {
                 shape = this.box.shapeList.toIntArray(),
                 dim = dimensionOf(this.box.shapeCount)
             ),
-            type = Byte::class.java,
+            dtype = ByteDataType,
             seed = seed
         )
 
@@ -203,16 +203,6 @@ private fun EnvOuterClass.NDArray.toNDArray(): NDArray<*, *> {
         UNRECOGNIZED -> error("Invalid data type: ${this.dtype}")
     } as NDArray<*, *>
 }
-
-fun toDType(type: Class<*>): EnvOuterClass.DType =
-    when (type) {
-        Float::class.java -> float32
-        Double::class.java -> float64
-        Int::class.java -> int32
-        Long::class.java -> int64
-        Byte::class.java -> uint8
-        else -> error("Invalid type: $type")
-    }
 
 fun IntArray.toByteArray(): ByteArray {
     val bb = ByteBuffer.allocate(this.size * 4).order(ByteOrder.LITTLE_ENDIAN)

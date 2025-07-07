@@ -3,6 +3,7 @@ package io.github.kotlinrl.integration.gymnasium
 import io.github.kotlinrl.core.env.*
 import io.github.kotlinrl.core.space.*
 import io.github.kotlinrl.open.env.*
+import open.rl.env.EnvOuterClass.DType.*
 import org.jetbrains.kotlinx.multik.ndarray.data.*
 import org.jetbrains.kotlinx.multik.ndarray.data.DataType.*
 import kotlin.random.*
@@ -36,7 +37,14 @@ internal class RemoteEnvClient<Observation, Action, ObservationSpace : Space<Obs
             is Int -> action(act as Int)
             is Float -> action(act as Float)
             is NDArray<*, *> -> action(
-                dtype = toDType((actionSpace as Box<*, *>).type),
+                dtype = when(act.dtype) {
+                    ByteDataType -> uint8
+                    IntDataType -> int32
+                    LongDataType -> int64
+                    FloatDataType -> float32
+                    DoubleDataType -> float64
+                   else -> error("Invalid dtype: ${act.dtype}")
+                },
                 shape = act.shape,
                 data = when(act.dtype) {
                     ByteDataType -> act.data.getByteArray()
