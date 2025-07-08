@@ -3,8 +3,9 @@ package io.github.kotlinrl.core.wrapper
 import io.github.kotlinrl.core.env.*
 import io.github.kotlinrl.core.space.*
 import javafx.application.*
+import javafx.embed.swing.*
 import javafx.scene.*
-import javafx.scene.image.ImageView
+import javafx.scene.image.*
 import javafx.scene.layout.*
 import javafx.scene.media.*
 import javafx.stage.*
@@ -17,9 +18,8 @@ import org.jetbrains.kotlinx.multik.ndarray.data.Dimension
 import java.awt.*
 import java.awt.image.*
 import java.io.*
-import java.util.concurrent.CountDownLatch
-import javax.imageio.ImageIO
-import javafx.embed.swing.SwingFXUtils
+import java.util.concurrent.*
+import javax.imageio.*
 
 fun flattenObservation(obs: Any?, dtype: DataType): List<Number> = when (obs) {
     is Number -> listOf(obs)
@@ -151,7 +151,7 @@ fun displayRenderFrame(frame: Rendering.RenderFrame, tag: String = "frame"): Any
     """.trimIndent()
         HTML(html)
     } else {
-        RenderFramePlayer.showImage(img)
+        RenderFramePlayer.showImage(img, frame.width, frame.height)
         ""
     }
 }
@@ -160,13 +160,13 @@ class RenderFramePlayer : Application() {
         private var imageView: ImageView? = null
         private var stage: Stage? = null
 
-        fun showImage(img: BufferedImage) {
+        fun showImage(img: BufferedImage, width: Int = 640, height: Int = 480) {
             val fxImg = SwingFXUtils.toFXImage(img, null)
             if (imageView == null) {
                 // Launch JavaFX Application in a new thread if not already launched
                 val latch = CountDownLatch(1)
                 Thread {
-                    Application.launch(RenderFramePlayer::class.java)
+                    launch(RenderFramePlayer::class.java, width.toString(), height.toString())
                     latch.countDown()
                 }.start()
                 // Wait for FX app to launch
@@ -183,14 +183,17 @@ class RenderFramePlayer : Application() {
     }
 
     override fun start(primaryStage: Stage) {
+        val params = parameters.raw
+        val width = params.getOrNull(1)?.toDoubleOrNull() ?: 640.0
+        val height = params.getOrNull(2)?.toDoubleOrNull() ?: 480.0
         imageView = ImageView()
         imageView!!.isPreserveRatio = true
-        imageView!!.fitWidth = 800.0 // Set as needed
-        imageView!!.fitHeight = 600.0 // Set as needed
+        imageView!!.fitWidth = width
+        imageView!!.fitHeight = height
 
         val root = StackPane(imageView)
-        val scene = Scene(root, 800.0, 600.0)
-        primaryStage.title = "Live Render Frame"
+        val scene = Scene(root, width, height)
+        primaryStage.title = "Env Rendering"
         primaryStage.scene = scene
         primaryStage.show()
         stage = primaryStage
@@ -244,7 +247,7 @@ class Mp4Player : Application() {
 
         val root = StackPane(mediaView)
         stage.scene = Scene(root, width, height)
-        stage.title = "Env Renderer: ${File(mp4Path).name}"
+        stage.title = "Env Rendering: ${File(mp4Path).name}"
         stage.show()
         mediaPlayer.play()
     }
