@@ -127,7 +127,7 @@ fun renderFrameToBufferedImage(frame: Rendering.RenderFrame): BufferedImage {
     return img
 }
 
-fun saveEpisodeAsMp4JCodec(frames: List<BufferedImage>, folder: String, episode: Int, fps: Int) {
+fun saveEpisodeAsMp4JCodec(frames: List<BufferedImage>, folder: String, episode: Int = 1, fps: Int = 30) {
     val mp4File = File(folder, "episode_$episode.mp4")
     mp4File.parentFile?.mkdirs()
     val encoder = AWTSequenceEncoder.createSequenceEncoder(mp4File, fps)
@@ -135,26 +135,11 @@ fun saveEpisodeAsMp4JCodec(frames: List<BufferedImage>, folder: String, episode:
     encoder.finish()
 }
 
-fun displayRenderFrame(frame: Rendering.RenderFrame, tag: String = "frame"): Any {
-    val img = renderFrameToBufferedImage(frame)
-    return if (System.getenv("JPY_PARENT_PID") != null) {
-        val output = ByteArrayOutputStream()
-        ImageIO.write(img, "png", output)
-        val base64 = java.util.Base64.getEncoder().encodeToString(output.toByteArray())
-        val html = """
-        <img id="$tag" src="data:image/png;base64,$base64" style="max-width:100%;"/>
-        <script>
-            if (document.getElementById("$tag")) {
-                document.getElementById("$tag").src = "data:image/png;base64,$base64";
-            }
-        </script>
-    """.trimIndent()
-        HTML(html)
-    } else {
-        RenderFramePlayer.showImage(img, frame.width, frame.height)
-        ""
-    }
+fun displayVideo(frames: List<Rendering.RenderFrame>, folder: String): Any {
+    saveEpisodeAsMp4JCodec(frames.map { renderFrameToBufferedImage(it) }, folder)
+    return displayVideo(File(folder, "episode_1.mp4"), frames.first().width.toDouble(), frames.first().height.toDouble())
 }
+
 class RenderFramePlayer : Application() {
     companion object {
         private var imageView: ImageView? = null
