@@ -12,6 +12,7 @@ import org.jetbrains.kotlinx.jupyter.api.HTML
 import org.jetbrains.kotlinx.multik.api.*
 import org.jetbrains.kotlinx.multik.ndarray.data.*
 import org.jetbrains.kotlinx.multik.ndarray.data.DataType.*
+import org.slf4j.ILoggerFactory
 import java.awt.Desktop
 import java.awt.image.*
 import java.io.*
@@ -138,14 +139,8 @@ fun displayVideo(file: File, width: Double = 640.0, height: Double = 480.0): Any
         val absPath = file.absoluteFile
         val relPath = absPath.relativeToOrNull(cwd)?.path ?: file.name
 
-        println("file = $file")
-        println("absPath = $absPath")
-        println("cwd = $cwd")
-        println("relPath = $relPath")
-        println("File exists? " + file.exists())
-
-        HTML("""<video width="680" height="480" controls>
-          <source src="$relPath" type="video/mp4">
+        HTML("""<video width="$width" height="$height" controls>
+          <source src="videos/ant/episode_1.mp4" type="video/mp4">
           Your browser does not support the video tag.
         </video>""")
     } catch (e: Exception) {
