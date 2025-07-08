@@ -8,6 +8,7 @@ import javafx.scene.layout.*
 import javafx.scene.media.*
 import javafx.stage.*
 import org.jcodec.api.awt.*
+import org.jetbrains.kotlinx.jupyter.api.*
 import org.jetbrains.kotlinx.multik.api.*
 import org.jetbrains.kotlinx.multik.ndarray.data.*
 import org.jetbrains.kotlinx.multik.ndarray.data.DataType.*
@@ -132,22 +133,16 @@ fun saveEpisodeAsMp4JCodec(frames: List<BufferedImage>, folder: String, episode:
 
 fun displayVideo(file: File, width: Double = 640.0, height: Double = 480.0): Any? {
     // Try notebook HTML
-    return try {
+    return if (System.getenv("JPY_PARENT_PID") != null) {
         val cwd = File(".").absoluteFile.normalize()
         val absPath = file.absoluteFile
         val relPath = absPath.relativeToOrNull(cwd)?.path ?: file.name
 
-        val html = """
-        <video width="$width" height="$height" controls>
-          <source src="$relPath" type="video/mp4">
+        HTML("""<video width="$width" height="$height" controls>
+          <source src="${relPath}" type="video/mp4">
           Your browser does not support the video tag.
-        </video>
-    """.trimIndent()
-        val htmlClass = Class.forName("org.jetbrains.kotlinx.jupyter.api.HTML")
-        val htmlCtor = htmlClass.getConstructor(String::class.java)
-        val htmlObj = htmlCtor.newInstance(html)
-        return htmlObj
-    } catch (e: Exception) {
+        </video>""")
+    } else {
         try {
             Application.launch(
                 Mp4PlayerApp::class.java,
