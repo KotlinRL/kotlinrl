@@ -11,12 +11,15 @@ class RecordVideo<
     env: Env<O, A, OS, AS>,
     private val folder: String = "videos",
     private val every: Int = 1,
-    private val fps: Int = 30,
-    private val displayLastOnClose: Boolean = true,
+    private val fps: Int = 30
 ) : SimpleWrapper<O, A, OS, AS>(env) {
 
     private var episodeCount = 0
     private var record = false
+    var width = 640.0
+        private set
+    var height = 480.0
+        private set
     private val frames = mutableListOf<BufferedImage>()
 
     override fun reset(seed: Int?, options: Map<String, String>?): InitialState<O> {
@@ -31,6 +34,8 @@ class RecordVideo<
         if (record) {
             val rendering = env.render()
             if (rendering is Rendering.RenderFrame) {
+                width = rendering.width.toDouble()
+                height = rendering.height.toDouble()
                 frames.add(renderFrameToBufferedImage(rendering))
             }
         }
@@ -52,10 +57,7 @@ class RecordVideo<
         return t
     }
 
-    override fun close() {
-        super.close()
-        if(displayLastOnClose) {
-            displayVideo(File(folder, "episode_${episodeCount}.mp4"))
-        }
+    fun displayVideo(episode: Int): Any? {
+        return displayVideo(File(folder, "episode_$episode.mp4"), width, height)
     }
 }

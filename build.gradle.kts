@@ -2,7 +2,7 @@ import org.jetbrains.kotlin.gradle.dsl.*
 import org.jetbrains.kotlin.gradle.tasks.KotlinJvmCompile
 
 plugins {
-    kotlin("jvm") version "1.9.21"
+    kotlin("jvm") version "2.2.0"
     id("com.vanniktech.maven.publish") version "0.33.0"
     id("pl.allegro.tech.build.axion-release") version "1.18.7"
 }

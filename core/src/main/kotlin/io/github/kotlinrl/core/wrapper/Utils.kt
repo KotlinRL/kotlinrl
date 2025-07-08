@@ -8,10 +8,12 @@ import javafx.scene.layout.*
 import javafx.scene.media.*
 import javafx.stage.*
 import org.jcodec.api.awt.*
+import org.jetbrains.kotlinx.jupyter.api.*
 import org.jetbrains.kotlinx.multik.api.*
 import org.jetbrains.kotlinx.multik.ndarray.data.*
 import org.jetbrains.kotlinx.multik.ndarray.data.DataType.*
-import java.awt.Desktop
+import org.jetbrains.kotlinx.multik.ndarray.data.Dimension
+import java.awt.*
 import java.awt.image.*
 import java.io.*
 
@@ -129,23 +131,18 @@ fun saveEpisodeAsMp4JCodec(frames: List<BufferedImage>, folder: String, episode:
     encoder.finish()
 }
 
-fun displayVideo(file: File, width: Double = 640.0, height: Double = 480.0) {
+fun displayVideo(file: File, width: Double = 640.0, height: Double = 480.0): Any? {
     // Try notebook HTML
-    try {
-        val htmlClass = Class.forName("org.jetbrains.kotlinx.jupyter.api.HTML")
-        val htmlCtor = htmlClass.getConstructor(String::class.java)
-        val encoded = file.toURI().toString()
-        val html = """
-            <video width="$width" height="$height" controls>
-                <source src="$encoded" type="video/mp4">
-                Your browser does not support the video tag.
-            </video>
-        """.trimIndent()
-        val htmlObj = htmlCtor.newInstance(html)
-        val displayFunc = Class.forName("org.jetbrains.kotlinx.jupyter.api.DisplayResult").getMethod("display", Any::class.java)
-        displayFunc.invoke(null, htmlObj)
-        return
-    } catch (e: Exception) {
+    return if (System.getenv("JPY_PARENT_PID") != null) {
+        val cwd = File(".").absoluteFile.normalize()
+        val absPath = file.absoluteFile
+        val relPath = absPath.relativeToOrNull(cwd)?.path ?: file.name
+
+        HTML("""<video width="$width" height="$height" controls>
+          <source src="${relPath}" type="video/mp4">
+          Your browser does not support the video tag.
+        </video>""")
+    } else {
         try {
             Application.launch(
                 Mp4PlayerApp::class.java,
@@ -153,17 +150,16 @@ fun displayVideo(file: File, width: Double = 640.0, height: Double = 480.0) {
                 width.toString(),
                 height.toString()
             )
-            return
         } catch (e: Exception) {
-        }
-    }
-
-    // Fallback
-    if (Desktop.isDesktopSupported()) {
-        Desktop.getDesktop().open(file)
-    } else {
-        println("MP4 saved to: ${file.absolutePath}")
-        println("Please open it with your video player.")
+            // Fallback
+            if (Desktop.isDesktopSupported()) {
+                Desktop.getDesktop().open(file)
+            } else {
+                println("MP4 saved to: ${file.absolutePath}")
+                println("Please open it with your video player.")
+            }
+         }
+        ""
     }
 }
 
