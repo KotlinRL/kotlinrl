@@ -8,7 +8,6 @@ import javafx.scene.layout.*
 import javafx.scene.media.*
 import javafx.stage.*
 import org.jcodec.api.awt.*
-import org.jetbrains.kotlinx.jupyter.api.HTML
 import org.jetbrains.kotlinx.multik.api.*
 import org.jetbrains.kotlinx.multik.ndarray.data.*
 import org.jetbrains.kotlinx.multik.ndarray.data.DataType.*
