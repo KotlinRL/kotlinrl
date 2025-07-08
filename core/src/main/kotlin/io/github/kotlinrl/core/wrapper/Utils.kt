@@ -159,7 +159,7 @@ fun displayVideo(file: File, width: Double = 640.0, height: Double = 480.0): Any
                 println("Please open it with your video player.")
             }
          }
-        null
+        ""
     }
 }
 
