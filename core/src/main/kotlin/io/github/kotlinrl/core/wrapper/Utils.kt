@@ -134,7 +134,6 @@ fun saveEpisodeAsMp4JCodec(frames: List<BufferedImage>, folder: String, episode:
 fun displayVideo(file: File, width: Double = 640.0, height: Double = 480.0): Any? {
     // Try notebook HTML
     return try {
-        val file = File("videos/ant/episode_1.mp4")
         val cwd = File(".").absoluteFile.normalize()
         val absPath = file.absoluteFile
         val relPath = absPath.relativeToOrNull(cwd)?.path ?: file.name
