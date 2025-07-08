@@ -140,50 +140,8 @@ fun displayVideo(frames: List<Rendering.RenderFrame>, folder: String): Any {
     return displayVideo(File(folder, "episode_1.mp4"), frames.first().width.toDouble(), frames.first().height.toDouble())
 }
 
-class RenderFramePlayer : Application() {
-    companion object {
-        private var imageView: ImageView? = null
-        private var stage: Stage? = null
+private var javafxLaunched = false
 
-        fun showImage(img: BufferedImage, width: Int = 640, height: Int = 480) {
-            val fxImg = SwingFXUtils.toFXImage(img, null)
-            if (imageView == null) {
-                // Launch JavaFX Application in a new thread if not already launched
-                val latch = CountDownLatch(1)
-                Thread {
-                    launch(RenderFramePlayer::class.java, width.toString(), height.toString())
-                    latch.countDown()
-                }.start()
-                // Wait for FX app to launch
-                while (imageView == null) {
-                    Thread.sleep(50)
-                }
-            }
-            // Update image on the FX Application Thread
-            Platform.runLater {
-                imageView?.image = fxImg
-                stage?.toFront()
-            }
-        }
-    }
-
-    override fun start(primaryStage: Stage) {
-        val params = parameters.raw
-        val width = params.getOrNull(1)?.toDoubleOrNull() ?: 640.0
-        val height = params.getOrNull(2)?.toDoubleOrNull() ?: 480.0
-        imageView = ImageView()
-        imageView!!.isPreserveRatio = true
-        imageView!!.fitWidth = width
-        imageView!!.fitHeight = height
-
-        val root = StackPane(imageView)
-        val scene = Scene(root, width, height)
-        primaryStage.title = "Env Rendering"
-        primaryStage.scene = scene
-        primaryStage.show()
-        stage = primaryStage
-    }
-}
 
 fun displayVideo(file: File, width: Double = 640.0, height: Double = 480.0): Any {
     // Try notebook HTML
@@ -198,13 +156,15 @@ fun displayVideo(file: File, width: Double = 640.0, height: Double = 480.0): Any
         </video>""")
     } else {
         try {
-            Application.launch(
-                Mp4Player::class.java,
-                file.absolutePath,
-                width.toString(),
-                height.toString()
-            )
-        } catch (e: Exception) {
+            if (!javafxLaunched) {
+                javafxLaunched = true
+                Application.launch(Mp4Player::class.java, file.absolutePath, width.toString(), height.toString())
+            } else {
+                Platform.runLater {
+                    Mp4Player.play(file, width, height)
+                }
+            }
+        } catch (e: Throwable) {
             // Fallback
             if (Desktop.isDesktopSupported()) {
                 Desktop.getDesktop().open(file)
@@ -224,16 +184,25 @@ class Mp4Player : Application() {
         val width = params.getOrNull(1)?.toDoubleOrNull() ?: 640.0
         val height = params.getOrNull(2)?.toDoubleOrNull() ?: 480.0
 
-        val media = Media(File(mp4Path).toURI().toString())
-        val mediaPlayer = MediaPlayer(media)
-        val mediaView = MediaView(mediaPlayer)
-        mediaView.fitWidth = width
-        mediaView.fitHeight = height
+        play(File(mp4Path), width, height, stage)
+    }
 
-        val root = StackPane(mediaView)
-        stage.scene = Scene(root, width, height)
-        stage.title = "Env Rendering: ${File(mp4Path).name}"
-        stage.show()
-        mediaPlayer.play()
+    companion object {
+        fun play(file: File, width: Double, height: Double, stage: Stage? = null) {
+            val media = Media(file.toURI().toString())
+            val mediaPlayer = MediaPlayer(media)
+            val mediaView = MediaView(mediaPlayer)
+            mediaView.fitWidth = width
+            mediaView.fitHeight = height
+
+            val root = StackPane(mediaView)
+            val scene = Scene(root, width, height)
+
+            val finalStage = stage ?: Stage()
+            finalStage.scene = scene
+            finalStage.title = "Env Rendering: ${file.name}"
+            finalStage.show()
+            mediaPlayer.play()
+        }
     }
 }
