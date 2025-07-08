@@ -11,8 +11,7 @@ class RecordVideo<
     env: Env<O, A, OS, AS>,
     private val folder: String = "videos",
     private val every: Int = 1,
-    private val fps: Int = 30,
-    private val displayLastOnClose: Boolean = true,
+    private val fps: Int = 30
 ) : SimpleWrapper<O, A, OS, AS>(env) {
 
     private var episodeCount = 0
@@ -58,10 +57,7 @@ class RecordVideo<
         return t
     }
 
-    override fun close() {
-        super.close()
-        if(displayLastOnClose) {
-            displayVideo(File(folder, "episode_${episodeCount}.mp4"), width, height)
-        }
+    fun displayVideo(episode: Int): Any? {
+        return displayVideo(File(folder, "episode_$episode.mp4"), width, height)
     }
 }
