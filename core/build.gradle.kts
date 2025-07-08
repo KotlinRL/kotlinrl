@@ -14,5 +14,5 @@ dependencies {
 
 javafx {
     version = "24.0.1"
-    modules = listOf("javafx.media", "javafx.swing")
+    modules = listOf("javafx.media")
 }

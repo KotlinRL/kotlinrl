@@ -3,9 +3,7 @@ package io.github.kotlinrl.core.wrapper
 import io.github.kotlinrl.core.env.*
 import io.github.kotlinrl.core.space.*
 import javafx.application.*
-import javafx.embed.swing.*
 import javafx.scene.*
-import javafx.scene.image.*
 import javafx.scene.layout.*
 import javafx.scene.media.*
 import javafx.stage.*
@@ -18,8 +16,6 @@ import org.jetbrains.kotlinx.multik.ndarray.data.Dimension
 import java.awt.*
 import java.awt.image.*
 import java.io.*
-import java.util.concurrent.*
-import javax.imageio.*
 
 fun flattenObservation(obs: Any?, dtype: DataType): List<Number> = when (obs) {
     is Number -> listOf(obs)
