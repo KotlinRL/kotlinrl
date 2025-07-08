@@ -134,7 +134,7 @@ fun displayVideo(file: File, width: Double = 640.0, height: Double = 480.0): Any
     // Try notebook HTML
     return if (System.getenv("JPY_PARENT_PID") != null) {
         HTML("""<video width="$width" height="$height" controls>
-            <source src="${file.toURI()}" type="video/mp4">
+            <source src="${file}" type="video/mp4">
             Your browser does not support the video tag.
         </video>""".trimIndent())
     } else {
