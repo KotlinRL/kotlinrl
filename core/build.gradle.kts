@@ -9,7 +9,6 @@ dependencies {
     api("org.jetbrains.kotlinx:multik-default:0.2.0")
     implementation("org.jcodec:jcodec:0.2.5")
     implementation("org.jcodec:jcodec-javase:0.2.5")
-    implementation("org.openjfx:javafx-swing:21.0.1")
     compileOnly("org.jetbrains.kotlinx:kotlin-jupyter-api:0.14.1-514")
 }
 

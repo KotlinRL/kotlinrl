@@ -4,7 +4,6 @@ import io.github.kotlinrl.core.env.*
 import io.github.kotlinrl.core.space.*
 import javafx.application.*
 import javafx.scene.*
-import javafx.scene.image.ImageView
 import javafx.scene.layout.*
 import javafx.scene.media.*
 import javafx.stage.*
@@ -17,9 +16,6 @@ import org.jetbrains.kotlinx.multik.ndarray.data.Dimension
 import java.awt.*
 import java.awt.image.*
 import java.io.*
-import java.util.concurrent.CountDownLatch
-import javax.imageio.ImageIO
-import javafx.embed.swing.SwingFXUtils
 
 fun flattenObservation(obs: Any?, dtype: DataType): List<Number> = when (obs) {
     is Number -> listOf(obs)
@@ -127,7 +123,7 @@ fun renderFrameToBufferedImage(frame: Rendering.RenderFrame): BufferedImage {
     return img
 }
 
-fun saveEpisodeAsMp4JCodec(frames: List<BufferedImage>, folder: String, episode: Int, fps: Int) {
+fun saveEpisodeAsMp4JCodec(frames: List<BufferedImage>, folder: String, episode: Int = 1, fps: Int = 30) {
     val mp4File = File(folder, "episode_$episode.mp4")
     mp4File.parentFile?.mkdirs()
     val encoder = AWTSequenceEncoder.createSequenceEncoder(mp4File, fps)
@@ -135,67 +131,16 @@ fun saveEpisodeAsMp4JCodec(frames: List<BufferedImage>, folder: String, episode:
     encoder.finish()
 }
 
-fun displayRenderFrame(frame: Rendering.RenderFrame, tag: String = "frame"): Any {
-    val img = renderFrameToBufferedImage(frame)
-    return if (System.getenv("JPY_PARENT_PID") != null) {
-        val output = ByteArrayOutputStream()
-        ImageIO.write(img, "png", output)
-        val base64 = java.util.Base64.getEncoder().encodeToString(output.toByteArray())
-        val html = """
-        <img id="$tag" src="data:image/png;base64,$base64" style="max-width:100%;"/>
-        <script>
-            if (document.getElementById("$tag")) {
-                document.getElementById("$tag").src = "data:image/png;base64,$base64";
-            }
-        </script>
-    """.trimIndent()
-        HTML(html)
-    } else {
-        RenderFramePlayer.showImage(img)
-        ""
-    }
+fun displayVideo(frames: List<Rendering.RenderFrame>, folder: String): Any {
+    saveEpisodeAsMp4JCodec(frames.map { renderFrameToBufferedImage(it) }, folder)
+    return displayVideo(File(folder, "episode_1.mp4"), frames.first().width.toDouble(), frames.first().height.toDouble())
 }
-class RenderFramePlayer : Application() {
-    companion object {
-        private var imageView: ImageView? = null
-        private var stage: Stage? = null
 
-        fun showImage(img: BufferedImage) {
-            val fxImg = SwingFXUtils.toFXImage(img, null)
-            if (imageView == null) {
-                // Launch JavaFX Application in a new thread if not already launched
-                val latch = CountDownLatch(1)
-                Thread {
-                    Application.launch(RenderFramePlayer::class.java)
-                    latch.countDown()
-                }.start()
-                // Wait for FX app to launch
-                while (imageView == null) {
-                    Thread.sleep(50)
-                }
-            }
-            // Update image on the FX Application Thread
-            Platform.runLater {
-                imageView?.image = fxImg
-                stage?.toFront()
-            }
-        }
-    }
-
-    override fun start(primaryStage: Stage) {
-        imageView = ImageView()
-        imageView!!.isPreserveRatio = true
-        imageView!!.fitWidth = 800.0 // Set as needed
-        imageView!!.fitHeight = 600.0 // Set as needed
-
-        val root = StackPane(imageView)
-        val scene = Scene(root, 800.0, 600.0)
-        primaryStage.title = "Live Render Frame"
-        primaryStage.scene = scene
-        primaryStage.show()
-        stage = primaryStage
-    }
+private object JavaFXState {
+    @Volatile var launched = false
 }
+
+
 
 fun displayVideo(file: File, width: Double = 640.0, height: Double = 480.0): Any {
     // Try notebook HTML
@@ -210,13 +155,15 @@ fun displayVideo(file: File, width: Double = 640.0, height: Double = 480.0): Any
         </video>""")
     } else {
         try {
-            Application.launch(
-                Mp4Player::class.java,
-                file.absolutePath,
-                width.toString(),
-                height.toString()
-            )
-        } catch (e: Exception) {
+            if (!JavaFXState.launched) {
+                JavaFXState.launched = true
+                Application.launch(Mp4Player::class.java, file.absolutePath, width.toString(), height.toString())
+            } else {
+                Platform.runLater {
+                    Mp4Player.play(file, width, height)
+                }
+            }
+        } catch (e: Throwable) {
             // Fallback
             if (Desktop.isDesktopSupported()) {
                 Desktop.getDesktop().open(file)
@@ -236,16 +183,25 @@ class Mp4Player : Application() {
         val width = params.getOrNull(1)?.toDoubleOrNull() ?: 640.0
         val height = params.getOrNull(2)?.toDoubleOrNull() ?: 480.0
 
-        val media = Media(File(mp4Path).toURI().toString())
-        val mediaPlayer = MediaPlayer(media)
-        val mediaView = MediaView(mediaPlayer)
-        mediaView.fitWidth = width
-        mediaView.fitHeight = height
+        play(File(mp4Path), width, height, stage)
+    }
 
-        val root = StackPane(mediaView)
-        stage.scene = Scene(root, width, height)
-        stage.title = "Env Renderer: ${File(mp4Path).name}"
-        stage.show()
-        mediaPlayer.play()
+    companion object {
+        fun play(file: File, width: Double, height: Double, stage: Stage? = null) {
+            val media = Media(file.toURI().toString())
+            val mediaPlayer = MediaPlayer(media)
+            val mediaView = MediaView(mediaPlayer)
+            mediaView.fitWidth = width
+            mediaView.fitHeight = height
+
+            val root = StackPane(mediaView)
+            val scene = Scene(root, width, height)
+
+            val finalStage = stage ?: Stage()
+            finalStage.scene = scene
+            finalStage.title = "Env Rendering: ${file.name}"
+            finalStage.show()
+            mediaPlayer.play()
+        }
     }
 }
