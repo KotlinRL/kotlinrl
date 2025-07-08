@@ -136,10 +136,12 @@ fun displayVideo(file: File, width: Double = 640.0, height: Double = 480.0): Any
         val cwd = File(".").absoluteFile.normalize()
         val relativePath = file.absoluteFile.relativeToOrNull(cwd)?.path
             ?: file.name
-        HTML("""<video width="$width" height="$height" controls>
+        val text = """<video width="$width" height="$height" controls>
             <source src="$relativePath" type="video/mp4">
             Your browser does not support the video tag.
-        </video>""".trimIndent())
+        </video>""".trimIndent()
+        println(text)
+        HTML(text)
     } else {
         try {
             Application.launch(
