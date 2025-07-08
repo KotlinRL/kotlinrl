@@ -133,15 +133,21 @@ fun saveEpisodeAsMp4JCodec(frames: List<BufferedImage>, folder: String, episode:
 fun displayVideo(file: File, width: Double = 640.0, height: Double = 480.0): Any? {
     // Try notebook HTML
     return if (System.getenv("JPY_PARENT_PID") != null) {
+        val file = File("videos/ant/episode_1.mp4")
         val cwd = File(".").absoluteFile.normalize()
-        val relativePath = file.absoluteFile.relativeToOrNull(cwd)?.path
-            ?: file.name
-        val text = """<video width="$width" height="$height" controls>
-            <source src="$relativePath" type="video/mp4">
-            Your browser does not support the video tag.
-        </video>""".trimIndent()
-        println(text)
-        HTML(text)
+        val absPath = file.absoluteFile
+        val relPath = absPath.relativeToOrNull(cwd)?.path ?: file.name
+
+        println("file = $file")
+        println("absPath = $absPath")
+        println("cwd = $cwd")
+        println("relPath = $relPath")
+        println("File exists? " + file.exists())
+
+        HTML("""<video width="680" height="480" controls>
+          <source src="$relPath" type="video/mp4">
+          Your browser does not support the video tag.
+        </video>""")
     } else {
         try {
             Application.launch(
