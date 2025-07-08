@@ -140,7 +140,10 @@ fun displayVideo(frames: List<Rendering.RenderFrame>, folder: String): Any {
     return displayVideo(File(folder, "episode_1.mp4"), frames.first().width.toDouble(), frames.first().height.toDouble())
 }
 
-private var javafxLaunched = false
+private object JavaFXState {
+    @Volatile var launched = false
+}
+
 
 
 fun displayVideo(file: File, width: Double = 640.0, height: Double = 480.0): Any {
@@ -156,8 +159,8 @@ fun displayVideo(file: File, width: Double = 640.0, height: Double = 480.0): Any
         </video>""")
     } else {
         try {
-            if (!javafxLaunched) {
-                javafxLaunched = true
+            if (!JavaFXState.launched) {
+                JavaFXState.launched = true
                 Application.launch(Mp4Player::class.java, file.absolutePath, width.toString(), height.toString())
             } else {
                 Platform.runLater {
