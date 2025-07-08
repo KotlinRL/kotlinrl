@@ -141,10 +141,10 @@ fun displayVideo(file: File, width: Double = 640.0, height: Double = 480.0): Any
 
         println(relPath)
 
-        HTML("""<video width="$width" height="$height" controls>
+        """<video width="$width" height="$height" controls>
           <source src="${relPath}4" type="video/mp4">
           Your browser does not support the video tag.
-        </video>""")
+        </video>"""
     } catch (e: Exception) {
         try {
             Application.launch(
