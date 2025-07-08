@@ -133,8 +133,9 @@ fun saveEpisodeAsMp4JCodec(frames: List<BufferedImage>, folder: String, episode:
 fun displayVideo(file: File, width: Double = 640.0, height: Double = 480.0): Any? {
     // Try notebook HTML
     return if (System.getenv("JPY_PARENT_PID") != null) {
+        val relativePath = file.relativeTo(File(".").absoluteFile).path
         HTML("""<video width="$width" height="$height" controls>
-            <source src="${file}" type="video/mp4">
+            <source src="$relativePath" type="video/mp4">
             Your browser does not support the video tag.
         </video>""".trimIndent())
     } else {
