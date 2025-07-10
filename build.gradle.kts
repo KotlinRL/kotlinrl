@@ -23,7 +23,7 @@ allprojects {
 
     scmVersion {
         tag {
-            prefix = ""
+            prefix = "v"
         }
     }
 

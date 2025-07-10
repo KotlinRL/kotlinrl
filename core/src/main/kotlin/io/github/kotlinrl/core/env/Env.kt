@@ -1,6 +1,6 @@
 package io.github.kotlinrl.core.env
 
-import io.github.kotlinrl.core.space.Space
+import io.github.kotlinrl.core.space.*
 import kotlin.random.*
 
 interface Env<Observation, Action, ObservationSpace : Space<Observation>, ActionSpace : Space<Action>> {
