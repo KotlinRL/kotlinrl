@@ -1,6 +1,6 @@
 package io.github.kotlinrl.core.space
 
-import kotlin.random.Random
+import kotlin.random.*
 
 class MultiBinary(
     val n: Int,

@@ -1,9 +1,7 @@
 package io.github.kotlinrl.core.wrapper
 
-import io.github.kotlinrl.core.env.Env
-import io.github.kotlinrl.core.env.InitialState
-import io.github.kotlinrl.core.env.Transition
-import io.github.kotlinrl.core.space.Space
+import io.github.kotlinrl.core.env.*
+import io.github.kotlinrl.core.space.*
 
 open class SimpleWrapper<O, A, OS : Space<O>, AS : Space<A>>(
     env: Env<O, A, OS, AS>
