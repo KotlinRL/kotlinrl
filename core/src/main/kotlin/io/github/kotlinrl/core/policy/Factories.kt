@@ -1,5 +1,6 @@
 package io.github.kotlinrl.core.policy
 
+import io.github.kotlinrl.core.learn.QTable
 import kotlin.random.*
 
 fun <State, Action> randomPolicy(
@@ -8,25 +9,25 @@ fun <State, Action> randomPolicy(
 ): Policy<State, Action> = RandomPolicy(actionProvider, rng)
 
 fun <State, Action> greedyPolicy(
-    actionProvider: StateActionListProvider<State, Action>,
-    Q: QFunction<State, Action>
-): Policy<State, Action> = GreedyPolicy(actionProvider, Q)
+    stateActionListProvider: StateActionListProvider<State, Action>,
+    qTable: QTable<State, Action>
+): Policy<State, Action> = GreedyPolicy(stateActionListProvider, qTable)
 
 fun <State, Action> epsilonGreedyPolicy(
     stateActionListProvider: StateActionListProvider<State, Action>,
     explorationFactor: ExplorationFactor,
-    Q: QFunction<State, Action>,
+    qTable: QTable<State, Action>,
     rng: Random = Random.Default
-): Policy<State, Action> = EpsilonGreedyPolicy( stateActionListProvider, Q, explorationFactor)
+): Policy<State, Action> = EpsilonGreedyPolicy( stateActionListProvider, qTable, explorationFactor, rng)
 
 fun <State, Action> softMaxPolicy(
     stateActionListProvider: StateActionListProvider<State, Action>,
     temperature: ExplorationFactor,
-    Q: QFunction<State, Action>,
+    qTable: QTable<State, Action>,
     rng: Random = Random.Default
 ): Policy<State, Action> = SoftmaxPolicy(
     stateActionListProvider = stateActionListProvider,
-    Q = Q,
+    qTable = qTable,
     temperature = temperature,
     rng = rng
 )
@@ -37,10 +38,10 @@ fun <State, A> deterministicPolicy(
 
 fun <State, Action> epsilonSoftPolicy(
     actions: StateActionListProvider<State, Action>,
-    Q: QFunction<State, Action>,
+    qTable: QTable<State, Action>,
     epsilon: ExplorationFactor,
     rng: Random = Random.Default
-): Policy<State, Action> = EpsilonSoftPolicy(actions, Q, epsilon, rng)
+): Policy<State, Action> = EpsilonSoftPolicy(actions, qTable, epsilon, rng)
 
 fun constantEpsilon(factor: Double) = ExplorationFactor { factor }
 

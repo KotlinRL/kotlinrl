@@ -1,8 +1,7 @@
 package io.github.kotlinrl.core.agent
 
+import io.github.kotlinrl.core.learn.QTable
 import io.github.kotlinrl.core.learn.tabular.ExpectedSARSA
-import io.github.kotlinrl.core.learn.MaxMutableQFunction
-import io.github.kotlinrl.core.learn.MutableQFunction
 import io.github.kotlinrl.core.learn.tabular.QLearning
 import io.github.kotlinrl.core.learn.tabular.SARSA
 import io.github.kotlinrl.core.policy.*
@@ -11,17 +10,17 @@ import java.util.*
 fun <State, Action> agent(
     id: String = UUID.randomUUID().toString(),
     policy: Policy<State, Action>,
-    onExperience: ExperienceObserver<State, Action>
+    onExperience: ExperienceObserver<State, Action> = ExperienceObserver{ }
 ): Agent<State, Action> = BasicAgent(id, policy, onExperience)
 
 fun <State, Action> qLearningAgent(
     id: String = UUID.randomUUID().toString(),
     policy: Policy<State, Action>,
-    Q: MaxMutableQFunction<State, Action>,
+    qTable: QTable<State, Action>,
     alpha: Double,
     gamma: Double
 ): Agent<State, Action>  = agent(id, policy, QLearning(
-    Q = Q,
+    qTable = qTable,
     alpha = alpha,
     gamma = gamma
 ))
@@ -29,12 +28,12 @@ fun <State, Action> qLearningAgent(
 fun <State, Action> sarsaAgent(
     id: String = UUID.randomUUID().toString(),
     policy: Policy<State, Action>,
-    Q: MutableQFunction<State, Action>,
+    qTable: QTable<State, Action>,
     alpha: Double,
     gamma: Double
 ): Agent<State, Action> {
     val learning = SARSA(
-        Q = Q,
+        qTable = qTable,
         alpha = alpha,
         gamma = gamma
     )
@@ -44,13 +43,13 @@ fun <State, Action> sarsaAgent(
 fun <State, Action> expectedSarsaAgent(
     id: String = UUID.randomUUID().toString(),
     policy: Policy<State, Action>,
-    Q: MutableQFunction<State, Action>,
+    qTable: QTable<State, Action>,
     alpha: Double,
     gamma: Double,
     stateActionListProvider: StateActionListProvider<State, Action>,
     policyProbabilities: PolicyProbabilities<State, Action>
 ): Agent<State, Action> = agent(id, policy, ExpectedSARSA(
-    Q = Q,
+    qTable = qTable,
     alpha = alpha,
     gamma = gamma,
     stateActionListProvider = stateActionListProvider,

@@ -1,13 +1,13 @@
 package io.github.kotlinrl.core.learn.tabular
 
 import io.github.kotlinrl.core.agent.*
-import io.github.kotlinrl.core.learn.MaxMutableQFunction
+import io.github.kotlinrl.core.learn.QTable
 
 class QLearning<State, Action>(
-    Q: MaxMutableQFunction<State, Action>,
+    qTable: QTable<State, Action>,
     alpha: Double,
     gamma: Double
-) : TabularTDLearning<State, Action>(Q, alpha, gamma) {
+) : TabularTDLearning<State, Action>(qTable, alpha, gamma) {
 
     override fun invoke(experience: Experience<State, Action>) {
         val s = experience.priorState
@@ -16,11 +16,11 @@ class QLearning<State, Action>(
         val r = experience.transition.reward
         val terminated = experience.transition.terminated
 
-        val currentValue = Q(s, a)
-        val nextValue = if (terminated) 0.0 else (Q as MaxMutableQFunction<State, Action>).maxValue(sPrime)
+        val currentValue = qTable[s, a]
+        val nextValue = if (terminated) 0.0 else qTable.maxValue(sPrime)
         val target = r + gamma * nextValue
         val updated = currentValue + alpha * (target - currentValue)
 
-        Q.update(s, a, updated)
+        qTable[s, a] = updated
     }
 }

@@ -3,13 +3,13 @@ package io.github.kotlinrl.core.space
 import kotlin.random.*
 
 class Tuple(
-    private val spaces: List<Space<Any>> = emptyList(),
+    val spaces: List<Space<Any>> = emptyList(),
     val seed: Int? = null
 ) : Space<List<Any>> {
     override val random: Random  = seed?.let { Random(it) } ?: Random.Default
 
     override fun sample(): List<Any> {
-        return spaces.map { it.sample() as Any }
+        return spaces.map { it.sample() }
     }
 
     override fun contains(value: Any?): Boolean {

@@ -1,11 +1,11 @@
 package io.github.kotlinrl.core.learn.mcc
 
-import io.github.kotlinrl.core.learn.MutableQFunction
+import io.github.kotlinrl.core.learn.QTable
 import io.github.kotlinrl.core.train.EpisodeCallback
 import io.github.kotlinrl.core.train.EpisodeStats
 
 class MonteCarloControl<State, Action>(
-    private val Q: MutableQFunction<State, Action>,
+    private val qTable: QTable<State, Action>,
     private val gamma: Double
 ) : EpisodeCallback<State, Action> {
 
@@ -21,7 +21,7 @@ class MonteCarloControl<State, Action>(
             G = reward + gamma * G
             val key = state to action
             returns.getOrPut(key) { mutableListOf() }.add(G)
-            Q.update(state, action, returns[key]!!.average())
+            qTable[state, action] = returns[key]!!.average()
         }
     }
 }
