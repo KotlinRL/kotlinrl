@@ -8,40 +8,35 @@ fun <State, Action> randomPolicy(
     rng: Random = Random.Default
 ): Policy<State, Action> = RandomPolicy(actionProvider, rng)
 
-fun <State, Action> greedyPolicy(
-    stateActionListProvider: StateActionListProvider<State, Action>,
-    qTable: QTable<State, Action>
-): Policy<State, Action> = GreedyPolicy(stateActionListProvider, qTable)
+fun greedyPolicy(
+    qTable: QTable
+): Policy<IntArray, Int> = GreedyPolicy(qTable)
 
-fun <State, Action> epsilonGreedyPolicy(
-    stateActionListProvider: StateActionListProvider<State, Action>,
+fun epsilonGreedyPolicy(
+    stateActionListProvider: StateActionListProvider<IntArray, Int>,
     explorationFactor: ExplorationFactor,
-    qTable: QTable<State, Action>,
+    qTable: QTable,
     rng: Random = Random.Default
-): Policy<State, Action> = EpsilonGreedyPolicy( stateActionListProvider, qTable, explorationFactor, rng)
+): Policy<IntArray, Int> = EpsilonGreedyPolicy(stateActionListProvider, qTable, explorationFactor, rng)
 
-fun <State, Action> softMaxPolicy(
-    stateActionListProvider: StateActionListProvider<State, Action>,
+fun softMaxPolicy(
+    stateActionListProvider: StateActionListProvider<IntArray, Int>,
     temperature: ExplorationFactor,
-    qTable: QTable<State, Action>,
+    qTable: QTable,
     rng: Random = Random.Default
-): Policy<State, Action> = SoftmaxPolicy(
+): Policy<IntArray, Int> = SoftmaxPolicy(
     stateActionListProvider = stateActionListProvider,
     qTable = qTable,
     temperature = temperature,
     rng = rng
 )
 
-fun <State, A> deterministicPolicy(
-    map: Map<State, A>
-): Policy<State, A> = Policy { map[it]!! }
-
-fun <State, Action> epsilonSoftPolicy(
-    actions: StateActionListProvider<State, Action>,
-    qTable: QTable<State, Action>,
+fun epsilonSoftPolicy(
+    actions: StateActionListProvider<IntArray, Int>,
+    qTable: QTable,
     epsilon: ExplorationFactor,
     rng: Random = Random.Default
-): Policy<State, Action> = EpsilonSoftPolicy(actions, qTable, epsilon, rng)
+): Policy<IntArray, Int> = EpsilonSoftPolicy(actions, qTable, epsilon, rng)
 
 fun constantEpsilon(factor: Double) = ExplorationFactor { factor }
 

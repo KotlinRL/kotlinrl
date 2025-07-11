@@ -16,43 +16,40 @@ class BasicTrainer<State, Action>(
         repeat(episodes) { episode ->
             callbacks.forEach { it.onEpisodeStart(episode) }
 
-            val transitions = mutableListOf<Transition<State>>()
+            val experiences = mutableListOf<Experience<State, Action>>()
             val actions = mutableListOf<Action>()
 
-            var priorState = env.reset().observation
-            var priorAction: Action? = null
+            var state = env.reset().observation
             var totalReward = 0.0
             var steps = 0
+            var done = false
 
-            repeat(maxStepsPerEpisode) {
-                val action = agent.act(priorState)
+            while (!done && steps < maxStepsPerEpisode) {
+                val action = agent.act(state)
                 val transition = env.step(action)
                 totalReward += transition.reward
 
-                agent.observe(
-                    Experience(
-                        transition = transition,
-                        priorState = priorState,
-                        priorAction = priorAction
-                    )
+                val experience = Experience(
+                    transition = transition,
+                    state = state,
+                    action = action
                 )
 
-                transitions += transition
+                agent.observe(experience)
+
+                experiences += experience
                 actions += action
                 steps++
 
-                priorState = transition.observation
-                priorAction = action
-
-                if (transition.terminated || transition.truncated) return@repeat
+                state = transition.observation
+                done = transition.terminated || transition.truncated
             }
 
             val stats = EpisodeStats(
                 episode = episode,
                 totalReward = totalReward,
                 steps = steps,
-                transitions = transitions,
-                actions = actions
+                experiences = experiences
             )
 
             callbacks.forEach { it.onEpisodeEnd(stats) }

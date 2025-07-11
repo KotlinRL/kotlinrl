@@ -13,25 +13,25 @@ fun <State, Action> agent(
     onExperience: ExperienceObserver<State, Action> = ExperienceObserver{ }
 ): Agent<State, Action> = BasicAgent(id, policy, onExperience)
 
-fun <State, Action> qLearningAgent(
+fun qLearningAgent(
     id: String = UUID.randomUUID().toString(),
-    policy: Policy<State, Action>,
-    qTable: QTable<State, Action>,
+    policy: Policy<IntArray, Int>,
+    qTable: QTable,
     alpha: Double,
     gamma: Double
-): Agent<State, Action>  = agent(id, policy, QLearning(
+): Agent<IntArray, Int>  = agent(id, policy, QLearning(
     qTable = qTable,
     alpha = alpha,
     gamma = gamma
 ))
 
-fun <State, Action> sarsaAgent(
+fun sarsaAgent(
     id: String = UUID.randomUUID().toString(),
-    policy: Policy<State, Action>,
-    qTable: QTable<State, Action>,
+    policy: Policy<IntArray, Int>,
+    qTable: QTable,
     alpha: Double,
     gamma: Double
-): Agent<State, Action> {
+): Agent<IntArray, Int> {
     val learning = SARSA(
         qTable = qTable,
         alpha = alpha,
@@ -40,15 +40,15 @@ fun <State, Action> sarsaAgent(
     return agent(id, policy, learning).withStateActionCallback(learning)
 }
 
-fun <State, Action> expectedSarsaAgent(
+fun expectedSarsaAgent(
     id: String = UUID.randomUUID().toString(),
-    policy: Policy<State, Action>,
-    qTable: QTable<State, Action>,
+    policy: Policy<IntArray, Int>,
+    qTable: QTable,
     alpha: Double,
     gamma: Double,
-    stateActionListProvider: StateActionListProvider<State, Action>,
-    policyProbabilities: PolicyProbabilities<State, Action>
-): Agent<State, Action> = agent(id, policy, ExpectedSARSA(
+    stateActionListProvider: StateActionListProvider<IntArray, Int>,
+    policyProbabilities: PolicyProbabilities<IntArray, Int>
+): Agent<IntArray, Int> = agent(id, policy, ExpectedSARSA(
     qTable = qTable,
     alpha = alpha,
     gamma = gamma,
@@ -56,10 +56,10 @@ fun <State, Action> expectedSarsaAgent(
     policyProbabilities = policyProbabilities
 ))
 
-fun <State, Action> monteCarloAgent(
+fun monteCarloAgent(
     id: String = UUID.randomUUID().toString(),
-    policy: Policy<State, Action>
-): Agent<State, Action> {
+    policy: Policy<IntArray, Int>
+): Agent<IntArray, Int> {
     return agent(id = id, policy = policy) { /* no-op TransitionObserver */ }
 }
 

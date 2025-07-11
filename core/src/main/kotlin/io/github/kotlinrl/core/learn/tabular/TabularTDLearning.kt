@@ -3,14 +3,14 @@ package io.github.kotlinrl.core.learn.tabular
 import io.github.kotlinrl.core.agent.*
 import io.github.kotlinrl.core.learn.QTable
 
-abstract class TabularTDLearning<State, Action>(
-    protected val qTable: QTable<State, Action>,
+abstract class TabularTDLearning(
+    protected val qTable: QTable,
     protected val alpha: Double,
     protected val gamma: Double
-) : ExperienceObserver<State, Action>, StateActionCallback<State, Action> {
-    protected var action: Action? = null
+) : ExperienceObserver<IntArray, Int>, StateActionCallback<IntArray, Int> {
+    protected var action: Int? = null
 
-    override fun after(state: State, action: Action) {
+    override fun after(state: IntArray, action: Int) {
         this.action = action
     }
 }
