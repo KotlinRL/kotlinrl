@@ -6,4 +6,5 @@ dependencies {
     api("io.grpc:grpc-protobuf:1.60.0")
     api("io.grpc:grpc-stub:1.60.0")
     api("io.grpc:grpc-kotlin-stub:1.4.1")
+    implementation("com.google.protobuf:protobuf-java:4.28.2")
 }

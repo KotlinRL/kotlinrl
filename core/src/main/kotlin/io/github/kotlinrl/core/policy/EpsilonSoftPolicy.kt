@@ -1,10 +1,11 @@
 package io.github.kotlinrl.core.policy
 
+import io.github.kotlinrl.core.learn.QTable
 import kotlin.random.*
 
 class EpsilonSoftPolicy<State, Action>(
     private val stateActionListProvider: StateActionListProvider<State, Action>,
-    private val Q: QFunction<State, Action>,
+    private val qTable: QTable<State, Action>,
     private val epsilon: ExplorationFactor,
     rng: Random = Random.Default
 ) : ProbabilisticPolicy<State, Action>(rng) {
@@ -13,7 +14,7 @@ class EpsilonSoftPolicy<State, Action>(
         val availableActions = stateActionListProvider(state)
         require(availableActions.isNotEmpty()) { "No available actions for state: $state" }
 
-        val greedy = availableActions.maxByOrNull { Q(state, it) }
+        val greedy = availableActions.maxByOrNull { qTable[state, it] }
             ?: error("Unable to determine greedy action.")
 
         val eps = epsilon()
