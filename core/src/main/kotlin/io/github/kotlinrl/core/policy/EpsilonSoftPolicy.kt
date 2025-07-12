@@ -3,19 +3,17 @@ package io.github.kotlinrl.core.policy
 import io.github.kotlinrl.core.learn.QTable
 import kotlin.random.*
 
-class EpsilonSoftPolicy<State, Action>(
-    private val stateActionListProvider: StateActionListProvider<State, Action>,
-    private val qTable: QTable<State, Action>,
+class EpsilonSoftPolicy(
+    private val stateActionListProvider: StateActionListProvider<IntArray, Int>,
+    private val qTable: QTable,
     private val epsilon: ExplorationFactor,
     rng: Random = Random.Default
-) : ProbabilisticPolicy<State, Action>(rng) {
+) : ProbabilisticPolicy<IntArray, Int>(rng) {
 
-    override fun invoke(state: State): Action {
+    override fun invoke(state: IntArray): Int {
         val availableActions = stateActionListProvider(state)
-        require(availableActions.isNotEmpty()) { "No available actions for state: $state" }
 
-        val greedy = availableActions.maxByOrNull { qTable[state, it] }
-            ?: error("Unable to determine greedy action.")
+        val greedy = qTable.bestAction(state)
 
         val eps = epsilon()
         val uniformProb = eps / availableActions.size

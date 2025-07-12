@@ -4,6 +4,6 @@ import io.github.kotlinrl.core.env.*
 
 data class Experience<State, Action>(
     val transition: Transition<State>,
-    val priorAction: Action?,
-    val priorState: State
+    val action: Action,
+    val state: State
 )

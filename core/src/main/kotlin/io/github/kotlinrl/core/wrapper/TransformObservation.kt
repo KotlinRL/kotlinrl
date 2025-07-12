@@ -2,14 +2,13 @@ package io.github.kotlinrl.core.wrapper
 
 import io.github.kotlinrl.core.env.*
 import io.github.kotlinrl.core.space.*
-
 class TransformObservation<
-        WrappedObservation,
         Observation,
         Action,
-        WrappedObservationSpace : Space<WrappedObservation>,
+        ObservationSpace : Space<Observation>,
         ActionSpace : Space<Action>,
-        ObservationSpace : Space<Observation>
+        WrappedObservation,
+        WrappedObservationSpace : Space<WrappedObservation>
         >(
     env: Env<WrappedObservation, Action, WrappedObservationSpace, ActionSpace>,
     private val transform: (WrappedObservation) -> Observation,
@@ -44,3 +43,4 @@ class TransformObservation<
     override val actionSpace: ActionSpace
         get() = env.actionSpace
 }
+
