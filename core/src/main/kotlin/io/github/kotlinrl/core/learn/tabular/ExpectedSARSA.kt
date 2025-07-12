@@ -18,7 +18,7 @@ class ExpectedSARSA(
         val sPrime = experience.transition.observation
         val r = experience.transition.reward
 
-        val currentValue = qTable[s + a]
+        val currentValue = qTable[s, a]
 
         val expectedValue = if (experience.transition.terminated) {
             0.0
@@ -26,13 +26,13 @@ class ExpectedSARSA(
             val probs = policyProbabilities(sPrime)
             val actions = stateActionListProvider(sPrime)
             actions.sumOf { aPrime ->
-                probs.getOrDefault(aPrime, 0.0) * qTable[sPrime + aPrime]
+                probs.getOrDefault(aPrime, 0.0) * qTable[sPrime, aPrime]
             }
         }
 
         val target = r + gamma * expectedValue
         val updated = currentValue + alpha * (target - currentValue)
 
-        qTable[s + a] = updated
+        qTable[s, a] = updated
     }
 }

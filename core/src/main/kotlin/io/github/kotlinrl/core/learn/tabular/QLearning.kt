@@ -16,11 +16,11 @@ class QLearning(
         val r = experience.transition.reward
         val terminated = experience.transition.terminated
 
-        val currentValue = qTable[s + a]
+        val currentValue = qTable[s, a]
         val nextValue = if (terminated) 0.0 else qTable.maxValue(sPrime)
         val target = r + gamma * nextValue
         val updated = currentValue + alpha * (target - currentValue)
 
-        qTable[s + a] = updated
+        qTable[s, a] = updated
     }
 }
