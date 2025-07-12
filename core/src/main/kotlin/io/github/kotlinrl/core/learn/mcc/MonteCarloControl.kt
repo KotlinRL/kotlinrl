@@ -22,9 +22,9 @@ class MonteCarloControl(
             if (key !in visited) {
                 visited.add(key)
                 val count = returns.getOrDefault(key, 0)
-                val oldQ = qTable[state + action]
+                val oldQ = qTable[state, action]
                 val newQ = oldQ + (G - oldQ) / (count + 1)
-                qTable[state + action] = newQ
+                qTable[state, action] = newQ
                 returns[key] = count + 1
                 if(returns.size > 1408) {
                     println("Returns is exceeding expectation: ${returns.size}")

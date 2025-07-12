@@ -16,13 +16,13 @@ class SARSA(
         val s = experience.state
         val r = experience.transition.reward
 
-        val currentValue = qTable[s + a]
-        val nextValue = if (experience.transition.terminated) 0.0 else qTable[sPrime + aPrime]
+        val currentValue = qTable[s, a]
+        val nextValue = if (experience.transition.terminated) 0.0 else qTable[sPrime, aPrime]
 
         val target = r + gamma * nextValue
         val updated = currentValue + alpha * (target - currentValue)
 
-        qTable[s + a] = updated
+        qTable[s, a] = updated
     }
 }
 

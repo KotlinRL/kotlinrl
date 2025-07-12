@@ -7,6 +7,7 @@ import org.jetbrains.kotlinx.multik.ndarray.data.*
 import org.jetbrains.kotlinx.multik.ndarray.data.DataType.*
 import org.jetbrains.kotlinx.multik.ndarray.operations.*
 import java.io.*
+import kotlin.collections.plus
 
 class QTable(
     vararg indices: Int,
@@ -14,9 +15,9 @@ class QTable(
     val shape: IntArray = indices
     private var table = mk.zeros<Double, DN>(shape, DoubleDataType).asDNArray()
 
-    operator fun get(index: IntArray): Double = table[index]
-    operator fun set(index: IntArray, value: Double) {
-        table[index] = value
+    operator fun get(state: IntArray, action: Int): Double = table[state + action]
+    operator fun set(state: IntArray, action: Int, value: Double) {
+        table[state + action] = value
     }
 
     fun qValues(index: IntArray): NDArray<Double, D1> {
@@ -24,9 +25,9 @@ class QTable(
         return table.view(index, axes).asDNArray().asD1Array()
     }
 
-    fun maxValue(stateIndex: IntArray): Double = qValues(stateIndex).max() ?: 0.0
+    fun maxValue(state: IntArray): Double = qValues(state).max() ?: 0.0
 
-    fun bestAction(stateIndex: IntArray): Int = qValues(stateIndex).argMax()
+    fun bestAction(state: IntArray): Int = qValues(state).argMax()
 
     fun save(path: String) {
         val d2 = table.reshape(shape.dropLast(1).reduce(Int::times), shape.last()).asD2Array()
