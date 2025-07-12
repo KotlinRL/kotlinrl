@@ -9,23 +9,23 @@ class MonteCarloControl(
     private val gamma: Double
 ) : EpisodeCallback<IntArray, Int> {
 
-    private val returns: MutableMap<Pair<IntArray, Int>, MutableList<Double>> = mutableMapOf()
+    private val returns: MutableMap<IntArray, Int> = mutableMapOf()
 
     override fun onEpisodeEnd(stats: EpisodeStats<IntArray, Int>) {
-        val episode = stats.experiences.map {
-            Triple(it.state, it.action, it.transition.reward)
-        }
-
-        val visited = mutableSetOf<Pair<IntArray, Int>>()
+        val episode = stats.experiences.map { Triple(it.state, it.action, it.transition.reward) }
+        val visited = mutableSetOf<IntArray>()
         var G = 0.0
 
         for ((state, action, reward) in episode.asReversed()) {
             G = reward + gamma * G
-            val key = state.copyOf() to action
-            if (key !in visited) {
+            val key = state + action
+            if (visited.none { it contentEquals key }) {
                 visited += key
-                returns.getOrPut(key) { mutableListOf() }.add(G)
-                qTable[state + action] = returns[key]!!.average()
+                val count = returns.getOrDefault(key, 0)
+                val oldQ = qTable[key]
+                val newQ = oldQ + (G - oldQ) / (count + 1)
+                qTable[key] = newQ
+                returns[key] = count + 1
             }
         }
     }
