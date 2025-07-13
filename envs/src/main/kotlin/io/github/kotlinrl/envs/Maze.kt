@@ -2,6 +2,8 @@ package io.github.kotlinrl.envs
 
 import io.github.kotlinrl.core.env.*
 import io.github.kotlinrl.core.space.*
+import io.github.kotlinrl.core.wrapper.displayVideo
+import java.awt.BasicStroke
 import java.awt.Color
 import java.awt.Graphics2D
 import java.awt.image.*
@@ -12,7 +14,7 @@ class Maze(
     val shapedRewards: Boolean = false,
     val render: Boolean = false,
     val size: Int = 5,
-    override val metadata: Map<String, Any>,
+    override val metadata: Map<String, Any> = emptyMap(),
     seed: Int? = null,
 ) : Env<IntArray, Int, MultiDiscrete, Discrete> {
     enum class Action(val value: Int) {
@@ -151,7 +153,9 @@ class Maze(
         g.color = Color(22, 36, 71)
         g.fillRect(0, 0, imgSize, imgSize)
 
-        // Walls
+        // Interior Walls – thin
+        g.color = Color.WHITE
+        g.stroke = BasicStroke(1f)
         for (row in 0 until size) {
             for (col in 0 until size) {
                 val state = listOf(row, col)
@@ -160,14 +164,19 @@ class Maze(
                 val x = col * cellSize
                 val y = row * cellSize
 
-                g.color = Color.WHITE
-
-                if (listOf(row - 1, col) !in neighbors) g.fillRect(x, y, cellSize, 2) // Top
-                if (listOf(row + 1, col) !in neighbors) g.fillRect(x, y + cellSize - 2, cellSize, 2) // Bottom
-                if (listOf(row, col - 1) !in neighbors) g.fillRect(x, y, 2, cellSize) // Left
-                if (listOf(row, col + 1) !in neighbors) g.fillRect(x + cellSize - 2, y, 2, cellSize) // Right
+                if (listOf(row - 1, col) !in neighbors) g.drawLine(x, y, x + cellSize, y)                       // Top
+                if (listOf(row + 1, col) !in neighbors) g.drawLine(x, y + cellSize, x + cellSize, y + cellSize) // Bottom
+                if (listOf(row, col - 1) !in neighbors) g.drawLine(x, y, x, y + cellSize)                       // Left
+                if (listOf(row, col + 1) !in neighbors) g.drawLine(x + cellSize, y, x + cellSize, y + cellSize) // Right
             }
         }
+
+        // Border Walls – thick
+        g.stroke = BasicStroke(3f)
+        g.drawLine(0, 0, imgSize, 0)                      // Top
+        g.drawLine(0, imgSize - 1, imgSize, imgSize - 1)  // Bottom
+        g.drawLine(0, 0, 0, imgSize)                      // Left
+        g.drawLine(imgSize - 1, 0, imgSize - 1, imgSize)  // Right
 
         // Goal
         g.color = Color(40, 199, 172)
@@ -182,19 +191,21 @@ class Maze(
 
         g.dispose()
 
-        // Extract raw bytes from the raster
-        val bgrBytes = (image.raster.getDataElements(0, 0, imgSize, imgSize, null) as ByteArray)
-        val rgbBytes = ByteArray(bgrBytes.size)
+        // Convert to RGB byte array
+        val pixels = IntArray(imgSize * imgSize)
+        image.getRGB(0, 0, imgSize, imgSize, pixels, 0, imgSize)
 
-        for (i in bgrBytes.indices step 3) {
-            // Convert BGR → RGB
-            rgbBytes[i] = bgrBytes[i + 2]     // R
-            rgbBytes[i + 1] = bgrBytes[i + 1] // G
-            rgbBytes[i + 2] = bgrBytes[i]     // B
+        val rgbBytes = ByteArray(pixels.size * 3)
+        for (i in pixels.indices) {
+            val pixel = pixels[i]
+            rgbBytes[i * 3]     = ((pixel shr 16) and 0xFF).toByte() // R
+            rgbBytes[i * 3 + 1] = ((pixel shr 8) and 0xFF).toByte()  // G
+            rgbBytes[i * 3 + 2] = (pixel and 0xFF).toByte()          // B
         }
 
         return Rendering.RenderFrame(width = imgSize, height = imgSize, bytes = rgbBytes)
     }
+
 
     override fun close() {
 
@@ -235,4 +246,11 @@ class Maze(
         val terminated = state.toList() == goal
         return Transition(nextState, reward, terminated, false, emptyMap())
     }
+}
+
+fun main() {
+    val env = Maze(render = true)
+    val reset = env.reset()
+    val frame = env.render() as Rendering.RenderFrame
+    displayVideo(frames = listOf(frame), "videos")
 }

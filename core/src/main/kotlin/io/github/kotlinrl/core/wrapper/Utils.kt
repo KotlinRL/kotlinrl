@@ -140,8 +140,6 @@ private object JavaFXState {
     @Volatile var launched = false
 }
 
-
-
 fun displayVideo(file: File, width: Double = 640.0, height: Double = 480.0): Any {
     // Try notebook HTML
     return if (System.getenv("JPY_PARENT_PID") != null) {
