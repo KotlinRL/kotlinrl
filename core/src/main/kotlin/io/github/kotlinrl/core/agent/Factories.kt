@@ -10,7 +10,7 @@ import java.util.*
 fun <State, Action> agent(
     id: String = UUID.randomUUID().toString(),
     policy: Policy<State, Action>,
-    onExperience: ExperienceObserver<State, Action> = ExperienceObserver{ }
+    onExperience: TrajectoryObserver<State, Action> = TrajectoryObserver{ }
 ): Agent<State, Action> = BasicAgent(id, policy, onExperience)
 
 fun qLearningAgent(
@@ -74,12 +74,12 @@ fun <State, Action> Agent<State, Action>.withStateActionCallback(
     }
 }
 
-fun <State, Action> Agent<State, Action>.withExperienceCallback(
-    callback: ExperienceCallback<State, Action>
+fun <State, Action> Agent<State, Action>.withTrajectoryCallback(
+    callback: TrajectoryCallback<State, Action>
 ): Agent<State, Action> = object : Agent<State, Action> by this {
-    override fun observe(experience: Experience<State, Action>) {
+    override fun observe(trajectory: Trajectory<State, Action>) {
         callback.before()
-        this@withExperienceCallback.observe(experience)
-        callback.after(experience)
+        this@withTrajectoryCallback.observe(trajectory)
+        callback.after(trajectory)
     }
 }

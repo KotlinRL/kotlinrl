@@ -4,18 +4,18 @@ From the [Gymnasium documentation](https://gymnasium.farama.org/introduction/bas
 import gymnasium
 
 env = gymnasium.make("CartPole-v1", seed=123, render_mode="rgb_array")
-observation, _ = env.reset()
-print(f"Starting observation: {observation}")
+state, _ = env.reset()
+print(f"Starting state: {state}")
 
 episode_over = False
 total_reward = 0
 
 while not episode_over:
     action = env.action_space.sample()
-    observation, reward, terminated, truncated, _ = env.step(action)
+    state, reward, terminated, truncated, _ = env.step(action)
     total_reward += reward
     episode_over = terminated or truncated
-    print(f"Observation: {observation}, Reward: {reward}")
+    print(f"State: {state}, Reward: {reward}")
 
 print(f"Episode finished! Total reward: {total_reward}")
 env.close()
@@ -24,18 +24,18 @@ env.close()
 ### Basic Usage in Kotlin: statically typed data
 ```kotlin
 val env = gymnasium.make<CartPoleEnv>(CartPole_v1, seed=123, render=true)
-val (observation, _) = env.reset()
-println("Starting observation: $observation")
+val (state, _) = env.reset()
+println("Starting state: $observation")
 
 var episodeOver = false
 var totalReward = 0.0f
 
 while (!episodeOver) {
     val action = env.actionSpace.sample()
-    val (observation, reward, terminated, truncated, _) = env.step(action)
+    var (state, reward, terminated, truncated, _) = env.step(action)
     totalReward += reward
     episodeOver = terminated || truncated
-    println("Observation: $observation, Reward: $reward")
+    println("State: $observation, Reward: $reward")
 }
 println("Episode finished!: Total reward: $totalReward")
 env.close()

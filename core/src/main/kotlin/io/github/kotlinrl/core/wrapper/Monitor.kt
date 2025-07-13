@@ -27,8 +27,8 @@ class Monitor<
         return env.reset(seed, options)
     }
 
-    override fun step(act: A): Transition<O> {
-        val t = env.step(act)
+    override fun step(action: A): Transition<O> {
+        val t = env.step(action)
         episodeReward += t.reward
         episodeLength += 1
         if (t.terminated || t.truncated) {

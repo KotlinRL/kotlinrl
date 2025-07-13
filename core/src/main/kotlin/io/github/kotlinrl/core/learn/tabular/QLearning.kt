@@ -9,15 +9,15 @@ class QLearning(
     gamma: Double
 ) : TabularTDLearning(qTable, alpha, gamma) {
 
-    override fun invoke(experience: Experience<IntArray, Int>) {
-        val s = experience.state
-        val a = experience.action
-        val sPrime = experience.transition.observation
-        val r = experience.transition.reward
-        val terminated = experience.transition.terminated
+    override fun invoke(trajectory: Trajectory<IntArray, Int>) {
+        val s = trajectory.state
+        val a = trajectory.action
+        val sPrime = trajectory.nextState
+        val r = trajectory.reward
+        val done = trajectory.terminated || trajectory.truncated
 
         val currentValue = qTable[s, a]
-        val nextValue = if (terminated) 0.0 else qTable.maxValue(sPrime)
+        val nextValue = if (done) 0.0 else qTable.maxValue(sPrime)
         val target = r + gamma * nextValue
         val updated = currentValue + alpha * (target - currentValue)
 

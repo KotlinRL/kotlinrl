@@ -4,17 +4,17 @@ import io.github.kotlinrl.core.env.*
 import io.github.kotlinrl.core.space.*
 
 class TransformReward<
-        Observation,
+        State,
         Action,
-        OS : Space<Observation>,
-        AS : Space<Action>
+        StateSpace : Space<State>,
+        ActionSpace : Space<Action>
         >(
-    env: Env<Observation, Action, OS, AS>,
+    env: Env<State, Action, StateSpace, ActionSpace>,
     private val transform: (Double) -> Double
-) : SimpleWrapper<Observation, Action, OS, AS>(env) {
+) : SimpleWrapper<State, Action, StateSpace, ActionSpace>(env) {
 
-    override fun step(act: Action): Transition<Observation> {
-        val transition = env.step(act)
+    override fun step(action: Action): Transition<State> {
+        val transition = env.step(action)
         return transition.copy(reward = transform(transition.reward))
     }
 }

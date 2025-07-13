@@ -31,14 +31,14 @@ class FilterObservation<
     override fun reset(seed: Int?, options: Map<String, String>?): InitialState<Map<String, Any>> {
         val initial = env.reset(seed, options)
         return InitialState(
-            observation = filter(initial.observation),
+            state = filter(initial.state),
             info = initial.info
         )
     }
 
-    override fun step(act: A): Transition<Map<String, Any>> {
-        val t = env.step(act)
-        return t.copy(observation = filter(t.observation))
+    override fun step(action: A): Transition<Map<String, Any>> {
+        val t = env.step(action)
+        return t.copy(state = filter(t.state))
     }
 
     private fun filter(obs: Map<String, Any>): Map<String, Any> =

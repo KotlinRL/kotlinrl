@@ -1,14 +1,14 @@
 rootProject.name = "kotlinrl"
 
 include(
-    "core",
+    "core",   //Core API
+    "envs",                 //Environment Implementations
 //    "algorithms",
 //    "training",
 //    "serialization",
-    "integration"
+    "integration"           //Integration tools - Gymnasium, etc.
 )
 
 //ludus – training infrastructure
 //colosseum – evaluation and benchmarking
 //dojo – experimental learning setups or curriculum learning
-//envs - Environment Implementations

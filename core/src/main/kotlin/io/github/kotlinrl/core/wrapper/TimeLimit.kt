@@ -15,8 +15,8 @@ class TimeLimit<O, A, OS : Space<O>, AS : Space<A>>(
         return env.reset(seed, options)
     }
 
-    override fun step(act: A): Transition<O> {
-        val transition = env.step(act)
+    override fun step(action: A): Transition<O> {
+        val transition = env.step(action)
         elapsedSteps += 1
 
         val reachedTimeLimit = elapsedSteps >= maxEpisodeSteps

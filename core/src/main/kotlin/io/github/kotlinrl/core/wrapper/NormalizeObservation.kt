@@ -31,11 +31,11 @@ class NormalizeObservation<
 
     override fun reset(seed: Int?, options: Map<String, String>?): InitialState<NDArray<Num, D>> {
         val initial = env.reset(seed, options)
-        return InitialState(observation = normalize(initial.observation), info = initial.info)
+        return InitialState(state = normalize(initial.state), info = initial.info)
     }
 
-    override fun step(act: Action): Transition<NDArray<Num, D>> {
-        val t = env.step(act)
-        return t.copy(observation = normalize(t.observation))
+    override fun step(action: Action): Transition<NDArray<Num, D>> {
+        val t = env.step(action)
+        return t.copy(state = normalize(t.state))
     }
 }

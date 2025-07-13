@@ -5,21 +5,21 @@ import io.github.kotlinrl.core.space.*
 import kotlin.random.*
 
 abstract class Wrapper<
-        Observation,
+        State,
         Action,
-        ObservationSpace : Space<Observation>,
+        StateSpace : Space<State>,
         ActionSpace : Space<Action>,
-        WrappedObservation,
+        WrappedState,
         WrappedAction,
-        WrappedObservationSpace : Space<WrappedObservation>,
+        WrappedStateSpace : Space<WrappedState>,
         WrappedActionSpace : Space<WrappedAction>
         >(
-    protected val env: Env<WrappedObservation, WrappedAction, WrappedObservationSpace, WrappedActionSpace>
-) : Env<Observation, Action, ObservationSpace, ActionSpace> {
+    protected val env: Env<WrappedState, WrappedAction, WrappedStateSpace, WrappedActionSpace>
+) : Env<State, Action, StateSpace, ActionSpace> {
 
-    abstract override fun step(act: Action): Transition<Observation>
+    abstract override fun step(action: Action): Transition<State>
 
-    abstract override fun reset(seed: Int?, options: Map<String, String>?): InitialState<Observation>
+    abstract override fun reset(seed: Int?, options: Map<String, String>?): InitialState<State>
 
     override fun render(): Rendering = env.render()
 
@@ -28,7 +28,7 @@ abstract class Wrapper<
     override val metadata: Map<String, Any>
         get() = env.metadata
 
-    abstract override val observationSpace: ObservationSpace
+    abstract override val observationSpace: StateSpace
 
     abstract override val actionSpace: ActionSpace
 
