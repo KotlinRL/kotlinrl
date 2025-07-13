@@ -144,7 +144,7 @@ class Maze(
     override fun render(): Rendering {
         if (!render) return Rendering.Empty
 
-        val cellSize = 40
+        val cellSize = 80
         val imgSize = size * cellSize
         val image = BufferedImage(imgSize, imgSize, BufferedImage.TYPE_3BYTE_BGR)
         val g: Graphics2D = image.createGraphics()
