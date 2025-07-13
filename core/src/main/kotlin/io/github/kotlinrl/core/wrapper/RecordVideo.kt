@@ -6,13 +6,13 @@ import java.awt.image.*
 import java.io.*
 
 class RecordVideo<
-        State, Action, StateSpace : Space<State>, ActionSpace : Space<Action>
+        State, Action, ObservationSpace : Space<State>, ActionSpace : Space<Action>
         >(
-    env: Env<State, Action, StateSpace, ActionSpace>,
+    env: Env<State, Action, ObservationSpace, ActionSpace>,
     private val folder: String = "videos",
     private val every: Int = 1,
     private val fps: Int = 30
-) : SimpleWrapper<State, Action, StateSpace, ActionSpace>(env) {
+) : SimpleWrapper<State, Action, ObservationSpace, ActionSpace>(env) {
 
     private var episodeCount = 0
     private var record = false

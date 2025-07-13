@@ -7,15 +7,15 @@ import kotlin.random.*
 abstract class Wrapper<
         State,
         Action,
-        StateSpace : Space<State>,
+        ObservationSpace : Space<State>,
         ActionSpace : Space<Action>,
         WrappedState,
         WrappedAction,
-        WrappedStateSpace : Space<WrappedState>,
+        WrappedObservationSpace : Space<WrappedState>,
         WrappedActionSpace : Space<WrappedAction>
         >(
-    protected val env: Env<WrappedState, WrappedAction, WrappedStateSpace, WrappedActionSpace>
-) : Env<State, Action, StateSpace, ActionSpace> {
+    protected val env: Env<WrappedState, WrappedAction, WrappedObservationSpace, WrappedActionSpace>
+) : Env<State, Action, ObservationSpace, ActionSpace> {
 
     abstract override fun step(action: Action): Transition<State>
 
@@ -28,7 +28,7 @@ abstract class Wrapper<
     override val metadata: Map<String, Any>
         get() = env.metadata
 
-    abstract override val observationSpace: StateSpace
+    abstract override val observationSpace: ObservationSpace
 
     abstract override val actionSpace: ActionSpace
 

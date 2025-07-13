@@ -5,22 +5,22 @@ import io.github.kotlinrl.core.space.*
 class TransformState<
         State,
         Action,
-        StateSpace : Space<State>,
+        ObservationSpace : Space<State>,
         ActionSpace : Space<Action>,
         WrappedState,
-        WrappedStateSpace : Space<WrappedState>
+        WrappedObservationSpace : Space<WrappedState>
         >(
-    env: Env<WrappedState, Action, WrappedStateSpace, ActionSpace>,
+    env: Env<WrappedState, Action, WrappedObservationSpace, ActionSpace>,
     private val transform: (WrappedState) -> State,
-    override val observationSpace: StateSpace
+    override val observationSpace: ObservationSpace
 ) : Wrapper<
         State,
         Action,
-        StateSpace,
+        ObservationSpace,
         ActionSpace,
         WrappedState,
         Action,
-        WrappedStateSpace,
+        WrappedObservationSpace,
         ActionSpace
         >(env) {
 

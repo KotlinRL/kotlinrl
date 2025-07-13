@@ -10,10 +10,10 @@ class FlattenObservation<
         Num : Number,
         WrappedState,
         Action,
-        WrappedStateSpace : Space<WrappedState>,
+        WrappedObservationSpace : Space<WrappedState>,
         ActionSpace : Space<Action>
         >(
-    env: Env<WrappedState, Action, WrappedStateSpace, ActionSpace>,
+    env: Env<WrappedState, Action, WrappedObservationSpace, ActionSpace>,
     private val dtype: DataType
 ) : Wrapper<
         NDArray<Num, D1>,
@@ -22,7 +22,7 @@ class FlattenObservation<
         ActionSpace,
         WrappedState,
         Action,
-        WrappedStateSpace,
+        WrappedObservationSpace,
         ActionSpace
         >(env) {
 

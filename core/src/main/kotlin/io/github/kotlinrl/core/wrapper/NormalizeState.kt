@@ -9,14 +9,14 @@ class NormalizeState<
         Num : Number,
         D : Dimension,
         Action,
-        StateSpace : Space<NDArray<Num, D>>,
+        ObservationSpace : Space<NDArray<Num, D>>,
         ActionSpace : Space<Action>
         >(
-    env: Env<NDArray<Num, D>, Action, StateSpace, ActionSpace>,
+    env: Env<NDArray<Num, D>, Action, ObservationSpace, ActionSpace>,
     private val mean: NDArray<Num, D>,
     private val std: NDArray<Num, D>,
     private val epsilon: Double = 1e-8
-) : SimpleWrapper<NDArray<Num, D>, Action, StateSpace, ActionSpace>(env) {
+) : SimpleWrapper<NDArray<Num, D>, Action, ObservationSpace, ActionSpace>(env) {
 
     private fun normalize(obs: NDArray<Num, D>): NDArray<Num, D> {
         val obsArr = obs.data

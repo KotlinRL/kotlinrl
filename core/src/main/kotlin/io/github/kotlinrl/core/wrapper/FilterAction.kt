@@ -4,19 +4,19 @@ import io.github.kotlinrl.core.env.*
 import io.github.kotlinrl.core.space.*
 
 class FilterAction<
-        State, StateSpace : Space<State>
+        State, ObservationSpace : Space<State>
         >(
-    env: Env<State, Map<String, Any>, StateSpace, Dict>,
+    env: Env<State, Map<String, Any>, ObservationSpace, Dict>,
     private val keys: Set<String>,
     private val default: Map<String, Any>? = null
 ) : Wrapper<
         State,
         Map<String, Any>, // Agent provides only selected keys
-        StateSpace,
+        ObservationSpace,
         Dict,
         State,
         Map<String, Any>, // Underlying env expects full Dict action
-        StateSpace,
+        ObservationSpace,
         Dict
         >(env) {
 
@@ -26,7 +26,7 @@ class FilterAction<
         Dict(filteredSpaces)
     }
 
-    override val observationSpace: StateSpace
+    override val observationSpace: ObservationSpace
         get() = env.observationSpace
 
     override fun reset(seed: Int?, options: Map<String, String>?): InitialState<State> =

@@ -4,10 +4,10 @@ import io.github.kotlinrl.core.env.*
 import io.github.kotlinrl.core.space.*
 
 class OrderEnforcing<
-        State, Action, StateSpace : Space<State>, ActionSpace : Space<Action>
+        State, Action, ObservationSpace : Space<State>, ActionSpace : Space<Action>
         >(
-    env: Env<State, Action, StateSpace, ActionSpace>
-) : SimpleWrapper<State, Action, StateSpace, ActionSpace>(env) {
+    env: Env<State, Action, ObservationSpace, ActionSpace>
+) : SimpleWrapper<State, Action, ObservationSpace, ActionSpace>(env) {
 
     private var needsReset = true
 

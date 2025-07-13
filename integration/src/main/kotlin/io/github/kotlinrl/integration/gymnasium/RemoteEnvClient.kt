@@ -9,18 +9,18 @@ import org.jetbrains.kotlinx.multik.ndarray.data.DataType.*
 import kotlin.random.*
 
 @Suppress("UNCHECKED_CAST")
-internal class RemoteEnvClient<State, Action, StateSpace : Space<State>, ActionSpace : Space<Action>>(
+internal class RemoteEnvClient<State, Action, ObservationSpace : Space<State>, ActionSpace : Space<Action>>(
     envName: String,
     seed: Int? = null,
     render: Boolean = true,
     options: Map<String, String> = emptyMap(),
     host: String = "localhost:50051"
 
-) : Env<State, Action, StateSpace, ActionSpace> {
+) : Env<State, Action, ObservationSpace, ActionSpace> {
     internal val env = RemoteEnv(envName, render, options, host)
     override val random: Random = seed?.let { Random(it) } ?: Random.Default
     override val metadata: Map<String, Any> = env.metadata.toMap()
-    override val observationSpace = env.observationSpace.toTypedSpace(seed) as StateSpace
+    override val observationSpace = env.observationSpace.toTypedSpace(seed) as ObservationSpace
     override val actionSpace = env.actionSpace.toTypedSpace(seed) as ActionSpace
 
     override fun reset(seed: Int?, options: Map<String, String>?): InitialState<State> {

@@ -15,7 +15,7 @@ class Maze(
     val size: Int = 5,
     override val metadata: Map<String, Any> = emptyMap(),
     seed: Int? = null,
-) : Env<IntArray, Int, MultiDiscrete, Discrete> {
+) : DeterministicEnv {
     enum class Action(val value: Int) {
         UP(0),
         RIGHT(1),
@@ -226,7 +226,7 @@ class Maze(
         }
     }
 
-    fun computeReward(state: IntArray, action: Int): Double {
+    override fun computeReward(state: IntArray, action: Int): Double {
         val nextState = nextState(state, action)
         return if(shapedRewards) {
             val goalDistance = distances[nextState[0]][nextState[1]]
@@ -238,7 +238,7 @@ class Maze(
         }
     }
 
-    fun simulateStep(action: Int): Transition<IntArray> {
+    override fun simulateStep(action: Int): Transition<IntArray> {
         val reward = computeReward(state, action)
         val nextState = nextState(state, action)
         val terminated = state.toList() == goal
