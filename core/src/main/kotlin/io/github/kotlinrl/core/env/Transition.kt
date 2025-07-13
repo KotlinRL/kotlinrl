@@ -1,7 +1,7 @@
 package io.github.kotlinrl.core.env
 
-data class Transition<Observation>(
-    val observation: Observation,
+data class Transition<State>(
+    val state: State,
     val reward: Double,
     val terminated: Boolean,
     val truncated: Boolean,

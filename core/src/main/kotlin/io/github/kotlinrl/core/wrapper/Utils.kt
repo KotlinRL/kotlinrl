@@ -30,7 +30,7 @@ fun flattenObservation(obs: Any?, dtype: DataType): List<Number> = when (obs) {
     is Map<*, *> -> obs.values.flatMap { flattenObservation(it, dtype) }
     is OneOfSample -> flattenObservation(obs.value, dtype)
     null -> emptyList()
-    else -> throw IllegalArgumentException("Unsupported observation type: ${obs?.javaClass}")
+    else -> throw IllegalArgumentException("Unsupported state type: ${obs?.javaClass}")
 }
 
 fun <Num : Number> toNDArray(nums: List<Number>, dtype: DataType): NDArray<Num, D1> {

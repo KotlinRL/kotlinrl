@@ -16,10 +16,10 @@ class BasicTrainer<State, Action>(
         repeat(episodes) { episode ->
             callbacks.forEach { it.onEpisodeStart(episode) }
 
-            val experiences = mutableListOf<Experience<State, Action>>()
+            val trajectories = mutableListOf<Trajectory<State, Action>>()
             val actions = mutableListOf<Action>()
 
-            var state = env.reset().observation
+            var state = env.reset().state
             var totalReward = 0.0
             var steps = 0
             var done = false
@@ -29,19 +29,23 @@ class BasicTrainer<State, Action>(
                 val transition = env.step(action)
                 totalReward += transition.reward
 
-                val experience = Experience(
-                    transition = transition,
+                val trajectory = Trajectory(
                     state = state,
-                    action = action
+                    action = action,
+                    nextState = transition.state,
+                    reward = transition.reward,
+                    terminated = transition.terminated,
+                    truncated = transition.truncated,
+                    info = transition.info
                 )
 
-                agent.observe(experience)
+                agent.observe(trajectory)
 
-                experiences += experience
+                trajectories += trajectory
                 actions += action
                 steps++
 
-                state = transition.observation
+                state = transition.state
                 done = transition.terminated || transition.truncated
             }
 
@@ -49,7 +53,7 @@ class BasicTrainer<State, Action>(
                 episode = episode,
                 totalReward = totalReward,
                 steps = steps,
-                experiences = experiences
+                trajectories = trajectories
             )
 
             callbacks.forEach { it.onEpisodeEnd(stats) }

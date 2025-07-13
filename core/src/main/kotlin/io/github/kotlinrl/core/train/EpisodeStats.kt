@@ -6,5 +6,5 @@ data class EpisodeStats<State, Action>(
     val episode: Int,
     val totalReward: Double,
     val steps: Int,
-    val experiences: List<Experience<State, Action>>,
+    val trajectories: List<Trajectory<State, Action>>,
 )

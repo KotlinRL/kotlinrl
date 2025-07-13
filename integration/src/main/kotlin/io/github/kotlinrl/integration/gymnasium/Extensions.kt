@@ -28,15 +28,15 @@ fun Struct.toMap(): Map<String, Any> {
 }
 
 @Suppress("UNCHECKED_CAST")
-fun <Observation> EnvOuterClass.Observation.toTypedObservation(): Observation {
+fun <Observation> EnvOuterClass.Observation.toTypedState(): Observation {
     return when (this.valueCase) {
         INT32 -> this.int32
         FLOAT -> this.float
         STRING -> this.string
         ARRAY -> this.array.toNDArray()
-        TUPLE -> this.tuple.itemsList.map { it.toTypedObservation() as Observation }.toList()
+        TUPLE -> this.tuple.itemsList.map { it.toTypedState() as Observation }.toList()
         MAP -> TODO()
-        VALUE_NOT_SET -> error("Observation value not set.")
+        VALUE_NOT_SET -> error("State value not set.")
     } as Observation
 }
 

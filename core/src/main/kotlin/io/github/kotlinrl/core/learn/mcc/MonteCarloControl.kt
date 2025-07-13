@@ -12,7 +12,7 @@ class MonteCarloControl(
     private val returns: MutableMap<List<Int>, Int> = mutableMapOf()
 
     override fun onEpisodeEnd(stats: EpisodeStats<IntArray, Int>) {
-        val episode = stats.experiences.map { Triple(it.state, it.action, it.transition.reward) }
+        val episode = stats.trajectories.map { Triple(it.state, it.action, it.reward) }
         val visited = mutableSetOf<List<Int>>()
         var G = 0.0
 

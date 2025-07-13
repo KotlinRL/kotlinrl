@@ -2,7 +2,6 @@ package io.github.kotlinrl.envs
 
 import io.github.kotlinrl.core.env.*
 import io.github.kotlinrl.core.space.*
-import io.github.kotlinrl.core.wrapper.displayVideo
 import java.awt.BasicStroke
 import java.awt.Color
 import java.awt.Graphics2D
@@ -206,7 +205,6 @@ class Maze(
         return Rendering.RenderFrame(width = imgSize, height = imgSize, bytes = rgbBytes)
     }
 
-
     override fun close() {
 
     }
@@ -236,7 +234,7 @@ class Maze(
             - (goalDistance / maxDistance)
 
         } else {
-            - if (state.toList() != goal) 1.0 else 0.0
+            if (nextState.toList() != goal) -1.0 else 0.0
         }
     }
 
@@ -246,11 +244,4 @@ class Maze(
         val terminated = state.toList() == goal
         return Transition(nextState, reward, terminated, false, emptyMap())
     }
-}
-
-fun main() {
-    val env = Maze(render = true)
-    val reset = env.reset()
-    val frame = env.render() as Rendering.RenderFrame
-    displayVideo(frames = listOf(frame), "videos")
 }

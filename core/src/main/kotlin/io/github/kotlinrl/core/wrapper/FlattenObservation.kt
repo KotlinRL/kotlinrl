@@ -55,18 +55,18 @@ class FlattenObservation<
 
     override fun reset(seed: Int?, options: Map<String, String>?): InitialState<NDArray<Num, D1>> {
         val initial = env.reset(seed, options)
-        val flat = toNDArray<Num>(flattenObservation(initial.observation, dtype), dtype)
+        val flat = toNDArray<Num>(flattenObservation(initial.state, dtype), dtype)
         return InitialState(
-            observation = flat,
+            state = flat,
             info = initial.info
         )
     }
 
     override fun step(action: Action): Transition<NDArray<Num, D1>> {
         val t = env.step(action)
-        val flat = toNDArray<Num>(flattenObservation(t.observation, dtype), dtype)
+        val flat = toNDArray<Num>(flattenObservation(t.state, dtype), dtype)
         return Transition(
-            observation = flat,
+            state = flat,
             reward = t.reward,
             terminated = t.terminated,
             truncated = t.truncated,

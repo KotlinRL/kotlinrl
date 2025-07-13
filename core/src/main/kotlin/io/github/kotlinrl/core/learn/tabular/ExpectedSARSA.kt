@@ -12,15 +12,15 @@ class ExpectedSARSA(
     private val policyProbabilities: PolicyProbabilities<IntArray, Int>
 ) : TabularTDLearning(qTable, alpha, gamma) {
 
-    override fun invoke(experience: Experience<IntArray, Int>) {
-        val a = experience.action
-        val s = experience.state
-        val sPrime = experience.transition.observation
-        val r = experience.transition.reward
-
+    override fun invoke(trajectory: Trajectory<IntArray, Int>) {
+        val a = trajectory.action
+        val s = trajectory.state
+        val sPrime = trajectory.nextState
+        val r = trajectory.reward
+        val done = trajectory.terminated || trajectory.truncated
         val currentValue = qTable[s, a]
 
-        val expectedValue = if (experience.transition.terminated) {
+        val expectedValue = if (done) {
             0.0
         } else {
             val probs = policyProbabilities(sPrime)
