@@ -8,21 +8,21 @@ import org.jetbrains.kotlinx.multik.ndarray.data.DataType.*
 
 class FlattenObservation<
         Num : Number,
-        WrappedObservation,
+        WrappedState,
         Action,
-        WrappedObservationSpace : Space<WrappedObservation>,
+        WrappedStateSpace : Space<WrappedState>,
         ActionSpace : Space<Action>
         >(
-    env: Env<WrappedObservation, Action, WrappedObservationSpace, ActionSpace>,
+    env: Env<WrappedState, Action, WrappedStateSpace, ActionSpace>,
     private val dtype: DataType
 ) : Wrapper<
         NDArray<Num, D1>,
         Action,
         Box<Num, D1>,
         ActionSpace,
-        WrappedObservation,
+        WrappedState,
         Action,
-        WrappedObservationSpace,
+        WrappedStateSpace,
         ActionSpace
         >(env) {
 

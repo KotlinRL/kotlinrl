@@ -4,19 +4,19 @@ import io.github.kotlinrl.core.env.*
 import io.github.kotlinrl.core.space.*
 
 class OrderEnforcing<
-        O, A, OS : Space<O>, AS : Space<A>
+        State, Action, StateSpace : Space<State>, ActionSpace : Space<Action>
         >(
-    env: Env<O, A, OS, AS>
-) : SimpleWrapper<O, A, OS, AS>(env) {
+    env: Env<State, Action, StateSpace, ActionSpace>
+) : SimpleWrapper<State, Action, StateSpace, ActionSpace>(env) {
 
     private var needsReset = true
 
-    override fun reset(seed: Int?, options: Map<String, String>?): InitialState<O> {
+    override fun reset(seed: Int?, options: Map<String, String>?): InitialState<State> {
         needsReset = false
         return env.reset(seed, options)
     }
 
-    override fun step(action: A): Transition<O> {
+    override fun step(action: Action): Transition<State> {
         if (needsReset) {
             throw IllegalStateException(
                 "step() called before reset(), or after episode done. " +

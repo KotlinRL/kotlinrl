@@ -5,35 +5,35 @@ import io.github.kotlinrl.core.space.*
 import org.jetbrains.kotlinx.multik.ndarray.data.*
 
 class RescaleAction<
-        O,
+        State,
         Num : Number,
         D : Dimension,
-        OS : Space<O>,
+        StateSpace : Space<State>,
         >(
-    env: Env<O, NDArray<Num, D>, OS, Box<Num, D>>,
+    env: Env<State, NDArray<Num, D>, StateSpace, Box<Num, D>>,
     private val minAction: NDArray<Num, D>, // typically filled with -1 or 0
     private val maxAction: NDArray<Num, D>  // typically filled with 1
 ) : Wrapper<
-        O,
+        State,
         NDArray<Num, D>,
-        OS,
+        StateSpace,
         Box<Num, D>,
-        O,
+        State,
         NDArray<Num, D>,
-        OS,
+        StateSpace,
         Box<Num, D>
         >(env) {
 
     // The agent-facing action space
     override val actionSpace: Box<Num, D> = Box(minAction, maxAction, minAction.dtype)
 
-    override val observationSpace: OS
+    override val observationSpace: StateSpace
         get() = env.observationSpace
 
-    override fun reset(seed: Int?, options: Map<String, String>?): InitialState<O> =
+    override fun reset(seed: Int?, options: Map<String, String>?): InitialState<State> =
         env.reset(seed, options)
 
-    override fun step(action: NDArray<Num, D>): Transition<O> {
+    override fun step(action: NDArray<Num, D>): Transition<State> {
         val innerBox = env.actionSpace
         val scaled = rescale(
             x = action,
