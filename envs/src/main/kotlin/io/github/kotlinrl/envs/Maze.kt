@@ -209,7 +209,7 @@ class Maze(
 
     }
 
-    private fun nextState(state: IntArray, action: Int): IntArray {
+    override fun nextState(state: IntArray, action: Int): IntArray {
         val (row, col) = state
         val nextState = when (action) {
             0 -> intArrayOf(row - 1, col) // Move UP
@@ -244,4 +244,6 @@ class Maze(
         val terminated = state.toList() == goal
         return Transition(nextState, reward, terminated, false, emptyMap())
     }
+
+    override fun actionProbabilities(state: IntArray): DoubleArray = DoubleArray(4) { 1.0 / size }
 }
