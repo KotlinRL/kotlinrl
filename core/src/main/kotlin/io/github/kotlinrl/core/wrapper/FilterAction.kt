@@ -4,19 +4,19 @@ import io.github.kotlinrl.core.env.*
 import io.github.kotlinrl.core.space.*
 
 class FilterAction<
-        O, OS : Space<O>
+        State, StateSpace : Space<State>
         >(
-    env: Env<O, Map<String, Any>, OS, Dict>,
+    env: Env<State, Map<String, Any>, StateSpace, Dict>,
     private val keys: Set<String>,
     private val default: Map<String, Any>? = null
 ) : Wrapper<
-        O,
+        State,
         Map<String, Any>, // Agent provides only selected keys
-        OS,
+        StateSpace,
         Dict,
-        O,
+        State,
         Map<String, Any>, // Underlying env expects full Dict action
-        OS,
+        StateSpace,
         Dict
         >(env) {
 
@@ -26,13 +26,13 @@ class FilterAction<
         Dict(filteredSpaces)
     }
 
-    override val observationSpace: OS
+    override val observationSpace: StateSpace
         get() = env.observationSpace
 
-    override fun reset(seed: Int?, options: Map<String, String>?): InitialState<O> =
+    override fun reset(seed: Int?, options: Map<String, String>?): InitialState<State> =
         env.reset(seed, options)
 
-    override fun step(action: Map<String, Any>): Transition<O> {
+    override fun step(action: Map<String, Any>): Transition<State> {
         // Fill missing keys using default (or actionSpace.sample() if not provided)
         val fullAction = buildMap<String, Any> {
             // Agent-controlled keys

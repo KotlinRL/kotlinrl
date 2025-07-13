@@ -4,18 +4,18 @@ import io.github.kotlinrl.core.env.*
 import io.github.kotlinrl.core.space.*
 
 class NormalizeReward<
-        O, A, OS : Space<O>, AS : Space<A>
+        State, Action, StateSpace : Space<State>, ActionSpace : Space<Action>
         >(
-    env: Env<O, A, OS, AS>,
+    env: Env<State, Action, StateSpace, ActionSpace>,
     private val epsilon: Double = 1e-8
-) : SimpleWrapper<O, A, OS, AS>(env) {
+) : SimpleWrapper<State, Action, StateSpace, ActionSpace>(env) {
 
     private val stats = RunningStats()
 
-    override fun reset(seed: Int?, options: Map<String, String>?): InitialState<O> =
+    override fun reset(seed: Int?, options: Map<String, String>?): InitialState<State> =
         env.reset(seed, options)
 
-    override fun step(action: A): Transition<O> {
+    override fun step(action: Action): Transition<State> {
         val t = env.step(action)
         stats.update(t.reward)
         val normalized = (t.reward - stats.mean) / maxOf(stats.std, epsilon)

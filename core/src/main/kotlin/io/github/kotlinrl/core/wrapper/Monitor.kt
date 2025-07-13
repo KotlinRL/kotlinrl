@@ -5,11 +5,11 @@ import io.github.kotlinrl.core.space.*
 import java.io.*
 
 class Monitor<
-        O, A, OS : Space<O>, AS : Space<A>
+        State, Action, StateSpace : Space<State>, ActionSpace : Space<Action>
         >(
-    env: Env<O, A, OS, AS>,
+    env: Env<State, Action, StateSpace, ActionSpace>,
     logPath: String = "monitor.csv"
-) : SimpleWrapper<O, A, OS, AS>(env) {
+) : SimpleWrapper<State, Action, StateSpace, ActionSpace>(env) {
 
     private var episodeReward = 0.0
     private var episodeLength = 0
@@ -17,7 +17,7 @@ class Monitor<
         if (!exists()) writeText("episode,reward,length\n")
     }
 
-    override fun reset(seed: Int?, options: Map<String, String>?): InitialState<O> {
+    override fun reset(seed: Int?, options: Map<String, String>?): InitialState<State> {
         if (episodeLength > 0) {
             // Log to file before resetting counters (if previous episode finished)
             logFile.appendText("${System.currentTimeMillis()},$episodeReward,$episodeLength\n")
@@ -27,7 +27,7 @@ class Monitor<
         return env.reset(seed, options)
     }
 
-    override fun step(action: A): Transition<O> {
+    override fun step(action: Action): Transition<State> {
         val t = env.step(action)
         episodeReward += t.reward
         episodeLength += 1

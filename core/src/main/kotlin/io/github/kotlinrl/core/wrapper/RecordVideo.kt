@@ -6,13 +6,13 @@ import java.awt.image.*
 import java.io.*
 
 class RecordVideo<
-        O, A, OS : Space<O>, AS : Space<A>
+        State, Action, StateSpace : Space<State>, ActionSpace : Space<Action>
         >(
-    env: Env<O, A, OS, AS>,
+    env: Env<State, Action, StateSpace, ActionSpace>,
     private val folder: String = "videos",
     private val every: Int = 1,
     private val fps: Int = 30
-) : SimpleWrapper<O, A, OS, AS>(env) {
+) : SimpleWrapper<State, Action, StateSpace, ActionSpace>(env) {
 
     private var episodeCount = 0
     private var record = false
@@ -22,7 +22,7 @@ class RecordVideo<
         private set
     private val frames = mutableListOf<BufferedImage>()
 
-    override fun reset(seed: Int?, options: Map<String, String>?): InitialState<O> {
+    override fun reset(seed: Int?, options: Map<String, String>?): InitialState<State> {
         // If previous episode was recorded, save video
         if (frames.isNotEmpty() && record) {
             saveEpisodeAsMp4JCodec(frames, folder, episodeCount - 1, fps)
@@ -42,7 +42,7 @@ class RecordVideo<
         return initial
     }
 
-    override fun step(action: A): Transition<O> {
+    override fun step(action: Action): Transition<State> {
         val t = env.step(action)
         if (record) {
             val rendering = env.render()

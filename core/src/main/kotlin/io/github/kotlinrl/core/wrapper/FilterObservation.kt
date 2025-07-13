@@ -4,19 +4,19 @@ import io.github.kotlinrl.core.env.*
 import io.github.kotlinrl.core.space.*
 
 class FilterObservation<
-        A, AS : Space<A>
+        Action, ActionSpace : Space<Action>
         >(
-    env: Env<Map<String, Any>, A, Dict, AS>,
+    env: Env<Map<String, Any>, Action, Dict, ActionSpace>,
     private val keys: Set<String>
 ) : Wrapper<
         Map<String, Any>, // Output obs is a Map<String, Any>
-        A,
+        Action,
         Dict,            // ObservationSpace is a Dict space
-        AS,
+        ActionSpace,
         Map<String, Any>, // Wrapped obs
-        A,
+        Action,
         Dict,
-        AS
+        ActionSpace
         >(env) {
 
     override val observationSpace: Dict by lazy {
@@ -25,7 +25,7 @@ class FilterObservation<
         Dict(filteredSpaces)
     }
 
-    override val actionSpace: AS
+    override val actionSpace: ActionSpace
         get() = env.actionSpace
 
     override fun reset(seed: Int?, options: Map<String, String>?): InitialState<Map<String, Any>> {
@@ -36,7 +36,7 @@ class FilterObservation<
         )
     }
 
-    override fun step(action: A): Transition<Map<String, Any>> {
+    override fun step(action: Action): Transition<Map<String, Any>> {
         val t = env.step(action)
         return t.copy(state = filter(t.state))
     }

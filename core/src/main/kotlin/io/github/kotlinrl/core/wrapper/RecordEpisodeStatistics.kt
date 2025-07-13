@@ -4,21 +4,21 @@ import io.github.kotlinrl.core.env.*
 import io.github.kotlinrl.core.space.*
 
 class RecordEpisodeStatistics<
-        O, A, OS : Space<O>, AS : Space<A>
+        State, Action, StateSpace : Space<State>, ActionSpace : Space<Action>
         >(
-    env: Env<O, A, OS, AS>
-) : SimpleWrapper<O, A, OS, AS>(env) {
+    env: Env<State, Action, StateSpace, ActionSpace>
+) : SimpleWrapper<State, Action, StateSpace, ActionSpace>(env) {
 
     private var episodeReward = 0.0
     private var episodeLength = 0
 
-    override fun reset(seed: Int?, options: Map<String, String>?): InitialState<O> {
+    override fun reset(seed: Int?, options: Map<String, String>?): InitialState<State> {
         episodeReward = 0.0
         episodeLength = 0
         return env.reset(seed, options)
     }
 
-    override fun step(action: A): Transition<O> {
+    override fun step(action: Action): Transition<State> {
         val t = env.step(action)
         episodeReward += t.reward
         episodeLength += 1
