@@ -62,8 +62,8 @@ class FlattenObservation<
         )
     }
 
-    override fun step(act: Action): Transition<NDArray<Num, D1>> {
-        val t = env.step(act)
+    override fun step(action: Action): Transition<NDArray<Num, D1>> {
+        val t = env.step(action)
         val flat = toNDArray<Num>(flattenObservation(t.observation, dtype), dtype)
         return Transition(
             observation = flat,

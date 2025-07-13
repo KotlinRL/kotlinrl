@@ -32,16 +32,16 @@ class FilterAction<
     override fun reset(seed: Int?, options: Map<String, String>?): InitialState<O> =
         env.reset(seed, options)
 
-    override fun step(act: Map<String, Any>): Transition<O> {
+    override fun step(action: Map<String, Any>): Transition<O> {
         // Fill missing keys using default (or actionSpace.sample() if not provided)
         val fullAction = buildMap<String, Any> {
             // Agent-controlled keys
-            putAll(act)
+            putAll(action)
             // Fill in others
             val allSpaces = env.actionSpace.spaces
             val fillDefault = default ?: env.actionSpace.sample()
             for (k in allSpaces.keys) {
-                if (k !in act) {
+                if (k !in action) {
                     put(k, fillDefault[k] ?: error("No default value for action key $k"))
                 }
             }

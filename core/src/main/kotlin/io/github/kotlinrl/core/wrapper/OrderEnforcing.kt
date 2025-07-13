@@ -16,14 +16,14 @@ class OrderEnforcing<
         return env.reset(seed, options)
     }
 
-    override fun step(act: A): Transition<O> {
+    override fun step(action: A): Transition<O> {
         if (needsReset) {
             throw IllegalStateException(
                 "step() called before reset(), or after episode done. " +
                         "You must call reset() before step()."
             )
         }
-        val t = env.step(act)
+        val t = env.step(action)
         if (t.terminated || t.truncated) {
             needsReset = true
         }

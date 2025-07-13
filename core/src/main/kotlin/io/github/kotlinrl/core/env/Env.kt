@@ -4,7 +4,7 @@ import io.github.kotlinrl.core.space.*
 import kotlin.random.*
 
 interface Env<Observation, Action, ObservationSpace : Space<Observation>, ActionSpace : Space<Action>> {
-    fun step(act: Action): Transition<Observation>
+    fun step(action: Action): Transition<Observation>
     fun reset(seed: Int? = null, options: Map<String, String>? = null): InitialState<Observation>
     fun render(): Rendering
     fun close()

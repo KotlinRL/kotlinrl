@@ -29,8 +29,8 @@ class TransformObservation<
         return InitialState(observation = transform(initial.observation), info = initial.info)
     }
 
-    override fun step(act: Action): Transition<Observation> {
-        val transition = env.step(act)
+    override fun step(action: Action): Transition<Observation> {
+        val transition = env.step(action)
         return Transition(
             observation = transform(transition.observation),
             reward = transition.reward,

@@ -13,8 +13,8 @@ class TransformReward<
     private val transform: (Double) -> Double
 ) : SimpleWrapper<Observation, Action, OS, AS>(env) {
 
-    override fun step(act: Action): Transition<Observation> {
-        val transition = env.step(act)
+    override fun step(action: Action): Transition<Observation> {
+        val transition = env.step(action)
         return transition.copy(reward = transform(transition.reward))
     }
 }

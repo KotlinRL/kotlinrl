@@ -17,7 +17,7 @@ abstract class Wrapper<
     protected val env: Env<WrappedObservation, WrappedAction, WrappedObservationSpace, WrappedActionSpace>
 ) : Env<Observation, Action, ObservationSpace, ActionSpace> {
 
-    abstract override fun step(act: Action): Transition<Observation>
+    abstract override fun step(action: Action): Transition<Observation>
 
     abstract override fun reset(seed: Int?, options: Map<String, String>?): InitialState<Observation>
 

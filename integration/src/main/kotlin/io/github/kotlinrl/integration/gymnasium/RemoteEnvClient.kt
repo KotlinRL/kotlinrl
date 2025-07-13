@@ -31,28 +31,28 @@ internal class RemoteEnvClient<Observation, Action, ObservationSpace : Space<Obs
         )
     }
 
-    override fun step(act: Action): Transition<Observation> {
-        val (observation, reward, terminated, truncated, info) = env.step(when(act) {
-            is String -> action(act as String)
-            is Int -> action(act as Int)
-            is Float -> action(act as Float)
+    override fun step(action: Action): Transition<Observation> {
+        val (observation, reward, terminated, truncated, info) = env.step(when(action) {
+            is String -> action(action as String)
+            is Int -> action(action as Int)
+            is Float -> action(action as Float)
             is NDArray<*, *> -> action(
-                dtype = when(act.dtype) {
+                dtype = when(action.dtype) {
                     ByteDataType -> uint8
                     IntDataType -> int32
                     LongDataType -> int64
                     FloatDataType -> float32
                     DoubleDataType -> float64
-                   else -> error("Invalid dtype: ${act.dtype}")
+                   else -> error("Invalid dtype: ${action.dtype}")
                 },
-                shape = act.shape,
-                data = when(act.dtype) {
-                    ByteDataType -> act.data.getByteArray()
-                    IntDataType -> act.data.getIntArray().toByteArray()
-                    LongDataType -> act.data.getLongArray().toByteArray()
-                    FloatDataType -> act.data.getFloatArray().toByteArray()
-                    DoubleDataType -> act.data.getDoubleArray().toByteArray()
-                    else -> error("Invalid dtype: ${act.dtype}")
+                shape = action.shape,
+                data = when(action.dtype) {
+                    ByteDataType -> action.data.getByteArray()
+                    IntDataType -> action.data.getIntArray().toByteArray()
+                    LongDataType -> action.data.getLongArray().toByteArray()
+                    FloatDataType -> action.data.getFloatArray().toByteArray()
+                    DoubleDataType -> action.data.getDoubleArray().toByteArray()
+                    else -> error("Invalid dtype: ${action.dtype}")
                 }
             )
             else -> TODO()

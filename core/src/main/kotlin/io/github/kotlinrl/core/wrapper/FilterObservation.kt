@@ -36,8 +36,8 @@ class FilterObservation<
         )
     }
 
-    override fun step(act: A): Transition<Map<String, Any>> {
-        val t = env.step(act)
+    override fun step(action: A): Transition<Map<String, Any>> {
+        val t = env.step(action)
         return t.copy(observation = filter(t.observation))
     }
 
