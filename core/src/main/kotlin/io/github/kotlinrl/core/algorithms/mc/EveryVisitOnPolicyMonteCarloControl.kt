@@ -1,10 +1,8 @@
 package io.github.kotlinrl.core.algorithms.mc
 
-import io.github.kotlinrl.core.algorithms.QTable
-import io.github.kotlinrl.core.train.EpisodeCallback
-import io.github.kotlinrl.core.train.EpisodeStats
+import io.github.kotlinrl.core.*
 
-class MonteCarloControl(
+class EveryVisitOnPolicyMonteCarloControl(
     private val qTable: QTable,
     private val gamma: Double
 ) : EpisodeCallback<IntArray, Int> {
