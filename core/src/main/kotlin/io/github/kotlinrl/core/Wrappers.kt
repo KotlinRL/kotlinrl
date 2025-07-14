@@ -86,7 +86,7 @@ private object JavaFXState {
     @Volatile var launched = false
 }
 
-private class Mp4Player : Application() {
+class Mp4Player : Application() {
     override fun start(stage: Stage) {
         val params = parameters.raw
         val mp4Path = params[0]
