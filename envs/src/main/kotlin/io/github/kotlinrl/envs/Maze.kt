@@ -12,7 +12,7 @@ class Maze(
     val exploringStarts: Boolean = false,
     val shapedRewards: Boolean = false,
     val render: Boolean = true,
-    val size: Int = 5,
+    override val size: Int = 5,
     override val metadata: Map<String, Any> = emptyMap(),
     seed: Int? = null,
 ) : ModelBasedEnv {
@@ -27,9 +27,9 @@ class Maze(
     override val actionSpace: Discrete = Discrete(n = 4, start = 0, seed = seed)
     override val random: Random  = seed?.let { Random(it) } ?: Random.Default
     private var state = intArrayOf(size - 1, size - 1)
-    private var goal = listOf(size - 1, size - 1)
+    override val goal = intArrayOf(size - 1, size - 1)
     private val maze = createMaze(size)
-    private val distances = computeDistances(size, goal, maze)
+    private val distances = computeDistances(size, goal.toList(), maze)
 
     private companion object {
         fun setValueAt(
@@ -125,7 +125,7 @@ class Maze(
     override fun step(action: Int): Transition<IntArray> {
         val reward = computeReward(state, action)
         state = nextState(state, action)
-        val terminated = state.toList() == goal
+        val terminated = state.contentEquals(goal)
         return Transition(state, reward, terminated, false, emptyMap())
     }
 
@@ -232,9 +232,8 @@ class Maze(
             val goalDistance = distances[nextState[0]][nextState[1]]
             val maxDistance = distances.flatten().maxOrNull() ?: Double.POSITIVE_INFINITY
             - (goalDistance / maxDistance)
-
         } else {
-            if (nextState.toList() != goal) -1.0 else 0.0
+            if (state.contentEquals(goal)) 0.0 else -1.0
         }
     }
 

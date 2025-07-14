@@ -125,7 +125,7 @@ fun renderFrameToBufferedImage(frame: RenderFrame): BufferedImage {
     return img
 }
 
-fun saveEpisodeAsMp4JCodec(frames: List<BufferedImage>, folder: String, episode: Int = 1, fps: Int = 30) {
+fun saveEpisodeAsMp4JCodec(frames: List<BufferedImage>, folder: String, episode: Int = 1) {
 
     fun deleteRecursively(file: File) {
         if (file.isDirectory) {
@@ -136,7 +136,7 @@ fun saveEpisodeAsMp4JCodec(frames: List<BufferedImage>, folder: String, episode:
 
     val mp4File = File(folder, "episode_$episode.mp4")
     mp4File.parentFile?.mkdirs()
-    val encoder = AWTSequenceEncoder.createSequenceEncoder(mp4File, fps)
+    val encoder = AWTSequenceEncoder.createSequenceEncoder(mp4File, 30)
     frames.forEach { encoder.encodeImage(it) }
     encoder.finish()
 
