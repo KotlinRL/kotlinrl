@@ -3,11 +3,10 @@ package io.github.kotlinrl.core.wrapper
 import io.github.kotlinrl.core.env.*
 import io.github.kotlinrl.core.space.*
 import java.awt.image.*
-import java.io.*
 
 class RecordVideo<State, Action, ObservationSpace : Space<State>, ActionSpace : Space<Action>>(
     env: Env<State, Action, ObservationSpace, ActionSpace>,
-    private val folder: String = "videos",
+    val folder: String = "videos",
     private val every: Int = 1,
     private val fps: Int = 30
 ) : SimpleWrapper<State, Action, ObservationSpace, ActionSpace>(env) {
@@ -53,9 +52,5 @@ class RecordVideo<State, Action, ObservationSpace : Space<State>, ActionSpace : 
             frames.clear()
         }
         return t
-    }
-
-    fun displayVideo(episode: Int): Any? {
-        return displayVideo(File(folder, "episode_$episode.mp4"), width, height)
     }
 }

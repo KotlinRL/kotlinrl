@@ -1,5 +1,6 @@
 package io.github.kotlinrl.core.wrapper
 
+import io.github.kotlinrl.core.RenderFrame
 import io.github.kotlinrl.core.env.*
 import io.github.kotlinrl.core.space.*
 import javafx.application.*
@@ -107,7 +108,7 @@ fun <Num : Number, D : Dimension> clipToBox(
     }
 }
 
-fun renderFrameToBufferedImage(frame: Rendering.RenderFrame): BufferedImage {
+fun renderFrameToBufferedImage(frame: RenderFrame): BufferedImage {
     val img = BufferedImage(frame.width, frame.height, BufferedImage.TYPE_INT_RGB)
     val bytes = frame.bytes
     var idx = 0
@@ -129,77 +130,4 @@ fun saveEpisodeAsMp4JCodec(frames: List<BufferedImage>, folder: String, episode:
     val encoder = AWTSequenceEncoder.createSequenceEncoder(mp4File, fps)
     frames.forEach { encoder.encodeImage(it) }
     encoder.finish()
-}
-
-fun displayVideo(frames: List<Rendering.RenderFrame>, folder: String): Any {
-    saveEpisodeAsMp4JCodec(frames.map { renderFrameToBufferedImage(it) }, folder)
-    return displayVideo(File(folder, "episode_1.mp4"), frames.first().width.toDouble(), frames.first().height.toDouble())
-}
-
-private object JavaFXState {
-    @Volatile var launched = false
-}
-
-fun displayVideo(file: File, width: Double = 640.0, height: Double = 480.0): Any {
-    // Try notebook HTML
-    return if (System.getenv("JPY_PARENT_PID") != null) {
-        val cwd = File(".").absoluteFile.normalize()
-        val absPath = file.absoluteFile
-        val relPath = absPath.relativeToOrNull(cwd)?.path ?: file.name
-
-        HTML("""<video width="$width" height="$height" controls>
-          <source src="${relPath}" type="video/mp4">
-          Your browser does not support the video tag.
-        </video>""")
-    } else {
-        try {
-            if (!JavaFXState.launched) {
-                JavaFXState.launched = true
-                Application.launch(Mp4Player::class.java, file.absolutePath, width.toString(), height.toString())
-            } else {
-                Platform.runLater {
-                    Mp4Player.play(file, width, height)
-                }
-            }
-        } catch (e: Throwable) {
-            // Fallback
-            if (Desktop.isDesktopSupported()) {
-                Desktop.getDesktop().open(file)
-            } else {
-                println("MP4 saved to: ${file.absolutePath}")
-                println("Please open it with your video player.")
-            }
-         }
-        ""
-    }
-}
-
-class Mp4Player : Application() {
-    override fun start(stage: Stage) {
-        val params = parameters.raw
-        val mp4Path = params[0]
-        val width = params.getOrNull(1)?.toDoubleOrNull() ?: 640.0
-        val height = params.getOrNull(2)?.toDoubleOrNull() ?: 480.0
-
-        play(File(mp4Path), width, height, stage)
-    }
-
-    companion object {
-        fun play(file: File, width: Double, height: Double, stage: Stage? = null) {
-            val media = Media(file.toURI().toString())
-            val mediaPlayer = MediaPlayer(media)
-            val mediaView = MediaView(mediaPlayer)
-            mediaView.fitWidth = width
-            mediaView.fitHeight = height
-
-            val root = StackPane(mediaView)
-            val scene = Scene(root, width, height)
-
-            val finalStage = stage ?: Stage()
-            finalStage.scene = scene
-            finalStage.title = "Env Rendering: ${file.name}"
-            finalStage.show()
-            mediaPlayer.play()
-        }
-    }
 }
