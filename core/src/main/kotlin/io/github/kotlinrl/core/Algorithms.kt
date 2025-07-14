@@ -1,7 +1,5 @@
 package io.github.kotlinrl.core
 
-import io.github.kotlinrl.core.env.ModelBasedEnv
-
 typealias QTable = io.github.kotlinrl.core.algorithms.QTable
 typealias VTable = io.github.kotlinrl.core.algorithms.VTable
 typealias PTable = io.github.kotlinrl.core.algorithms.PTable
@@ -9,6 +7,7 @@ typealias ValueIteration = io.github.kotlinrl.core.algorithms.dp.ValueIteration
 typealias PolicyIteration = io.github.kotlinrl.core.algorithms.dp.PolicyIteration
 typealias OnPolicyMonteCarloControl = io.github.kotlinrl.core.algorithms.mc.OnPolicyMonteCarloControl
 typealias ConstantAlphaMonteCarloControl = io.github.kotlinrl.core.algorithms.mc.ConstantAlphaMonteCarloControl
+typealias OffPolicyMonteCarloControl = io.github.kotlinrl.core.algorithms.mc.OffPolicyMonteCarloControl
 typealias ExpectedSARSA = io.github.kotlinrl.core.algorithms.td.ExpectedSARSA
 typealias QLearning = io.github.kotlinrl.core.algorithms.td.QLearning
 typealias SARSA = io.github.kotlinrl.core.algorithms.td.SARSA
@@ -89,13 +88,25 @@ fun policyIteration(
 
 fun onPolicyMonteCarloControl(
     qTable: QTable,
-    gamma: Double,
+    gamma: Double = 0.99,
     firstVisitOnly: Boolean = true
 ): EpisodeCallback<IntArray, Int> = OnPolicyMonteCarloControl(qTable, gamma, firstVisitOnly)
 
 fun constantAlphaMonteCarloControl(
     qTable: QTable,
-    gamma: Double,
-    alpha: Double,
+    gamma: Double = 0.99,
+    alpha: Double = 0.05,
     firstVisitOnly: Boolean = true
-): EpisodeCallback<IntArray, Int> = ConstantAlphaMonteCarloControl(qTable, gamma, alpha)
+): EpisodeCallback<IntArray, Int> = ConstantAlphaMonteCarloControl(qTable, gamma, alpha, firstVisitOnly)
+
+fun offPolicyMonteCarloControl(
+    qTable: QTable,
+    gamma: Double = 0.99,
+    behaviorPolicy: ProbabilisticPolicy<IntArray, Int>,
+    targetPolicy: MutablePolicy<IntArray, Int>
+): EpisodeCallback<IntArray, Int> = OffPolicyMonteCarloControl(
+    qTable = qTable,
+    gamma = gamma,
+    behaviorPolicy = behaviorPolicy,
+    targetPolicy = targetPolicy
+)

@@ -1,13 +1,11 @@
 package io.github.kotlinrl.core.algorithms.mc
 
-import io.github.kotlinrl.core.algorithms.QTable
-import io.github.kotlinrl.core.train.EpisodeCallback
-import io.github.kotlinrl.core.train.EpisodeStats
+import io.github.kotlinrl.core.*
 
 class ConstantAlphaMonteCarloControl(
     private val qTable: QTable,
-    private val gamma: Double,
-    private val alpha: Double,
+    private val gamma: Double = 0.99,
+    private val alpha: Double = 0.05,
     private val firstVisitOnly: Boolean = true
 ) : EpisodeCallback<IntArray, Int> {
 
