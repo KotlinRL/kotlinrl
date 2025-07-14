@@ -7,7 +7,8 @@ typealias VTable = io.github.kotlinrl.core.algorithms.VTable
 typealias PTable = io.github.kotlinrl.core.algorithms.PTable
 typealias ValueIteration = io.github.kotlinrl.core.algorithms.dp.ValueIteration
 typealias PolicyIteration = io.github.kotlinrl.core.algorithms.dp.PolicyIteration
-typealias EveryVisitOnPolicyMonteCarloControl = io.github.kotlinrl.core.algorithms.mc.EveryVisitOnPolicyMonteCarloControl
+typealias OnPolicyMonteCarloControl = io.github.kotlinrl.core.algorithms.mc.OnPolicyMonteCarloControl
+typealias ConstantAlphaMonteCarloControl = io.github.kotlinrl.core.algorithms.mc.ConstantAlphaMonteCarloControl
 typealias ExpectedSARSA = io.github.kotlinrl.core.algorithms.td.ExpectedSARSA
 typealias QLearning = io.github.kotlinrl.core.algorithms.td.QLearning
 typealias SARSA = io.github.kotlinrl.core.algorithms.td.SARSA
@@ -86,7 +87,15 @@ fun policyIteration(
     return planner.plan(size, goal, allActions, transition, reward)
 }
 
-fun everyVisitOnPolicyMonteCarloControl(
+fun onPolicyMonteCarloControl(
     qTable: QTable,
-    gamma: Double
-): EpisodeCallback<IntArray, Int> = EveryVisitOnPolicyMonteCarloControl(qTable, gamma)
+    gamma: Double,
+    firstVisitOnly: Boolean = true
+): EpisodeCallback<IntArray, Int> = OnPolicyMonteCarloControl(qTable, gamma, firstVisitOnly)
+
+fun constantAlphaMonteCarloControl(
+    qTable: QTable,
+    gamma: Double,
+    alpha: Double,
+    firstVisitOnly: Boolean = true
+): EpisodeCallback<IntArray, Int> = ConstantAlphaMonteCarloControl(qTable, gamma, alpha)
