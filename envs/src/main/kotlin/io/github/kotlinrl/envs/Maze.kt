@@ -11,11 +11,11 @@ import kotlin.random.*
 class Maze(
     val exploringStarts: Boolean = false,
     val shapedRewards: Boolean = false,
-    val render: Boolean = false,
+    val render: Boolean = true,
     val size: Int = 5,
     override val metadata: Map<String, Any> = emptyMap(),
     seed: Int? = null,
-) : Env<IntArray, Int, MultiDiscrete, Discrete> {
+) : ModelBasedEnv {
     enum class Action(val value: Int) {
         UP(0),
         RIGHT(1),
@@ -209,7 +209,7 @@ class Maze(
 
     }
 
-    private fun nextState(state: IntArray, action: Int): IntArray {
+    override fun nextState(state: IntArray, action: Int): IntArray {
         val (row, col) = state
         val nextState = when (action) {
             0 -> intArrayOf(row - 1, col) // Move UP
@@ -226,7 +226,7 @@ class Maze(
         }
     }
 
-    fun computeReward(state: IntArray, action: Int): Double {
+    override fun computeReward(state: IntArray, action: Int): Double {
         val nextState = nextState(state, action)
         return if(shapedRewards) {
             val goalDistance = distances[nextState[0]][nextState[1]]
@@ -238,10 +238,14 @@ class Maze(
         }
     }
 
-    fun simulateStep(action: Int): Transition<IntArray> {
+    override fun simulateStep(action: Int): Transition<IntArray> {
         val reward = computeReward(state, action)
         val nextState = nextState(state, action)
         val terminated = state.toList() == goal
         return Transition(nextState, reward, terminated, false, emptyMap())
     }
+
+    override fun actionProbabilities(state: IntArray): DoubleArray = DoubleArray(4) { 1.0 / size }
+
+    override fun stateActionList(state: IntArray): List<Int> = Action.entries.map { it.value }
 }

@@ -1,6 +1,6 @@
 package io.github.kotlinrl.core.policy
 
-import io.github.kotlinrl.core.learn.QTable
+import io.github.kotlinrl.core.*
 import kotlin.random.*
 
 class EpsilonGreedyPolicy(

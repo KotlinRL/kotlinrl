@@ -3,11 +3,9 @@ package io.github.kotlinrl.core.wrapper
 import io.github.kotlinrl.core.env.*
 import io.github.kotlinrl.core.space.*
 
-class RecordEpisodeStatistics<
-        State, Action, StateSpace : Space<State>, ActionSpace : Space<Action>
-        >(
-    env: Env<State, Action, StateSpace, ActionSpace>
-) : SimpleWrapper<State, Action, StateSpace, ActionSpace>(env) {
+class RecordEpisodeStatistics<State, Action, ObservationSpace : Space<State>, ActionSpace : Space<Action>>(
+    env: Env<State, Action, ObservationSpace, ActionSpace>
+) : SimpleWrapper<State, Action, ObservationSpace, ActionSpace>(env) {
 
     private var episodeReward = 0.0
     private var episodeLength = 0

@@ -2,27 +2,11 @@ package io.github.kotlinrl.core.wrapper
 
 import io.github.kotlinrl.core.env.*
 import io.github.kotlinrl.core.space.*
-class TransformState<
-        State,
-        Action,
-        StateSpace : Space<State>,
-        ActionSpace : Space<Action>,
-        WrappedState,
-        WrappedStateSpace : Space<WrappedState>
-        >(
-    env: Env<WrappedState, Action, WrappedStateSpace, ActionSpace>,
+class TransformState<State, Action, ObservationSpace : Space<State>, ActionSpace : Space<Action>, WrappedState, WrappedObservationSpace : Space<WrappedState>>(
+    env: Env<WrappedState, Action, WrappedObservationSpace, ActionSpace>,
     private val transform: (WrappedState) -> State,
-    override val observationSpace: StateSpace
-) : Wrapper<
-        State,
-        Action,
-        StateSpace,
-        ActionSpace,
-        WrappedState,
-        Action,
-        WrappedStateSpace,
-        ActionSpace
-        >(env) {
+    override val observationSpace: ObservationSpace
+) : Wrapper<State, Action, ObservationSpace, ActionSpace, WrappedState, Action, WrappedObservationSpace, ActionSpace>(env) {
 
     override fun reset(seed: Int?, options: Map<String, String>?): InitialState<State> {
         val initial = env.reset(seed, options)

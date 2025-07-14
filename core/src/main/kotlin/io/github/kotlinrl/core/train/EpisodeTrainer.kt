@@ -3,7 +3,7 @@ package io.github.kotlinrl.core.train
 import io.github.kotlinrl.core.agent.*
 import io.github.kotlinrl.core.env.*
 
-class BasicTrainer<State, Action>(
+class EpisodeTrainer<State, Action>(
     private val env: Env<State, Action, *, *>,
     private val agent: Agent<State, Action>,
     private val maxStepsPerEpisode: Int = 10_000,

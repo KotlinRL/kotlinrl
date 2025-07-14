@@ -1,7 +1,7 @@
-package io.github.kotlinrl.core.learn.tabular
+package io.github.kotlinrl.core.algorithms.td
 
 import io.github.kotlinrl.core.agent.*
-import io.github.kotlinrl.core.learn.QTable
+import io.github.kotlinrl.core.algorithms.QTable
 
 abstract class TabularTDLearning(
     protected val qTable: QTable,

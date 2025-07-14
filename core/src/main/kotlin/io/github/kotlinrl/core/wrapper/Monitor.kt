@@ -4,12 +4,10 @@ import io.github.kotlinrl.core.env.*
 import io.github.kotlinrl.core.space.*
 import java.io.*
 
-class Monitor<
-        State, Action, StateSpace : Space<State>, ActionSpace : Space<Action>
-        >(
-    env: Env<State, Action, StateSpace, ActionSpace>,
+class Monitor<State, Action, ObservationSpace : Space<State>, ActionSpace : Space<Action>>(
+    env: Env<State, Action, ObservationSpace, ActionSpace>,
     logPath: String = "monitor.csv"
-) : SimpleWrapper<State, Action, StateSpace, ActionSpace>(env) {
+) : SimpleWrapper<State, Action, ObservationSpace, ActionSpace>(env) {
 
     private var episodeReward = 0.0
     private var episodeLength = 0

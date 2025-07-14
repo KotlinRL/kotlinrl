@@ -8,25 +8,25 @@ class ClipAction<
         State,
         Num : Number,
         D : Dimension,
-        StateSpace
+        ObservationSpace
         : Space<State>
         >(
-    env: Env<State, NDArray<Num, D>, StateSpace, Box<Num, D>>
+    env: Env<State, NDArray<Num, D>, ObservationSpace, Box<Num, D>>
 ) : Wrapper<
         State,
         NDArray<Num, D>,
-        StateSpace,
+        ObservationSpace,
         Box<Num, D>,
         State,
         NDArray<Num, D>,
-        StateSpace,
+        ObservationSpace,
         Box<Num, D>
         >(env) {
 
     override val actionSpace: Box<Num, D>
         get() = env.actionSpace
 
-    override val observationSpace: StateSpace
+    override val observationSpace: ObservationSpace
         get() = env.observationSpace
 
     override fun reset(seed: Int?, options: Map<String, String>?): InitialState<State> =
