@@ -1,18 +1,16 @@
 package io.github.kotlinrl.core
 
 import io.github.kotlinrl.core.env.ModelBasedEnv
-import java.util.UUID
-import kotlin.IntArray
 
-typealias MonteCarloControl = io.github.kotlinrl.core.algorithms.mc.MonteCarloControl
-typealias ExpectedSARSA = io.github.kotlinrl.core.algorithms.td.ExpectedSARSA
-typealias QLearning = io.github.kotlinrl.core.algorithms.td.QLearning
-typealias SARSA = io.github.kotlinrl.core.algorithms.td.SARSA
 typealias QTable = io.github.kotlinrl.core.algorithms.QTable
 typealias VTable = io.github.kotlinrl.core.algorithms.VTable
 typealias PTable = io.github.kotlinrl.core.algorithms.PTable
 typealias ValueIteration = io.github.kotlinrl.core.algorithms.dp.ValueIteration
 typealias PolicyIteration = io.github.kotlinrl.core.algorithms.dp.PolicyIteration
+typealias EveryVisitOnPolicyMonteCarloControl = io.github.kotlinrl.core.algorithms.mc.EveryVisitOnPolicyMonteCarloControl
+typealias ExpectedSARSA = io.github.kotlinrl.core.algorithms.td.ExpectedSARSA
+typealias QLearning = io.github.kotlinrl.core.algorithms.td.QLearning
+typealias SARSA = io.github.kotlinrl.core.algorithms.td.SARSA
 
 fun qLearning(
     qTable: QTable,
@@ -32,7 +30,7 @@ fun expectedSARSA(
     gamma: Double,
     stateActionListProvider: StateActionListProvider<IntArray, Int>,
     policyProbabilities: PolicyProbabilities<IntArray, Int>
-) : ExpectedSARSA = ExpectedSARSA(
+): ExpectedSARSA = ExpectedSARSA(
     qTable = qTable,
     alpha = alpha,
     gamma = gamma,
@@ -87,3 +85,8 @@ fun policyIteration(
     val planner = PolicyIteration(gamma, theta)
     return planner.plan(size, goal, allActions, transition, reward)
 }
+
+fun everyVisitOnPolicyMonteCarloControl(
+    qTable: QTable,
+    gamma: Double
+): EpisodeCallback<IntArray, Int> = EveryVisitOnPolicyMonteCarloControl(qTable, gamma)

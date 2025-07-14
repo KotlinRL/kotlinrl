@@ -10,4 +10,9 @@ working as expected.  Extended example notebooks will show how to use KotlinRL t
 environment.
 
 ### The Kotlin Notebooks in this package demonstrate classic RL techniques against Gymnasium classic_control Environments
--[BlackjackMonteCarloControl](BlackjackMonteCarloControl.ipynb) This uses QTable with Monte Carlo Control to learn Blackjack
+Dynamic Programming
+- [MazeValueIteration](MazeValueIteration.ipynb)
+- [MazePolicyIteration](MazePolicyIteration.ipynb)
+
+Monte Carlo Control
+- [BlackjackEveryVisitOnPolicyMonteCarloControl](BlackjackEveryVisitOnPolicyMonteCarloControl.ipynb)

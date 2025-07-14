@@ -5,6 +5,7 @@ typealias EpisodeCallback<State, Action> = io.github.kotlinrl.core.train.Episode
 typealias Trainer = io.github.kotlinrl.core.train.Trainer
 typealias TrainingResult = io.github.kotlinrl.core.train.TrainingResult
 typealias Env<State, Action, ObservationSpace, ActionSpace> = io.github.kotlinrl.core.env.Env<State, Action, ObservationSpace, ActionSpace>
+typealias EpisodeStats<State, Action> = io.github.kotlinrl.core.train.EpisodeStats<State, Action>
 
 fun <State, Action> episodicTrainer(
     env: Env<State, Action, *, *>,
