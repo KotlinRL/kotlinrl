@@ -5,9 +5,7 @@ import io.github.kotlinrl.core.space.*
 import java.awt.image.*
 import java.io.*
 
-class RecordVideo<
-        State, Action, ObservationSpace : Space<State>, ActionSpace : Space<Action>
-        >(
+class RecordVideo<State, Action, ObservationSpace : Space<State>, ActionSpace : Space<Action>>(
     env: Env<State, Action, ObservationSpace, ActionSpace>,
     private val folder: String = "videos",
     private val every: Int = 1,

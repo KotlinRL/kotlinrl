@@ -1,7 +1,16 @@
-package io.github.kotlinrl.core.policy
+package io.github.kotlinrl.core
 
-import io.github.kotlinrl.core.learn.QTable
 import kotlin.random.*
+
+typealias ExplorationFactor = io.github.kotlinrl.core.policy.ExplorationFactor
+typealias RandomPolicy<State, Action> = io.github.kotlinrl.core.policy.RandomPolicy<State, Action>
+typealias GreedyPolicy = io.github.kotlinrl.core.policy.GreedyPolicy
+typealias EpsilonGreedyPolicy = io.github.kotlinrl.core.policy.EpsilonGreedyPolicy
+typealias SoftmaxPolicy = io.github.kotlinrl.core.policy.SoftmaxPolicy
+typealias EpsilonSoftPolicy = io.github.kotlinrl.core.policy.EpsilonSoftPolicy
+typealias Policy<State, Action> = io.github.kotlinrl.core.policy.Policy<State, Action>
+typealias PolicyProbabilities<State, Action> = io.github.kotlinrl.core.policy.PolicyProbabilities<State, Action>
+typealias StateActionListProvider<State, Action> = io.github.kotlinrl.core.policy.StateActionListProvider<State, Action>
 
 fun <State, Action> randomPolicy(
     actionProvider: StateActionListProvider<State, Action>,
@@ -40,7 +49,7 @@ fun epsilonSoftPolicy(
 
 fun constantEpsilon(factor: Double) = ExplorationFactor { factor }
 
-fun decayingEpsilon(factor: Double, decayRate: Double, minFactor: Double    ): ExplorationFactor {
+fun decayingEpsilon(factor: Double, decayRate: Double, minFactor: Double): ExplorationFactor {
     var epsilon = factor
     return ExplorationFactor {
         epsilon = (epsilon * decayRate).coerceAtLeast(minFactor)

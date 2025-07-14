@@ -3,19 +3,19 @@ package io.github.kotlinrl.core.wrapper
 import io.github.kotlinrl.core.env.*
 import io.github.kotlinrl.core.space.*
 
-class TimeLimit<O, A, OS : Space<O>, AS : Space<A>>(
-    env: Env<O, A, OS, AS>,
+class TimeLimit<State, Action, ObservationSpace : Space<State>, ActionSpace : Space<Action>>(
+    env: Env<State, Action, ObservationSpace, ActionSpace>,
     private val maxEpisodeSteps: Int
-) : SimpleWrapper<O, A, OS, AS>(env) {
+) : SimpleWrapper<State, Action, ObservationSpace, ActionSpace>(env) {
 
     private var elapsedSteps = 0
 
-    override fun reset(seed: Int?, options: Map<String, String>?): InitialState<O> {
+    override fun reset(seed: Int?, options: Map<String, String>?): InitialState<State> {
         elapsedSteps = 0
         return env.reset(seed, options)
     }
 
-    override fun step(action: A): Transition<O> {
+    override fun step(action: Action): Transition<State> {
         val transition = env.step(action)
         elapsedSteps += 1
 

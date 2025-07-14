@@ -11,11 +11,11 @@ import kotlin.random.*
 class Maze(
     val exploringStarts: Boolean = false,
     val shapedRewards: Boolean = false,
-    val render: Boolean = false,
+    val render: Boolean = true,
     val size: Int = 5,
     override val metadata: Map<String, Any> = emptyMap(),
     seed: Int? = null,
-) : DeterministicEnv {
+) : ModelBasedEnv {
     enum class Action(val value: Int) {
         UP(0),
         RIGHT(1),
@@ -246,4 +246,6 @@ class Maze(
     }
 
     override fun actionProbabilities(state: IntArray): DoubleArray = DoubleArray(4) { 1.0 / size }
+
+    override fun stateActionList(state: IntArray): List<Int> = Action.entries.map { it.value }
 }

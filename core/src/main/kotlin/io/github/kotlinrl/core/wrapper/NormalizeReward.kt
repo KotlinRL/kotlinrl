@@ -3,9 +3,7 @@ package io.github.kotlinrl.core.wrapper
 import io.github.kotlinrl.core.env.*
 import io.github.kotlinrl.core.space.*
 
-class NormalizeReward<
-        State, Action, ObservationSpace : Space<State>, ActionSpace : Space<Action>
-        >(
+class NormalizeReward<State, Action, ObservationSpace : Space<State>, ActionSpace : Space<Action>>(
     env: Env<State, Action, ObservationSpace, ActionSpace>,
     private val epsilon: Double = 1e-8
 ) : SimpleWrapper<State, Action, ObservationSpace, ActionSpace>(env) {

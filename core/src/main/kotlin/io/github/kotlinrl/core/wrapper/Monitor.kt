@@ -4,9 +4,7 @@ import io.github.kotlinrl.core.env.*
 import io.github.kotlinrl.core.space.*
 import java.io.*
 
-class Monitor<
-        State, Action, ObservationSpace : Space<State>, ActionSpace : Space<Action>
-        >(
+class Monitor<State, Action, ObservationSpace : Space<State>, ActionSpace : Space<Action>>(
     env: Env<State, Action, ObservationSpace, ActionSpace>,
     logPath: String = "monitor.csv"
 ) : SimpleWrapper<State, Action, ObservationSpace, ActionSpace>(env) {

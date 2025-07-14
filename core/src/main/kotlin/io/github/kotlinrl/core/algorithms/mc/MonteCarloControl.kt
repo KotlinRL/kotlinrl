@@ -1,6 +1,6 @@
-package io.github.kotlinrl.core.learn.mcc
+package io.github.kotlinrl.core.algorithms.mc
 
-import io.github.kotlinrl.core.learn.QTable
+import io.github.kotlinrl.core.algorithms.QTable
 import io.github.kotlinrl.core.train.EpisodeCallback
 import io.github.kotlinrl.core.train.EpisodeStats
 
@@ -26,9 +26,6 @@ class MonteCarloControl(
                 val newQ = oldQ + (G - oldQ) / (count + 1)
                 qTable[state, action] = newQ
                 returns[key] = count + 1
-                if(returns.size > 1408) {
-                    println("Returns is exceeding expectation: ${returns.size}")
-                }
             }
         }
     }

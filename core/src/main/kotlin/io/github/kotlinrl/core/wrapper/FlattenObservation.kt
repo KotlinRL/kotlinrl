@@ -6,25 +6,10 @@ import org.jetbrains.kotlinx.multik.api.*
 import org.jetbrains.kotlinx.multik.ndarray.data.*
 import org.jetbrains.kotlinx.multik.ndarray.data.DataType.*
 
-class FlattenObservation<
-        Num : Number,
-        WrappedState,
-        Action,
-        WrappedObservationSpace : Space<WrappedState>,
-        ActionSpace : Space<Action>
-        >(
+class FlattenObservation<Num : Number, WrappedState, Action, WrappedObservationSpace : Space<WrappedState>, ActionSpace : Space<Action>>(
     env: Env<WrappedState, Action, WrappedObservationSpace, ActionSpace>,
     private val dtype: DataType
-) : Wrapper<
-        NDArray<Num, D1>,
-        Action,
-        Box<Num, D1>,
-        ActionSpace,
-        WrappedState,
-        Action,
-        WrappedObservationSpace,
-        ActionSpace
-        >(env) {
+) : Wrapper<NDArray<Num, D1>, Action, Box<Num, D1>, ActionSpace, WrappedState, Action, WrappedObservationSpace, ActionSpace>(env) {
 
     override val observationSpace: Box<Num, D1> by lazy {
         val sampleObs = env.observationSpace.sample()

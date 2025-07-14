@@ -4,12 +4,7 @@ import io.github.kotlinrl.core.env.*
 import io.github.kotlinrl.core.space.*
 import org.jetbrains.kotlinx.multik.ndarray.data.*
 
-class RescaleAction<
-        State,
-        Num : Number,
-        D : Dimension,
-        ObservationSpace : Space<State>,
-        >(
+class RescaleAction<State, Num : Number, D : Dimension, ObservationSpace : Space<State>>(
     env: Env<State, NDArray<Num, D>, ObservationSpace, Box<Num, D>>,
     private val minAction: NDArray<Num, D>, // typically filled with -1 or 0
     private val maxAction: NDArray<Num, D>  // typically filled with 1

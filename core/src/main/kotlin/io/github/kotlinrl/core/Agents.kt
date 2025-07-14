@@ -1,17 +1,20 @@
-package io.github.kotlinrl.core.agent
+package io.github.kotlinrl.core
 
-import io.github.kotlinrl.core.learn.QTable
-import io.github.kotlinrl.core.learn.tabular.ExpectedSARSA
-import io.github.kotlinrl.core.learn.tabular.QLearning
-import io.github.kotlinrl.core.learn.tabular.SARSA
-import io.github.kotlinrl.core.policy.*
+
 import java.util.*
+
+typealias Agent<State, Action> = io.github.kotlinrl.core.agent.Agent<State, Action>
+typealias TrajectoryObserver<State, Action> = io.github.kotlinrl.core.agent.TrajectoryObserver<State, Action>
+typealias StateActionCallback<State, Action> = io.github.kotlinrl.core.agent.StateActionCallback<State, Action>
+typealias PolicyAgent<State, Action> = io.github.kotlinrl.core.agent.PolicyAgent<State, Action>
+typealias TrajectoryCallback<State, Action> = io.github.kotlinrl.core.agent.TrajectoryCallback<State, Action>
+typealias Trajectory<State, Action> = io.github.kotlinrl.core.agent.Trajectory<State, Action>
 
 fun <State, Action> agent(
     id: String = UUID.randomUUID().toString(),
     policy: Policy<State, Action>,
-    onExperience: TrajectoryObserver<State, Action> = TrajectoryObserver{ }
-): Agent<State, Action> = BasicAgent(id, policy, onExperience)
+    onExperience: TrajectoryObserver<State, Action> = TrajectoryObserver { }
+): Agent<State, Action> = PolicyAgent(id, policy, onExperience)
 
 fun qLearningAgent(
     id: String = UUID.randomUUID().toString(),
@@ -19,7 +22,7 @@ fun qLearningAgent(
     qTable: QTable,
     alpha: Double,
     gamma: Double
-): Agent<IntArray, Int>  = agent(id, policy, QLearning(
+): Agent<IntArray, Int> = agent(id, policy, QLearning(
     qTable = qTable,
     alpha = alpha,
     gamma = gamma

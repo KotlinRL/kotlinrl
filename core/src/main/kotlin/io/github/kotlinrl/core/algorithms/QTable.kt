@@ -1,4 +1,4 @@
-package io.github.kotlinrl.core.learn
+package io.github.kotlinrl.core.algorithms
 
 import org.jetbrains.kotlinx.multik.api.*
 import org.jetbrains.kotlinx.multik.api.io.*
@@ -43,6 +43,4 @@ class QTable(
             else -> d2.reshape(shape[0], shape[1], shape[2], shape[3], *shape.copyOfRange(4, shape.size))
         }.asDNArray()
     }
-
-    fun asNDArray(): NDArray<Double, DN> = table
 }

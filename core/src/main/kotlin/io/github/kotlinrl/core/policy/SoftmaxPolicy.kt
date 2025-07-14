@@ -1,6 +1,6 @@
 package io.github.kotlinrl.core.policy
 
-import io.github.kotlinrl.core.learn.*
+import io.github.kotlinrl.core.algorithms.*
 import org.jetbrains.kotlinx.multik.ndarray.operations.map
 import org.jetbrains.kotlinx.multik.ndarray.operations.toDoubleArray
 import kotlin.math.*

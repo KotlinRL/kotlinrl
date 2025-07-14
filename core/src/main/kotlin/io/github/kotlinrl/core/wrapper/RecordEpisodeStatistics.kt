@@ -3,9 +3,7 @@ package io.github.kotlinrl.core.wrapper
 import io.github.kotlinrl.core.env.*
 import io.github.kotlinrl.core.space.*
 
-class RecordEpisodeStatistics<
-        State, Action, ObservationSpace : Space<State>, ActionSpace : Space<Action>
-        >(
+class RecordEpisodeStatistics<State, Action, ObservationSpace : Space<State>, ActionSpace : Space<Action>>(
     env: Env<State, Action, ObservationSpace, ActionSpace>
 ) : SimpleWrapper<State, Action, ObservationSpace, ActionSpace>(env) {
 

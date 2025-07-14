@@ -3,9 +3,7 @@ package io.github.kotlinrl.core.wrapper
 import io.github.kotlinrl.core.env.*
 import io.github.kotlinrl.core.space.*
 
-class FilterObservation<
-        Action, ActionSpace : Space<Action>
-        >(
+class FilterObservation<Action, ActionSpace : Space<Action>>(
     env: Env<Map<String, Any>, Action, Dict, ActionSpace>,
     private val keys: Set<String>
 ) : Wrapper<

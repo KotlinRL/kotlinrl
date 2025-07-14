@@ -1,6 +1,6 @@
 package io.github.kotlinrl.core.policy
 
-import io.github.kotlinrl.core.learn.QTable
+import io.github.kotlinrl.core.algorithms.QTable
 
 class GreedyPolicy(
     private val qTable: QTable
