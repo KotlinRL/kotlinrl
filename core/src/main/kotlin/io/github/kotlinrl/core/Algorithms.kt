@@ -7,3 +7,4 @@ typealias SARSA = io.github.kotlinrl.core.algorithms.td.SARSA
 typealias QTable = io.github.kotlinrl.core.algorithms.QTable
 typealias VTable = io.github.kotlinrl.core.algorithms.VTable
 typealias PTable = io.github.kotlinrl.core.algorithms.PTable
+typealias ValueIteration = io.github.kotlinrl.core.algorithms.dp.ValueIteration

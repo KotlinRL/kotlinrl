@@ -1,6 +1,7 @@
 package io.github.kotlinrl.core
 
 
+import io.github.kotlinrl.core.env.ModelBasedEnv
 import java.util.*
 
 typealias Agent<State, Action> = io.github.kotlinrl.core.agent.Agent<State, Action>
@@ -64,6 +65,14 @@ fun monteCarloAgent(
     policy: Policy<IntArray, Int>
 ): Agent<IntArray, Int> {
     return agent(id = id, policy = policy) { /* no-op TransitionObserver */ }
+}
+
+fun valueIterationAgent(
+    id: String = UUID.randomUUID().toString(),
+    env: ModelBasedEnv
+): Agent<IntArray, Int> {
+    //ValueIteration
+    TODO("Not yet implemented")
 }
 
 fun <State, Action> Agent<State, Action>.withStateActionCallback(

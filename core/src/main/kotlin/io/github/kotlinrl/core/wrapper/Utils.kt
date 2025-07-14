@@ -17,6 +17,7 @@ import org.jetbrains.kotlinx.multik.ndarray.data.Dimension
 import java.awt.*
 import java.awt.image.*
 import java.io.*
+import javax.imageio.ImageIO
 
 fun flattenObservation(obs: Any?, dtype: DataType): List<Number> = when (obs) {
     is Number -> listOf(obs)
@@ -125,9 +126,30 @@ fun renderFrameToBufferedImage(frame: RenderFrame): BufferedImage {
 }
 
 fun saveEpisodeAsMp4JCodec(frames: List<BufferedImage>, folder: String, episode: Int = 1, fps: Int = 30) {
+
+    fun deleteRecursively(file: File) {
+        if (file.isDirectory) {
+            file.listFiles()?.forEach(::deleteRecursively)
+        }
+        file.delete()
+    }
+
     val mp4File = File(folder, "episode_$episode.mp4")
     mp4File.parentFile?.mkdirs()
     val encoder = AWTSequenceEncoder.createSequenceEncoder(mp4File, fps)
     frames.forEach { encoder.encodeImage(it) }
     encoder.finish()
+
+    val pngFolder = File(folder, "episode_$episode")
+    if (pngFolder.exists()) {
+        deleteRecursively(pngFolder)
+    }
+    pngFolder.mkdirs()
+
+    val digits = frames.size.toString().length
+    val numberFormat = "frame_%0${digits}d.png"
+    frames.forEachIndexed { idx, img ->
+        val pngFile = File(pngFolder, numberFormat.format(idx + 1))
+        ImageIO.write(img, "png", pngFile)
+    }
 }
