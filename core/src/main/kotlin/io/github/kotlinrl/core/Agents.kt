@@ -23,7 +23,7 @@ fun qLearningAgent(
     qTable: QTable,
     alpha: Double,
     gamma: Double
-): Agent<IntArray, Int> = agent(id, policy, QLearning(
+): Agent<IntArray, Int> = agent(id, policy, qLearning(
     qTable = qTable,
     alpha = alpha,
     gamma = gamma
@@ -36,7 +36,7 @@ fun sarsaAgent(
     alpha: Double,
     gamma: Double
 ): Agent<IntArray, Int> {
-    val learning = SARSA(
+    val learning = sarsa(
         qTable = qTable,
         alpha = alpha,
         gamma = gamma
@@ -52,7 +52,7 @@ fun expectedSarsaAgent(
     gamma: Double,
     stateActionListProvider: StateActionListProvider<IntArray, Int>,
     policyProbabilities: PolicyProbabilities<IntArray, Int>
-): Agent<IntArray, Int> = agent(id, policy, ExpectedSARSA(
+): Agent<IntArray, Int> = agent(id, policy, expectedSARSA(
     qTable = qTable,
     alpha = alpha,
     gamma = gamma,
@@ -67,13 +67,6 @@ fun monteCarloAgent(
     return agent(id = id, policy = policy) { /* no-op TransitionObserver */ }
 }
 
-fun valueIterationAgent(
-    id: String = UUID.randomUUID().toString(),
-    env: ModelBasedEnv
-): Agent<IntArray, Int> {
-    //ValueIteration
-    TODO("Not yet implemented")
-}
 
 fun <State, Action> Agent<State, Action>.withStateActionCallback(
     callback: StateActionCallback<State, Action>

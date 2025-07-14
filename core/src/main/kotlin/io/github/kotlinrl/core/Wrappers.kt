@@ -54,23 +54,17 @@ typealias TransformState<State, Action, ObservationSpace, ActionSpace, WrappedSt
 
 fun displayVideo(
     episode: Int,
-    folder: String,
-    width: Double = 640.0,
-    height: Double = 480.0,
+    folder: String
 ): Any? {
-    return displayVideo(File(folder, "episode_$episode"), width, height)
+    return displayVideo(File(folder, "episode_$episode"))
 }
 
-fun displayVideo(frames: List<RenderFrame>, folder: String = "videos"): Any {
+fun displayVideo(frames: List<RenderFrame>, folder: String = "videos", fileName: String = "episode_1"): Any {
     saveEpisodeAsMp4JCodec(frames.map { renderFrameToBufferedImage(it) }, folder)
-    return displayVideo(
-        File(folder, "episode_1"),
-        frames.first().width.toDouble(),
-        frames.first().height.toDouble()
-    )
+    return displayVideo(File(folder, fileName))
 }
 
-fun displayVideo(file: File, width: Double = 640.0, height: Double = 480.0, fps: Int = 30): Any {
+fun displayVideo(file: File): Any {
     // Try notebook HTML
     return if (System.getenv("JPY_PARENT_PID") != null) {
         val cwd = File(".").absoluteFile.normalize()
@@ -78,7 +72,7 @@ fun displayVideo(file: File, width: Double = 640.0, height: Double = 480.0, fps:
         val relPath = absPath.relativeToOrNull(cwd)?.path ?: file.name
 
         HTML(
-            """<video width="$width" height="$height" controls>
+            """<video style="max-width: 100%; height: auto;" controls>
           <source src="${relPath}" type="video/mp4">
           Your browser does not support the video tag.
         </video>"""
