@@ -2,9 +2,10 @@ package io.github.kotlinrl.core.algorithms.mc
 
 import io.github.kotlinrl.core.*
 
-class EveryVisitOnPolicyMonteCarloControl(
+class OnPolicyMonteCarloControl(
     private val qTable: QTable,
-    private val gamma: Double
+    private val gamma: Double,
+    private val firstVisitOnly: Boolean = true
 ) : EpisodeCallback<IntArray, Int> {
 
     private val returns: MutableMap<List<Int>, Int> = mutableMapOf()
@@ -17,15 +18,17 @@ class EveryVisitOnPolicyMonteCarloControl(
         for ((state, action, reward) in episode.asReversed()) {
             G = reward + gamma * G
             val key = (state + action).toList()
-            if (key !in visited) {
-                visited.add(key)
-                val count = returns.getOrDefault(key, 0)
-                val oldQ = qTable[state, action]
-                val newQ = oldQ + (G - oldQ) / (count + 1)
-                qTable[state, action] = newQ
-                returns[key] = count + 1
-            }
+
+            if (firstVisitOnly && key in visited) continue
+
+            visited.add(key)
+            val count = returns.getOrDefault(key, 0)
+            val oldQ = qTable[state, action]
+            val newQ = oldQ + (G - oldQ) / (count + 1)
+            qTable[state, action] = newQ
+            returns[key] = count + 1
         }
+
     }
 }
 

@@ -15,4 +15,4 @@ Dynamic Programming
 - [MazePolicyIteration](MazePolicyIteration.ipynb)
 
 Monte Carlo Control
-- [BlackjackEveryVisitOnPolicyMonteCarloControl](BlackjackEveryVisitOnPolicyMonteCarloControl.ipynb)
+- [BlackjackOnPolicyMonteCarloControl](BlackjackOnPolicyMonteCarloControl.ipynb)
