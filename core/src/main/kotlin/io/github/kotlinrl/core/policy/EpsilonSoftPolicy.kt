@@ -1,28 +1,30 @@
 package io.github.kotlinrl.core.policy
 
+import io.github.kotlinrl.core.ExplorationFactor
 import io.github.kotlinrl.core.algorithms.QTable
+import org.jetbrains.kotlinx.multik.ndarray.operations.map
 import kotlin.random.*
 
 class EpsilonSoftPolicy(
-    private val stateActionListProvider: StateActionListProvider<IntArray, Int>,
     private val qTable: QTable,
     private val epsilon: ExplorationFactor,
-    rng: Random = Random.Default
+    private val stateActionListProvider: StateActionListProvider<IntArray, Int>,
+    rng: Random
 ) : ProbabilisticPolicy<IntArray, Int>(rng) {
 
-    override fun invoke(state: IntArray): Int {
-        val availableActions = stateActionListProvider(state)
+    override fun actionScores(state: IntArray): List<Pair<Int, Double>> {
+        val actions = stateActionListProvider(state)
+        val greedyAction = qTable.bestAction(state)
+        val n = actions.size
+        val epsilon = epsilon()
 
-        val greedy = qTable.bestAction(state)
-
-        val eps = epsilon()
-        val uniformProb = eps / availableActions.size
-        val greedyProb = 1.0 - eps + uniformProb
-
-        val probabilities = availableActions.map { action ->
-            if (action == greedy) greedyProb else uniformProb
+        return actions.map { action ->
+            val prob = if (action == greedyAction) {
+                (1 - epsilon) + (epsilon / n)
+            } else {
+                epsilon / n
+            }
+            action to prob
         }
-
-        return calculateAndSample(probabilities, availableActions)
     }
 }
