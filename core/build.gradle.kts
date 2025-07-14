@@ -13,6 +13,6 @@ dependencies {
 }
 
 javafx {
-    version = "24.0.1"
-    modules = listOf("javafx.media")
+    version = "17.0.10"
+    modules = listOf("javafx.graphics", "javafx.controls", "javafx.media")
 }
