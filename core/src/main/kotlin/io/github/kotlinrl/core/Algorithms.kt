@@ -39,30 +39,34 @@ fun expectedSARSA(
 )
 
 fun valueIteration(
+    gamma: Double = 0.99,
+    theta: Double = 1e-6,
     env: ModelBasedEnv,
     stateShape: IntArray,
     stateActionListProvider: StateActionListProvider<IntArray, Int>
-): Policy<IntArray, Int> = valueIteration(
-    stateShape = stateShape,
-    stateActionListProvider = stateActionListProvider,
-    transitionFunction = env::nextState,
-    rewardFunction = env::computeReward
-)
+): Policy<IntArray, Int> = valueIterationPlanner(gamma, theta)
+    .plan(
+        stateShape = stateShape,
+        stateActionListProvider = stateActionListProvider,
+        transitionFunction = env::nextState,
+        rewardFunction = env::computeReward
+    )
 
 fun valueIteration(
+    gamma: Double = 0.99,
+    theta: Double = 1e-6,
     stateShape: IntArray,
     stateActionListProvider: StateActionListProvider<IntArray, Int>,
     transitionFunction: TransitionFunction<IntArray, Int>,
     rewardFunction: RewardFunction<IntArray, Int>
-): Policy<IntArray, Int> {
-    val planner = ValueIteration()
-    return planner.plan(
+): Policy<IntArray, Int> = valueIterationPlanner(gamma, theta)
+    .plan(
         stateShape = stateShape,
         stateActionListProvider = stateActionListProvider,
         transitionFunction = transitionFunction,
         rewardFunction = rewardFunction
     )
-}
+
 
 fun policyIteration(
     gamma: Double = 0.99,
@@ -70,14 +74,13 @@ fun policyIteration(
     env: ModelBasedEnv,
     stateShape: IntArray,
     stateActionListProvider: StateActionListProvider<IntArray, Int>
-): Policy<IntArray, Int> = policyIteration(
-    gamma = gamma,
-    theta = theta,
-    stateShape = stateShape,
-    stateActionListProvider = stateActionListProvider,
-    transitionFunction = env::nextState,
-    rewardFunction = env::computeReward,
-)
+): Policy<IntArray, Int> = policyIterationPlanner(gamma, theta)
+    .plan(
+        stateShape = stateShape,
+        stateActionListProvider = stateActionListProvider,
+        transitionFunction = env::nextState,
+        rewardFunction = env::computeReward,
+    )
 
 fun policyIteration(
     gamma: Double = 0.99,
@@ -86,15 +89,14 @@ fun policyIteration(
     stateActionListProvider: StateActionListProvider<IntArray, Int>,
     transitionFunction: TransitionFunction<IntArray, Int>,
     rewardFunction: RewardFunction<IntArray, Int>
-): Policy<IntArray, Int> {
-    val planner = PolicyIteration(gamma, theta)
-    return planner.plan(
+): Policy<IntArray, Int> = policyIterationPlanner(gamma, theta)
+    .plan(
         stateShape = stateShape,
         stateActionListProvider = stateActionListProvider,
         transitionFunction = transitionFunction,
         rewardFunction = rewardFunction
     )
-}
+
 
 fun onPolicyMonteCarloControl(
     qTable: QTable,

@@ -3,7 +3,10 @@ package io.github.kotlinrl.core.algorithms.dp
 import io.github.kotlinrl.core.*
 import kotlin.math.*
 
-class ValueIteration : Planner<IntArray, Int> {
+class ValueIteration(
+    private val gamma: Double = 0.99,
+    private val theta: Double = 1e-6
+) : Planner<IntArray, Int> {
     override fun plan(
         vararg stateShape: Int,
         stateActionListProvider: StateActionListProvider<IntArray, Int>,
@@ -12,9 +15,6 @@ class ValueIteration : Planner<IntArray, Int> {
     ): Policy<IntArray, Int> {
         val vTable = VTable(*stateShape)
         val states = vTable.allStates()
-
-        val gamma = 0.99
-        val theta = 1e-6
 
         do {
             var delta = 0.0
