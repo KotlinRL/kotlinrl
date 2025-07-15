@@ -11,8 +11,7 @@ class PolicyIteration(
     override fun plan(
         vararg stateShape: Int,
         stateActionListProvider: StateActionListProvider<IntArray, Int>,
-        transitionFunction: TransitionFunction<IntArray, Int>,
-        rewardFunction: RewardFunction<IntArray, Int>
+        transitionFunction: TransitionFunction<IntArray, Int>
     ): Policy<IntArray, Int> {
         val vTable = VTable(*stateShape)
         val pi = PTable(*stateShape)
@@ -32,8 +31,7 @@ class PolicyIteration(
                 for (s in states) {
                     val oldV = vTable[s]
                     val a = pi[s]
-                    val next = transitionFunction(s, a)
-                    val r = rewardFunction(s, a)
+                    val (next, r) = transitionFunction(s, a)
                     val newV = r + gamma * vTable[next]
                     vTable[s] = newV
                     delta = max(delta, abs(oldV - newV))
@@ -45,8 +43,7 @@ class PolicyIteration(
             for (s in states) {
                 val oldAction = pi[s]
                 val bestAction = stateActionListProvider(s).maxByOrNull { a ->
-                    val next = transitionFunction(s, a)
-                    val r = rewardFunction(s, a)
+                    val (next, r) = transitionFunction(s, a)
                     r + gamma * vTable[next]
                 } ?: oldAction
 

@@ -209,7 +209,7 @@ class Maze(
 
     }
 
-    override fun nextState(state: IntArray, action: Int): IntArray {
+    private fun nextState(state: IntArray, action: Int): IntArray {
         val (row, col) = state
         val nextState = when (action) {
             0 -> intArrayOf(row - 1, col) // Move UP
@@ -226,7 +226,7 @@ class Maze(
         }
     }
 
-    override fun computeReward(state: IntArray, action: Int): Double {
+    private fun computeReward(state: IntArray, action: Int): Double {
         val nextState = nextState(state, action)
         return if(shapedRewards) {
             val goalDistance = distances[nextState[0]][nextState[1]]
@@ -237,7 +237,7 @@ class Maze(
         }
     }
 
-    override fun simulateStep(action: Int): Transition<IntArray> {
+    override fun simulateStep(state: IntArray, action: Int): Transition<IntArray> {
         val reward = computeReward(state, action)
         val nextState = nextState(state, action)
         val terminated = state.toList() == goal

@@ -48,8 +48,7 @@ fun valueIteration(
     .plan(
         stateShape = stateShape,
         stateActionListProvider = stateActionListProvider,
-        transitionFunction = env::nextState,
-        rewardFunction = env::computeReward
+        transitionFunction = env::simulateStep
     )
 
 fun valueIteration(
@@ -57,14 +56,12 @@ fun valueIteration(
     theta: Double = 1e-6,
     stateShape: IntArray,
     stateActionListProvider: StateActionListProvider<IntArray, Int>,
-    transitionFunction: TransitionFunction<IntArray, Int>,
-    rewardFunction: RewardFunction<IntArray, Int>
+    transitionFunction: TransitionFunction<IntArray, Int>
 ): Policy<IntArray, Int> = valueIterationPlanner(gamma, theta)
     .plan(
         stateShape = stateShape,
         stateActionListProvider = stateActionListProvider,
-        transitionFunction = transitionFunction,
-        rewardFunction = rewardFunction
+        transitionFunction = transitionFunction
     )
 
 
@@ -78,8 +75,7 @@ fun policyIteration(
     .plan(
         stateShape = stateShape,
         stateActionListProvider = stateActionListProvider,
-        transitionFunction = env::nextState,
-        rewardFunction = env::computeReward,
+        transitionFunction = env::simulateStep
     )
 
 fun policyIteration(
@@ -87,14 +83,12 @@ fun policyIteration(
     theta: Double = 1e-6,
     stateShape: IntArray,
     stateActionListProvider: StateActionListProvider<IntArray, Int>,
-    transitionFunction: TransitionFunction<IntArray, Int>,
-    rewardFunction: RewardFunction<IntArray, Int>
+    transitionFunction: TransitionFunction<IntArray, Int>
 ): Policy<IntArray, Int> = policyIterationPlanner(gamma, theta)
     .plan(
         stateShape = stateShape,
         stateActionListProvider = stateActionListProvider,
-        transitionFunction = transitionFunction,
-        rewardFunction = rewardFunction
+        transitionFunction = transitionFunction
     )
 
 

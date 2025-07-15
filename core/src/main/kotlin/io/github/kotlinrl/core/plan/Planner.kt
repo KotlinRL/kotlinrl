@@ -6,7 +6,6 @@ interface Planner<State, Action> {
     fun plan(
         stateShape: IntArray,
         stateActionListProvider: StateActionListProvider<State, Action>,
-        transitionFunction: TransitionFunction<State, Action>,
-        rewardFunction: RewardFunction<State, Action>,
+        transitionFunction: TransitionFunction<State, Action>
     ): Policy<State, Action>
 }
