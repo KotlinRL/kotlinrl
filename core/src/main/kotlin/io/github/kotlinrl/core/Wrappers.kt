@@ -19,6 +19,7 @@ import javafx.stage.*
 import javafx.util.*
 import org.jetbrains.kotlinx.jupyter.api.*
 import java.awt.*
+import java.awt.image.BufferedImage
 import java.io.*
 
 typealias ClipAction<State, Num, D, ObservationSpace> = io.github.kotlinrl.core.wrapper.ClipAction<State, Num, D, ObservationSpace>
@@ -86,6 +87,8 @@ fun displayVideo(file: File): Any {
         ""
     }
 }
+
+fun RenderFrame.toBufferedImage(): BufferedImage = renderFrameToBufferedImage(this)
 
 private object JavaFXState {
     @Volatile
