@@ -1,21 +1,19 @@
 package io.github.kotlinrl.core
 
 
-import io.github.kotlinrl.core.env.ModelBasedEnv
 import java.util.*
 
 typealias Agent<State, Action> = io.github.kotlinrl.core.agent.Agent<State, Action>
 typealias TrajectoryObserver<State, Action> = io.github.kotlinrl.core.agent.TrajectoryObserver<State, Action>
-typealias StateActionCallback<State, Action> = io.github.kotlinrl.core.agent.StateActionCallback<State, Action>
+typealias StepCallback<State, Action> = io.github.kotlinrl.core.agent.StepCallback<State, Action>
 typealias PolicyAgent<State, Action> = io.github.kotlinrl.core.agent.PolicyAgent<State, Action>
-typealias TrajectoryCallback<State, Action> = io.github.kotlinrl.core.agent.TrajectoryCallback<State, Action>
 typealias Trajectory<State, Action> = io.github.kotlinrl.core.agent.Trajectory<State, Action>
 
 fun <State, Action> agent(
     id: String = UUID.randomUUID().toString(),
     policy: Policy<State, Action>,
-    onExperience: TrajectoryObserver<State, Action> = TrajectoryObserver { }
-): Agent<State, Action> = PolicyAgent(id, policy, onExperience)
+    onTrajectory: TrajectoryObserver<State, Action> = TrajectoryObserver { }
+): Agent<State, Action> = PolicyAgent(id, policy, onTrajectory)
 
 fun qLearningAgent(
     id: String = UUID.randomUUID().toString(),
@@ -41,7 +39,7 @@ fun sarsaAgent(
         alpha = alpha,
         gamma = gamma
     )
-    return agent(id, policy, learning).withStateActionCallback(learning)
+    return agent(id, policy, learning)
 }
 
 fun expectedSarsaAgent(
@@ -68,23 +66,22 @@ fun monteCarloAgent(
 }
 
 
-fun <State, Action> Agent<State, Action>.withStateActionCallback(
-    callback: StateActionCallback<State, Action>
+fun <State, Action> Agent<State, Action>.withStepCallback(
+    callback: StepCallback<State, Action>
 ): Agent<State, Action> = object : Agent<State, Action> by this {
     override fun act(state: State): Action {
-        callback.before(state)
-        val action = this@withStateActionCallback.act(state)
-        callback.after(state, action)
+        callback.beforeStep(state)
+        val action = this@withStepCallback.act(state)
+        callback.afterStep(state, action)
         return action
     }
 }
 
-fun <State, Action> Agent<State, Action>.withTrajectoryCallback(
-    callback: TrajectoryCallback<State, Action>
+fun <State, Action> Agent<State, Action>.withTrajectoryObserver(
+    onTrajectory: TrajectoryObserver<State, Action>
 ): Agent<State, Action> = object : Agent<State, Action> by this {
     override fun observe(trajectory: Trajectory<State, Action>) {
-        callback.before()
-        this@withTrajectoryCallback.observe(trajectory)
-        callback.after(trajectory)
+        this@withTrajectoryObserver.observe(trajectory)
+        onTrajectory(trajectory)
     }
 }

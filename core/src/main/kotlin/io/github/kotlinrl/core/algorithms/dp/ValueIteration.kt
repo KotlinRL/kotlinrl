@@ -41,7 +41,7 @@ class ValueIteration(
             pTable[s] = bestAction
         }
 
-        val pi = pTable.deepCopy()
+        val pi = pTable.copy()
         return Policy { pi[it] }
     }
 }

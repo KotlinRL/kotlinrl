@@ -5,24 +5,21 @@ import org.jetbrains.kotlinx.multik.ndarray.data.*
 
 class VTable(
     vararg val shape: Int
-) {
+): ValueFunction<IntArray> {
     private val table: NDArray<Double, DN> = mk.dnarray<Double, DN>(shape) { 0.0 }.asDNArray()
 
-    fun max(): Double = table.data.max()
-
-    operator fun get(state: IntArray): Double = table[state]
-
-    operator fun set(state: IntArray, value: Double) {
+    override operator fun get(state: IntArray): Double = table[state]
+    override operator fun set(state: IntArray, value: Double) {
         table[state] = value
     }
 
-    fun allStates(): List<IntArray> = cartesianProduct(*shape.map { 0 until it }.toTypedArray())
+    override fun max(): Double = table.data.max()
 
-    fun deepCopy(): VTable {
+    override fun allStates(): List<IntArray> = cartesianProduct(*shape.map { 0 until it }.toTypedArray())
+
+    fun copy(): VTable {
         val copy = VTable(*shape)
-        for (s in allStates()) {
-            copy[s] = this[s]
-        }
+        table.data.copyInto(copy.table.data)
         return copy
     }
 

@@ -10,11 +10,8 @@ class QLearning(
 ) : TabularTDLearning(qTable, alpha, gamma) {
 
     override fun invoke(trajectory: Trajectory<IntArray, Int>) {
-        val s = trajectory.state
-        val a = trajectory.action
-        val sPrime = trajectory.nextState
-        val r = trajectory.reward
-        val done = trajectory.terminated || trajectory.truncated
+        val (s, sPrime, a, r, terminated, truncated, _) = trajectory
+        val done = terminated || truncated
 
         val currentValue = qTable[s, a]
         val nextValue = if (done) 0.0 else qTable.maxValue(sPrime)
