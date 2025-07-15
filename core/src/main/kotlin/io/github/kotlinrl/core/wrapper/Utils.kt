@@ -109,6 +109,8 @@ fun <Num : Number, D : Dimension> clipToBox(
     }
 }
 
+fun RenderFrame.toBufferedImage(): BufferedImage = renderFrameToBufferedImage(this)
+
 fun renderFrameToBufferedImage(frame: RenderFrame): BufferedImage {
     val img = BufferedImage(frame.width, frame.height, BufferedImage.TYPE_INT_RGB)
     val bytes = frame.bytes
