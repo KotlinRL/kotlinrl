@@ -16,3 +16,5 @@ Dynamic Programming
 
 Monte Carlo Control
 - [BlackjackOnPolicyMonteCarloControl](BlackjackOnPolicyMonteCarloControl.ipynb)
+- [BlackjackConstantAlpaMonteCarloControl](BlackjackConstantAlphaMonteCarloControl.ipynb)
+- [BlackjackOffPolicyMonteCarloControl](BlackjackOffPolicyMonteCarloControl.ipynb)

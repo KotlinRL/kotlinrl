@@ -41,7 +41,7 @@ fun expectedSARSA(
 fun valueIteration(
     env: ModelBasedEnv
 ): Policy<IntArray, Int> = valueIteration(
-    size = env.size,
+    stateShape = intArrayOf(env.size, env.size),
     goal = env.goal,
     allActions = env::stateActionList,
     transition = env::nextState,
@@ -49,14 +49,14 @@ fun valueIteration(
 )
 
 fun valueIteration(
-    size: Int,
+    stateShape: IntArray,
     goal: IntArray,
     allActions: StateActionListProvider<IntArray, Int>,
     transition: TransitionFunction<IntArray, Int>,
     reward: RewardFunction<IntArray, Int>
 ): Policy<IntArray, Int> {
-    val planner = ValueIteration()
-    return planner.plan(size, goal, allActions, transition, reward)
+    val planner = ValueIteration(goal)
+    return planner.plan(stateShape, allActions, transition, reward)
 }
 
 fun policyIteration(
@@ -66,8 +66,7 @@ fun policyIteration(
 ): Policy<IntArray, Int> = policyIteration(
     gamma = gamma,
     theta = theta,
-    size = env.size,
-    goal = env.goal,
+    stateShape = intArrayOf(env.size, env.size),
     allActions = env::stateActionList,
     transition = env::nextState,
     reward = env::computeReward,
@@ -76,14 +75,13 @@ fun policyIteration(
 fun policyIteration(
     gamma: Double = 0.99,
     theta: Double = 1e-6,
-    size: Int,
-    goal: IntArray,
+    stateShape: IntArray,
     allActions: StateActionListProvider<IntArray, Int>,
     transition: TransitionFunction<IntArray, Int>,
     reward: RewardFunction<IntArray, Int>
 ): Policy<IntArray, Int> {
     val planner = PolicyIteration(gamma, theta)
-    return planner.plan(size, goal, allActions, transition, reward)
+    return planner.plan(stateShape, allActions, transition, reward)
 }
 
 fun onPolicyMonteCarloControl(
