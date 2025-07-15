@@ -3,14 +3,12 @@ package io.github.kotlinrl.core.algorithms.dp
 import io.github.kotlinrl.core.*
 import kotlin.math.*
 
-class ValueIteration(
-    private val goal: IntArray
-) : Planner<IntArray, Int> {
+class ValueIteration : Planner<IntArray, Int> {
     override fun plan(
-        stateShape: IntArray,
-        allActions: StateActionListProvider<IntArray, Int>,
-        transition: TransitionFunction<IntArray, Int>,
-        reward: RewardFunction<IntArray, Int>
+        vararg stateShape: Int,
+        stateActionListProvider: StateActionListProvider<IntArray, Int>,
+        transitionFunction: TransitionFunction<IntArray, Int>,
+        rewardFunction: RewardFunction<IntArray, Int>
     ): Policy<IntArray, Int> {
         val vTable = VTable(*stateShape)
         val states = vTable.allStates()
@@ -22,9 +20,9 @@ class ValueIteration(
             var delta = 0.0
             for (s in states) {
                 val oldV = vTable[s]
-                val bestValue = allActions(s).maxOfOrNull { a ->
-                    val next = transition(s, a)
-                    val r = reward(s, a)
+                val bestValue = stateActionListProvider(s).maxOfOrNull { a ->
+                    val next = transitionFunction(s, a)
+                    val r = rewardFunction(s, a)
                     r + gamma * vTable[next]
                 } ?: 0.0
 
@@ -35,11 +33,11 @@ class ValueIteration(
 
         val pi = PTable(*stateShape)
         for (s in states) {
-            val bestAction = allActions(s)
+            val bestAction = stateActionListProvider(s)
                 .sorted()
                 .maxByOrNull { a ->
-                    val next = transition(s, a)
-                    val r = reward(s, a)
+                    val next = transitionFunction(s, a)
+                    val r = rewardFunction(s, a)
                     r + gamma * vTable[next]
                 } ?: error("No actions available for state ${s.contentToString()}")
             pi[s] = bestAction

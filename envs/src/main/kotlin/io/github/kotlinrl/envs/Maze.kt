@@ -12,7 +12,7 @@ class Maze(
     val exploringStarts: Boolean = false,
     val shapedRewards: Boolean = false,
     val render: Boolean = true,
-    override val size: Int = 5,
+    val size: Int = 5,
     override val metadata: Map<String, Any> = emptyMap(),
     seed: Int? = null,
 ) : ModelBasedEnv {
@@ -23,11 +23,11 @@ class Maze(
         LEFT(3);
     }
 
-    override val observationSpace: MultiDiscrete = MultiDiscrete(nvec = intArrayOf(size, size), seed = seed)
-    override val actionSpace: Discrete = Discrete(n = 4, start = 0, seed = seed)
-    override val random: Random  = seed?.let { Random(it) } ?: Random.Default
+    override val observationSpace = MultiDiscrete(nvec = intArrayOf(size, size), seed = seed)
+    override val actionSpace = Discrete(n = 4, start = 0, seed = seed)
+    override val random  = seed?.let { Random(it) } ?: Random.Default
     private var state = intArrayOf(size - 1, size - 1)
-    override val goal = intArrayOf(size - 1, size - 1)
+    private val goal = intArrayOf(size - 1, size - 1)
     private val maze = createMaze(size)
     private val distances = computeDistances(size, goal.toList(), maze)
 
@@ -243,8 +243,4 @@ class Maze(
         val terminated = state.toList() == goal
         return Transition(nextState, reward, terminated, false, emptyMap())
     }
-
-    override fun actionProbabilities(state: IntArray): DoubleArray = DoubleArray(4) { 1.0 / size }
-
-    override fun stateActionList(state: IntArray): List<Int> = Action.entries.map { it.value }
 }

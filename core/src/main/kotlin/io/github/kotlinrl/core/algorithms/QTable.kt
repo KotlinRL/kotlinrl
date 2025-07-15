@@ -10,10 +10,10 @@ import java.io.*
 import kotlin.collections.plus
 
 class QTable(
-    vararg indices: Int,
+    vararg shape: Int,
 ) {
-    val shape: IntArray = indices
-    private var table = mk.zeros<Double, DN>(shape, DoubleDataType).asDNArray()
+    val dims: IntArray = shape
+    private var table = mk.zeros<Double, DN>(dims, DoubleDataType).asDNArray()
 
     operator fun get(state: IntArray, action: Int): Double = table[state + action]
     operator fun set(state: IntArray, action: Int, value: Double) {
@@ -30,17 +30,17 @@ class QTable(
     fun bestAction(state: IntArray): Int = qValues(state).argMax()
 
     fun save(path: String) {
-        val d2 = table.reshape(shape.dropLast(1).reduce(Int::times), shape.last()).asD2Array()
+        val d2 = table.reshape(dims.dropLast(1).reduce(Int::times), dims.last()).asD2Array()
         mk.write(File(path), d2)
     }
 
     fun load(path: String) {
         val d2 = mk.read<Double, D2>(File(path))
-        table =  when (shape.size) {
-            2 -> d2.reshape(shape[0], shape[1])
-            3 -> d2.reshape(shape[0], shape[1], shape[2])
-            4 -> d2.reshape(shape[0], shape[1], shape[2], shape[3])
-            else -> d2.reshape(shape[0], shape[1], shape[2], shape[3], *shape.copyOfRange(4, shape.size))
+        table =  when (dims.size) {
+            2 -> d2.reshape(dims[0], dims[1])
+            3 -> d2.reshape(dims[0], dims[1], dims[2])
+            4 -> d2.reshape(dims[0], dims[1], dims[2], dims[3])
+            else -> d2.reshape(dims[0], dims[1], dims[2], dims[3], *dims.copyOfRange(4, dims.size))
         }.asDNArray()
     }
 }

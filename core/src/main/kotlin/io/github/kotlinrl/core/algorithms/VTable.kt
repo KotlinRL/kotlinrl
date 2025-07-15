@@ -4,9 +4,9 @@ import org.jetbrains.kotlinx.multik.api.*
 import org.jetbrains.kotlinx.multik.ndarray.data.*
 
 class VTable(
-    vararg val stateDims: Int
+    vararg val shape: Int
 ) {
-    private val table: NDArray<Double, DN> = mk.dnarray<Double, DN>(stateDims) { 0.0 }.asDNArray()
+    private val table: NDArray<Double, DN> = mk.dnarray<Double, DN>(shape) { 0.0 }.asDNArray()
 
     fun max(): Double = table.data.max()
 
@@ -16,7 +16,7 @@ class VTable(
         table[state] = value
     }
 
-    fun allStates(): List<IntArray> = cartesianProduct(*stateDims.map { 0 until it }.toTypedArray())
+    fun allStates(): List<IntArray> = cartesianProduct(*shape.map { 0 until it }.toTypedArray())
 
     private fun cartesianProduct(vararg ranges: Iterable<Int>): List<IntArray> {
         return ranges.fold(listOf(IntArray(0))) { acc, range ->
