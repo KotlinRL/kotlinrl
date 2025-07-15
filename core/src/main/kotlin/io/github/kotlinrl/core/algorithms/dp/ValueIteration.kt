@@ -1,18 +1,20 @@
 package io.github.kotlinrl.core.algorithms.dp
 
 import io.github.kotlinrl.core.*
+import io.github.kotlinrl.core.algorithms.PTable
 import kotlin.math.*
 
 class ValueIteration(
     private val gamma: Double = 0.99,
-    private val theta: Double = 1e-6
+    private val theta: Double = 1e-6,
+    val vTable: VTable,
+    val pTable: PTable
 ) : Planner<IntArray, Int> {
     override fun plan(
-        vararg stateShape: Int,
         stateActionListProvider: StateActionListProvider<IntArray, Int>,
         transitionFunction: TransitionFunction<IntArray, Int>
     ): Policy<IntArray, Int> {
-        val vTable = VTable(*stateShape)
+
         val states = vTable.allStates()
 
         do {
@@ -29,7 +31,6 @@ class ValueIteration(
             }
         } while (delta > theta)
 
-        val pi = PTable(*stateShape)
         for (s in states) {
             val bestAction = stateActionListProvider(s)
                 .sorted()
@@ -37,8 +38,10 @@ class ValueIteration(
                     val (next, r) = transitionFunction(s, a)
                     r + gamma * vTable[next]
                 } ?: error("No actions available for state ${s.contentToString()}")
-            pi[s] = bestAction
+            pTable[s] = bestAction
         }
+
+        val pi = pTable.deepCopy()
         return Policy { pi[it] }
     }
 }

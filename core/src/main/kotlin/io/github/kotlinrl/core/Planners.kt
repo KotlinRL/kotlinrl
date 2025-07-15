@@ -5,10 +5,14 @@ typealias TransitionFunction<State, Action> = io.github.kotlinrl.core.plan.Trans
 
 fun policyIterationPlanner(
     gamma: Double = 0.99,
-    theta: Double = 1e-6
-) = PolicyIteration(gamma, theta)
+    theta: Double = 1e-6,
+    vTable: VTable,
+    pTable: PTable
+) = PolicyIteration(gamma, theta, vTable, pTable)
 
 fun valueIterationPlanner(
     gamma: Double = 0.99,
-    theta: Double = 1e-6
-) = ValueIteration(gamma, theta)
+    theta: Double = 1e-6,
+    vTable: VTable,
+    pTable: PTable
+) = ValueIteration(gamma, theta, vTable, pTable)

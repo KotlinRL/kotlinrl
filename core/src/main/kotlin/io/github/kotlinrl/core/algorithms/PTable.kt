@@ -19,6 +19,14 @@ class PTable(
 
     override fun invoke(state: IntArray): Int = this[state]
 
+    fun deepCopy(): PTable {
+        val copy = PTable(*shape)
+        for (s in allStates()) {
+            copy[s] = this[s]
+        }
+        return copy
+    }
+
     private fun cartesianProduct(vararg ranges: Iterable<Int>): List<IntArray> {
         return ranges.fold(listOf(IntArray(0))) { acc, range ->
             acc.flatMap { prefix -> range.map { i -> prefix + i } }

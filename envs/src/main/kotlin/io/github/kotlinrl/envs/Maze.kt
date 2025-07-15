@@ -240,7 +240,7 @@ class Maze(
     override fun simulateStep(state: IntArray, action: Int): Transition<IntArray> {
         val reward = computeReward(state, action)
         val nextState = nextState(state, action)
-        val terminated = state.toList() == goal
+        val terminated = state.contentEquals(goal)
         return Transition(nextState, reward, terminated, false, emptyMap())
     }
 }
