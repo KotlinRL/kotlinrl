@@ -10,8 +10,7 @@ class ValueIteration(
     override fun plan(
         vararg stateShape: Int,
         stateActionListProvider: StateActionListProvider<IntArray, Int>,
-        transitionFunction: TransitionFunction<IntArray, Int>,
-        rewardFunction: RewardFunction<IntArray, Int>
+        transitionFunction: TransitionFunction<IntArray, Int>
     ): Policy<IntArray, Int> {
         val vTable = VTable(*stateShape)
         val states = vTable.allStates()
@@ -21,8 +20,7 @@ class ValueIteration(
             for (s in states) {
                 val oldV = vTable[s]
                 val bestValue = stateActionListProvider(s).maxOfOrNull { a ->
-                    val next = transitionFunction(s, a)
-                    val r = rewardFunction(s, a)
+                    val (next, r) = transitionFunction(s, a)
                     r + gamma * vTable[next]
                 } ?: 0.0
 
@@ -36,8 +34,7 @@ class ValueIteration(
             val bestAction = stateActionListProvider(s)
                 .sorted()
                 .maxByOrNull { a ->
-                    val next = transitionFunction(s, a)
-                    val r = rewardFunction(s, a)
+                    val (next, r) = transitionFunction(s, a)
                     r + gamma * vTable[next]
                 } ?: error("No actions available for state ${s.contentToString()}")
             pi[s] = bestAction
