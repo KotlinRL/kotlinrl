@@ -18,6 +18,14 @@ class VTable(
 
     fun allStates(): List<IntArray> = cartesianProduct(*shape.map { 0 until it }.toTypedArray())
 
+    fun deepCopy(): VTable {
+        val copy = VTable(*shape)
+        for (s in allStates()) {
+            copy[s] = this[s]
+        }
+        return copy
+    }
+
     private fun cartesianProduct(vararg ranges: Iterable<Int>): List<IntArray> {
         return ranges.fold(listOf(IntArray(0))) { acc, range ->
             acc.flatMap { prefix -> range.map { i -> prefix + i } }

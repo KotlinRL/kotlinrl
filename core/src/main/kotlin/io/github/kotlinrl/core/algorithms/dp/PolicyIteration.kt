@@ -5,22 +5,21 @@ import kotlin.math.*
 
 class PolicyIteration(
     private val gamma: Double = 0.99,
-    private val theta: Double = 1e-6
+    private val theta: Double = 1e-6,
+    val vTable: VTable,
+    val pTable: PTable
 ) : Planner<IntArray, Int> {
 
     override fun plan(
-        vararg stateShape: Int,
         stateActionListProvider: StateActionListProvider<IntArray, Int>,
         transitionFunction: TransitionFunction<IntArray, Int>
     ): Policy<IntArray, Int> {
-        val vTable = VTable(*stateShape)
-        val pi = PTable(*stateShape)
         val states = vTable.allStates()
 
         // Initial policy: arbitrary (e.g., all zeros)
         for (s in states) {
             val actions = stateActionListProvider(s)
-            pi[s] = actions.firstOrNull() ?: continue
+            pTable[s] = actions.firstOrNull() ?: continue
         }
 
         var policyStable: Boolean
@@ -30,7 +29,7 @@ class PolicyIteration(
                 var delta = 0.0
                 for (s in states) {
                     val oldV = vTable[s]
-                    val a = pi[s]
+                    val a = pTable[s]
                     val (next, r) = transitionFunction(s, a)
                     val newV = r + gamma * vTable[next]
                     vTable[s] = newV
@@ -41,20 +40,21 @@ class PolicyIteration(
             // Policy Improvement
             policyStable = true
             for (s in states) {
-                val oldAction = pi[s]
+                val oldAction = pTable[s]
                 val bestAction = stateActionListProvider(s).maxByOrNull { a ->
                     val (next, r) = transitionFunction(s, a)
                     r + gamma * vTable[next]
                 } ?: oldAction
 
                 if (oldAction != bestAction) {
-                    pi[s] = bestAction
+                    pTable[s] = bestAction
                     policyStable = false
                 }
             }
 
         } while (!policyStable)
 
+        val pi = pTable.deepCopy()
         return Policy { pi[it] }
     }
 }

@@ -4,7 +4,6 @@ import io.github.kotlinrl.core.*
 
 interface Planner<State, Action> {
     fun plan(
-        stateShape: IntArray,
         stateActionListProvider: StateActionListProvider<State, Action>,
         transitionFunction: TransitionFunction<State, Action>
     ): Policy<State, Action>

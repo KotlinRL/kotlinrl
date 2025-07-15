@@ -41,12 +41,12 @@ fun expectedSARSA(
 fun valueIteration(
     gamma: Double = 0.99,
     theta: Double = 1e-6,
+    vTable: VTable,
+    pTable: PTable,
     env: ModelBasedEnv,
-    stateShape: IntArray,
     stateActionListProvider: StateActionListProvider<IntArray, Int>
-): Policy<IntArray, Int> = valueIterationPlanner(gamma, theta)
+): Policy<IntArray, Int> = valueIterationPlanner(gamma, theta, vTable, pTable)
     .plan(
-        stateShape = stateShape,
         stateActionListProvider = stateActionListProvider,
         transitionFunction = env::simulateStep
     )
@@ -54,12 +54,12 @@ fun valueIteration(
 fun valueIteration(
     gamma: Double = 0.99,
     theta: Double = 1e-6,
-    stateShape: IntArray,
+    vTable: VTable,
+    pTable: PTable,
     stateActionListProvider: StateActionListProvider<IntArray, Int>,
     transitionFunction: TransitionFunction<IntArray, Int>
-): Policy<IntArray, Int> = valueIterationPlanner(gamma, theta)
+): Policy<IntArray, Int> = valueIterationPlanner(gamma, theta, vTable, pTable)
     .plan(
-        stateShape = stateShape,
         stateActionListProvider = stateActionListProvider,
         transitionFunction = transitionFunction
     )
@@ -68,12 +68,12 @@ fun valueIteration(
 fun policyIteration(
     gamma: Double = 0.99,
     theta: Double = 1e-6,
+    vTable: VTable,
+    pTable: PTable,
     env: ModelBasedEnv,
-    stateShape: IntArray,
     stateActionListProvider: StateActionListProvider<IntArray, Int>
-): Policy<IntArray, Int> = policyIterationPlanner(gamma, theta)
+): Policy<IntArray, Int> = policyIterationPlanner(gamma, theta, vTable, pTable)
     .plan(
-        stateShape = stateShape,
         stateActionListProvider = stateActionListProvider,
         transitionFunction = env::simulateStep
     )
@@ -81,12 +81,12 @@ fun policyIteration(
 fun policyIteration(
     gamma: Double = 0.99,
     theta: Double = 1e-6,
-    stateShape: IntArray,
+    vTable: VTable,
+    pTable: PTable,
     stateActionListProvider: StateActionListProvider<IntArray, Int>,
     transitionFunction: TransitionFunction<IntArray, Int>
-): Policy<IntArray, Int> = policyIterationPlanner(gamma, theta)
+): Policy<IntArray, Int> = policyIterationPlanner(gamma, theta, vTable, pTable)
     .plan(
-        stateShape = stateShape,
         stateActionListProvider = stateActionListProvider,
         transitionFunction = transitionFunction
     )
