@@ -8,11 +8,11 @@ class PTable(
     vararg val stateDims: Int,
     private val defaultAction: Int = 0
 ): MutablePolicy<IntArray, Int> {
-    private val policy: NDArray<Int, DN> = mk.dnarray(stateDims) { defaultAction }
+    private val policy: NDArray<Int, DN> = mk.dnarray<Int, DN>(stateDims) { defaultAction }.asDNArray()
 
-    override operator fun get(state: IntArray): Int = policy[state[0], state[1]]
+    override operator fun get(state: IntArray): Int = policy[state]
     override operator fun set(state: IntArray, action: Int) {
-        policy[state[0], state[1]] = action
+        policy[state] = action
     }
 
     fun allStates(): List<IntArray> = cartesianProduct(*stateDims.map { 0 until it }.toTypedArray())

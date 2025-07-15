@@ -6,7 +6,7 @@ import org.jetbrains.kotlinx.multik.ndarray.data.*
 class VTable(
     vararg val stateDims: Int
 ) {
-    private val table: NDArray<Double, DN> = mk.dnarray(stateDims) { 0.0 }
+    private val table: NDArray<Double, DN> = mk.dnarray<Double, DN>(stateDims) { 0.0 }.asDNArray()
 
     fun max(): Double = table.data.max()
 
