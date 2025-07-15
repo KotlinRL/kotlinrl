@@ -34,7 +34,7 @@ fun softMaxPolicy(
     temperature: ExplorationFactor,
     qTable: QTable,
     rng: Random = Random.Default
-): Policy<IntArray, Int> = SoftmaxPolicy(
+): ProbabilisticPolicy<IntArray, Int> = SoftmaxPolicy(
     qTable = qTable,
     temperature = temperature,
     rng = rng
@@ -45,7 +45,7 @@ fun epsilonSoftPolicy(
     qTable: QTable,
     epsilon: ExplorationFactor,
     rng: Random = Random.Default
-): Policy<IntArray, Int> = EpsilonSoftPolicy(
+): ProbabilisticPolicy<IntArray, Int> = EpsilonSoftPolicy(
     stateActionListProvider = actions,
     qTable=qTable,
     epsilon = epsilon,

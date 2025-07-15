@@ -3,15 +3,16 @@ package io.github.kotlinrl.core.algorithms.dp
 import io.github.kotlinrl.core.*
 import kotlin.math.*
 
-class ValueIteration : Planner<IntArray, Int> {
+class ValueIteration(
+    private val goal: IntArray
+) : Planner<IntArray, Int> {
     override fun plan(
-        size: Int,
-        goal: IntArray,
+        stateShape: IntArray,
         allActions: StateActionListProvider<IntArray, Int>,
         transition: TransitionFunction<IntArray, Int>,
         reward: RewardFunction<IntArray, Int>
     ): Policy<IntArray, Int> {
-        val vTable = VTable(size)
+        val vTable = VTable(*stateShape)
         val states = vTable.allStates()
 
         val gamma = 0.99
@@ -32,7 +33,7 @@ class ValueIteration : Planner<IntArray, Int> {
             }
         } while (delta > theta)
 
-        val pi = PTable(size)
+        val pi = PTable(*stateShape)
         for (s in states) {
             val bestAction = allActions(s)
                 .sorted()

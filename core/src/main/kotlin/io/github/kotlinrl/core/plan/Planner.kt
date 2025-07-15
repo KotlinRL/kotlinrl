@@ -5,8 +5,7 @@ import io.github.kotlinrl.core.policy.StateActionListProvider
 
 interface Planner<State, Action> {
     fun plan(
-        size: Int,
-        goal: IntArray,
+        stateShape: IntArray,
         allActions: StateActionListProvider<State, Action>,
         transition: TransitionFunction<State, Action>,
         reward: RewardFunction<State, Action>,

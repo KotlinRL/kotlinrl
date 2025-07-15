@@ -9,14 +9,13 @@ class PolicyIteration(
 ) : Planner<IntArray, Int> {
 
     override fun plan(
-        size: Int,
-        goal: IntArray,
+        stateShape: IntArray,
         allActions: StateActionListProvider<IntArray, Int>,
         transition: TransitionFunction<IntArray, Int>,
         reward: RewardFunction<IntArray, Int>
     ): Policy<IntArray, Int> {
-        val vTable = VTable(size)
-        val pi = PTable(size)
+        val vTable = VTable(*stateShape)
+        val pi = PTable(*stateShape)
         val states = vTable.allStates()
 
         // Initial policy: arbitrary (e.g., all zeros)

@@ -3,20 +3,24 @@ package io.github.kotlinrl.core.algorithms
 import org.jetbrains.kotlinx.multik.api.*
 import org.jetbrains.kotlinx.multik.ndarray.data.*
 
-class VTable(val gridSize: Int) {
-    private val values: D2Array<Double> = mk.d2array(gridSize, gridSize) { 0.0 }
+class VTable(
+    vararg val stateDims: Int
+) {
+    private val table: NDArray<Double, DN> = mk.dnarray(stateDims) { 0.0 }
 
-    fun max(): Double = values.data.max()
+    fun max(): Double = table.data.max()
 
-    fun allStates(): List<IntArray> = buildList {
-        for (i in 0 until gridSize) {
-            for (j in 0 until gridSize) {
-                add(intArrayOf(i, j))
-            }
-        }
-    }
-    operator fun get(state: IntArray): Double = values[state[0], state[1]]
+    operator fun get(state: IntArray): Double = table[state]
+
     operator fun set(state: IntArray, value: Double) {
-        values[state[0], state[1]] = value
+        table[state] = value
+    }
+
+    fun allStates(): List<IntArray> = cartesianProduct(*stateDims.map { 0 until it }.toTypedArray())
+
+    private fun cartesianProduct(vararg ranges: Iterable<Int>): List<IntArray> {
+        return ranges.fold(listOf(IntArray(0))) { acc, range ->
+            acc.flatMap { prefix -> range.map { i -> prefix + i } }
+        }
     }
 }
