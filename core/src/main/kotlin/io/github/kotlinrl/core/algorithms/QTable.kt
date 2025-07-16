@@ -1,18 +1,17 @@
 package io.github.kotlinrl.core.algorithms
 
+import org.apache.commons.csv.*
 import org.jetbrains.kotlinx.multik.api.*
-import org.jetbrains.kotlinx.multik.api.io.*
 import org.jetbrains.kotlinx.multik.api.math.*
 import org.jetbrains.kotlinx.multik.ndarray.data.*
 import org.jetbrains.kotlinx.multik.ndarray.data.DataType.*
 import org.jetbrains.kotlinx.multik.ndarray.operations.*
 import java.io.*
-import kotlin.collections.plus
 
 class QTable(
     vararg val shape: Int,
-): QFunction<IntArray, Int> {
-    private var table = mk.zeros<Double, DN>(shape, DoubleDataType).asDNArray()
+) : QFunction<IntArray, Int> {
+    private var table: NDArray<Double, DN> = mk.zeros<Double, DN>(shape, DoubleDataType).asDNArray()
 
     override operator fun get(state: IntArray, action: Int): Double = table[state + action]
     override operator fun set(state: IntArray, action: Int, value: Double) {
@@ -28,34 +27,52 @@ class QTable(
 
     override fun bestAction(state: IntArray): Int = qValues(state).argMax()
 
-    override fun save(path: String) {
-        if (shape.size == 1) {
-            val d1 = table.reshape(shape[0]).asD1Array()
-            mk.write(File(path), d1)
-        } else {
-            val d2 = table.reshape(shape.dropLast(1).reduce(Int::times), shape.last()).asD2Array()
-            mk.write(File(path), d2)
-        }
-    }
-
     fun copy(): QTable {
         val copy = QTable(*shape)
         table.data.copyInto(copy.table.data)
         return copy
     }
 
+    override fun save(path: String) {
+        mk.writeCsvSafely(path, table)
+    }
+
     override fun load(path: String) {
-        if (shape.size == 1) {
-            val d1 = mk.read<Double, D1>(File(path))
-            table = d1.reshape(shape[0]).asDNArray()
-        } else {
-            val d2 = mk.read<Double, D2>(File(path))
-            table =  when (shape.size) {
-                2 -> d2.reshape(shape[0], shape[1])
-                3 -> d2.reshape(shape[0], shape[1], shape[2])
-                4 -> d2.reshape(shape[0], shape[1], shape[2], shape[3])
-                else -> d2.reshape(shape[0], shape[1], shape[2], shape[3], *shape.copyOfRange(4, shape.size))
-            }.asDNArray()
+        table = mk.readCsvSafely(path)
+    }
+}
+
+private fun mk.writeCsvSafely(path: String, ndarray: NDArray<Double, DN>): Unit =
+    CSVFormat.DEFAULT.print(FileWriter(path)).use { printer ->
+        val shape = ndarray.shape
+        val dim = ndarray.dim
+        when (dim) {
+            D1 -> ndarray.forEach { printer.printRecord(it) }
+            else -> {
+                val numRows = shape.dropLast(1).reduce(Int::times)
+                val rowLength = shape.last()
+
+                val reshaped = ndarray.reshape(numRows, rowLength)
+                for (i in 0 until numRows) {
+                    val row = List(rowLength) { j -> reshaped[i, j] }
+                    printer.printRecord(row)
+                }
+            }
         }
     }
+
+private fun mk.readCsvSafely(path: String): NDArray<Double, DN> {
+    val data = mutableListOf<DoubleArray>()
+
+    CSVFormat.DEFAULT.parse(FileReader(path)).use { parser ->
+        parser.records.forEach { record -> data.add(record.map { it.toDouble() }.toDoubleArray())}
+    }
+
+    val colCount = data.firstOrNull()?.size ?: 0
+
+    require(data.all { it.size == colCount }) {
+        "Inconsistent number of columns in CSV"
+    }
+
+    return mk.ndarray(data.toTypedArray()).asDNArray()
 }
