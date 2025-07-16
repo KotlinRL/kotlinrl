@@ -16,10 +16,7 @@ class OffPolicyMonteCarloControl(
         var G = 0.0
         var W = 1.0
 
-        for (trajectory in episode.asReversed()) {
-            val s = trajectory.state
-            val a = trajectory.action
-            val r = trajectory.reward
+        for ((s, a, r) in episode.asReversed()) {
             G = gamma * G + r
 
             val key = (s + a).toList()
