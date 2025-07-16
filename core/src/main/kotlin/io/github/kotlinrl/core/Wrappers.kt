@@ -1,39 +1,25 @@
 package io.github.kotlinrl.core
 
 import io.github.kotlinrl.core.wrapper.*
-import javafx.animation.KeyFrame
-import javafx.animation.PauseTransition
-import javafx.animation.Timeline
+import javafx.animation.*
 import javafx.application.*
+import javafx.event.*
 import javafx.geometry.*
+import javafx.geometry.Insets
 import javafx.scene.*
 import javafx.scene.control.*
-import javafx.scene.input.MouseEvent
-import javafx.scene.layout.*
-import javafx.scene.media.*
-import javafx.stage.*
-import javafx.util.Duration
-import org.jetbrains.kotlinx.jupyter.api.*
-import java.awt.Desktop
-import javafx.application.Platform
-import javafx.event.EventHandler
-import javafx.geometry.Insets
-import javafx.geometry.Pos
-import javafx.scene.Scene
 import javafx.scene.control.Button
 import javafx.scene.control.Label
-import javafx.scene.control.Slider
+import javafx.scene.image.*
 import javafx.scene.image.Image
-import javafx.scene.image.ImageView
-import javafx.scene.layout.HBox
-import javafx.scene.layout.StackPane
-import javafx.scene.layout.VBox
-import javafx.scene.media.Media
-import javafx.scene.media.MediaPlayer
-import javafx.scene.media.MediaView
-import javafx.scene.shape.SVGPath
-import javafx.stage.Stage
-import java.io.File
+import javafx.scene.input.*
+import javafx.scene.layout.*
+import javafx.scene.shape.*
+import javafx.stage.*
+import javafx.util.*
+import org.jetbrains.kotlinx.jupyter.api.*
+import java.awt.*
+import java.awt.image.BufferedImage
 import java.io.*
 
 typealias ClipAction<State, Num, D, ObservationSpace> = io.github.kotlinrl.core.wrapper.ClipAction<State, Num, D, ObservationSpace>
@@ -101,6 +87,8 @@ fun displayVideo(file: File): Any {
         ""
     }
 }
+
+fun RenderFrame.toBufferedImage(): BufferedImage = renderFrameToBufferedImage(this)
 
 private object JavaFXState {
     @Volatile

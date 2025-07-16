@@ -7,10 +7,6 @@ abstract class TabularTDLearning(
     protected val qTable: QTable,
     protected val alpha: Double,
     protected val gamma: Double
-) : TrajectoryObserver<IntArray, Int>, StateActionCallback<IntArray, Int> {
-    protected var action: Int? = null
+) : TrajectoryObserver<IntArray, Int> {
 
-    override fun after(state: IntArray, action: Int) {
-        this.action = action
-    }
 }

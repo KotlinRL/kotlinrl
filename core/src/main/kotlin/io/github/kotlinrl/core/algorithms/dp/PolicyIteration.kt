@@ -54,7 +54,7 @@ class PolicyIteration(
 
         } while (!policyStable)
 
-        val pi = pTable.deepCopy()
+        val pi = pTable.copy()
         return Policy { pi[it] }
     }
 }

@@ -17,7 +17,7 @@ class Monitor<State, Action, ObservationSpace : Space<State>, ActionSpace : Spac
 
     override fun reset(seed: Int?, options: Map<String, String>?): InitialState<State> {
         if (episodeLength > 0) {
-            // Log to file before resetting counters (if previous episode finished)
+            // Log to file beforeStep resetting counters (if previous episode finished)
             logFile.appendText("${System.currentTimeMillis()},$episodeReward,$episodeLength\n")
         }
         episodeReward = 0.0

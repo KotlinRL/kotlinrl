@@ -17,8 +17,8 @@ class OrderEnforcing<State, Action, ObservationSpace : Space<State>, ActionSpace
     override fun step(action: Action): Transition<State> {
         if (needsReset) {
             throw IllegalStateException(
-                "step() called before reset(), or after episode done. " +
-                        "You must call reset() before step()."
+                "step() called beforeStep reset(), or afterStep episode done. " +
+                        "You must call reset() beforeStep step()."
             )
         }
         val t = env.step(action)
