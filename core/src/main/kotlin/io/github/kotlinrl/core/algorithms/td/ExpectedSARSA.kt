@@ -13,7 +13,7 @@ class ExpectedSARSA(
 ) : TabularTDLearning(qTable, alpha, gamma) {
 
     override fun invoke(trajectory: Trajectory<IntArray, Int>) {
-        val (s, sPrime, a, r, terminated, truncated, _) = trajectory
+        val (s, a, r, sPrime, terminated, truncated, _) = trajectory
         val done = terminated || truncated
         val currentValue = qTable[s, a]
 
