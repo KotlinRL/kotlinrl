@@ -2,7 +2,8 @@ package io.github.kotlinrl.core.env
 
 import io.github.kotlinrl.core.*
 
-interface ModelBasedEnv : Env<IntArray, Int, MultiDiscrete, Discrete> {
+interface ModelBasedEnv<State, Action, ObservationSpace : Space<State>, ActionSpace : Space<Action>>
+    : Env<State, Action, ObservationSpace, ActionSpace> {
 
-    fun simulateStep(state: IntArray, action: Int): Transition<IntArray>
+    fun simulateStep(state: State, action: Action): Transition<State>
 }

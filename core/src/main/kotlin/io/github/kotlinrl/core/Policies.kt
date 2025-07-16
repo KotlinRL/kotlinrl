@@ -4,10 +4,10 @@ import kotlin.random.*
 
 typealias ExplorationFactor = io.github.kotlinrl.core.policy.ExplorationFactor
 typealias RandomPolicy<State, Action> = io.github.kotlinrl.core.policy.RandomPolicy<State, Action>
-typealias GreedyPolicy = io.github.kotlinrl.core.policy.GreedyPolicy
-typealias EpsilonGreedyPolicy = io.github.kotlinrl.core.policy.EpsilonGreedyPolicy
-typealias SoftmaxPolicy = io.github.kotlinrl.core.policy.SoftmaxPolicy
-typealias EpsilonSoftPolicy = io.github.kotlinrl.core.policy.EpsilonSoftPolicy
+typealias GreedyPolicy<State, Action> = io.github.kotlinrl.core.policy.GreedyPolicy<State, Action>
+typealias EpsilonGreedyPolicy<State, Action> = io.github.kotlinrl.core.policy.EpsilonGreedyPolicy<State, Action>
+typealias SoftmaxPolicy<State, Action> = io.github.kotlinrl.core.policy.SoftmaxPolicy<State, Action>
+typealias EpsilonSoftPolicy<State, Action> = io.github.kotlinrl.core.policy.EpsilonSoftPolicy<State, Action>
 typealias Policy<State, Action> = io.github.kotlinrl.core.policy.Policy<State, Action>
 typealias ProbabilisticPolicy<State, Action> = io.github.kotlinrl.core.policy.ProbabilisticPolicy<State, Action>
 typealias PolicyProbabilities<State, Action> = io.github.kotlinrl.core.policy.PolicyProbabilities<State, Action>
@@ -19,34 +19,36 @@ fun <State, Action> randomPolicy(
     rng: Random = Random.Default
 ): Policy<State, Action> = RandomPolicy(actionProvider, rng)
 
-fun greedyPolicy(
-    qTable: QTable
-): Policy<IntArray, Int> = GreedyPolicy(qTable)
+fun <State, Action> greedyPolicy(
+    qTable: QFunction<State, Action>
+): Policy<State, Action> = GreedyPolicy(qTable)
 
-fun epsilonGreedyPolicy(
-    stateActionListProvider: StateActionListProvider<IntArray, Int>,
+fun <State, Action> epsilonGreedyPolicy(
+    stateActionListProvider: StateActionListProvider<State, Action>,
     explorationFactor: ExplorationFactor,
-    qTable: QTable,
+    qTable: QFunction<State, Action>,
     rng: Random = Random.Default
-): Policy<IntArray, Int> = EpsilonGreedyPolicy(stateActionListProvider, qTable, explorationFactor, rng)
+): Policy<State, Action> = EpsilonGreedyPolicy(stateActionListProvider, qTable, explorationFactor, rng)
 
-fun softMaxPolicy(
+fun <State, Action> softMaxPolicy(
+    qTable: QFunction<State, Action>,
     temperature: ExplorationFactor,
-    qTable: QTable,
+    stateActionListProvider: StateActionListProvider<State, Action>,
     rng: Random = Random.Default
-): ProbabilisticPolicy<IntArray, Int> = SoftmaxPolicy(
+): ProbabilisticPolicy<State, Action> = SoftmaxPolicy(
     qTable = qTable,
     temperature = temperature,
+    stateActionListProvider = stateActionListProvider,
     rng = rng
 )
 
-fun epsilonSoftPolicy(
-    actions: StateActionListProvider<IntArray, Int>,
-    qTable: QTable,
+fun <State, Action> epsilonSoftPolicy(
+    stateActionListProvider: StateActionListProvider<State, Action>,
+    qTable: QFunction<State, Action>,
     epsilon: ExplorationFactor,
     rng: Random = Random.Default
-): ProbabilisticPolicy<IntArray, Int> = EpsilonSoftPolicy(
-    stateActionListProvider = actions,
+): ProbabilisticPolicy<State, Action> = EpsilonSoftPolicy(
+    stateActionListProvider = stateActionListProvider,
     qTable=qTable,
     epsilon = epsilon,
     rng = rng)

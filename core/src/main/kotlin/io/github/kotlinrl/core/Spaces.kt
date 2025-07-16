@@ -10,3 +10,4 @@ typealias OneOf = io.github.kotlinrl.core.space.OneOf
 typealias Sequence<T> = io.github.kotlinrl.core.space.Sequence<T>
 typealias Text = io.github.kotlinrl.core.space.Text
 typealias Tuple = io.github.kotlinrl.core.space.Tuple
+typealias Space<T> = io.github.kotlinrl.core.space.Space<T>

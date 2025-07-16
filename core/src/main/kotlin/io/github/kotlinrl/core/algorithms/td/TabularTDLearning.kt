@@ -1,12 +1,11 @@
 package io.github.kotlinrl.core.algorithms.td
 
-import io.github.kotlinrl.core.agent.*
-import io.github.kotlinrl.core.algorithms.QTable
+import io.github.kotlinrl.core.*
 
-abstract class TabularTDLearning(
-    protected val qTable: QTable,
+abstract class TabularTDLearning<State, Action>(
+    protected val qTable: QFunction<State, Action>,
     protected val alpha: Double,
     protected val gamma: Double
-) : TrajectoryObserver<IntArray, Int> {
+) : TrajectoryObserver<State, Action> {
 
 }

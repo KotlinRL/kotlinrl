@@ -2,24 +2,23 @@ package io.github.kotlinrl.core.algorithms.mc
 
 import io.github.kotlinrl.core.*
 
-class OffPolicyMonteCarloControl(
-    private val qTable: QTable,
+class OffPolicyMonteCarloControl<State, Action>(
+    private val qTable: QFunction<State, Action>,
     private val gamma: Double,
-    private val behaviorPolicy: ProbabilisticPolicy<IntArray, Int>,
-    private val targetPolicy: MutablePolicy<IntArray, Int>
-) : EpisodeCallback<IntArray, Int> {
+    private val behaviorPolicy: ProbabilisticPolicy<State, Action>,
+    private val targetPolicy: MutablePolicy<State, Action>
+) : EpisodeCallback<State, Action> {
 
-    private val C: MutableMap<List<Int>, Double> = mutableMapOf()
+    private val C: MutableMap<Pair<State, Action>, Double> = mutableMapOf()
 
-    override fun onEpisodeEnd(stats: EpisodeStats<IntArray, Int>) {
-        val episode = stats.trajectories
+    override fun onEpisodeEnd(stats: EpisodeStats<State, Action>) {
         var G = 0.0
         var W = 1.0
 
-        for ((s, a, r) in episode.asReversed()) {
+        for ((s, a, r) in stats.trajectories.asReversed()) {
             G = gamma * G + r
 
-            val key = (s + a).toList()
+            val key = Pair(s, a)
             val c = C.getOrDefault(key, 0.0)
             C[key] = c + W
 
@@ -28,7 +27,7 @@ class OffPolicyMonteCarloControl(
 
             targetPolicy[s] = qTable.bestAction(s)
 
-            if (a != targetPolicy[s]) break
+            if (a != targetPolicy(s)) break
             W /= behaviorPolicy.probability(s, a)
         }
     }

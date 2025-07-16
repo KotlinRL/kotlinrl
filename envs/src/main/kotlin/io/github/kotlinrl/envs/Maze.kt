@@ -15,7 +15,7 @@ class Maze(
     val size: Int = 5,
     override val metadata: Map<String, Any> = emptyMap(),
     seed: Int? = null,
-) : ModelBasedEnv {
+) : ModelBasedEnv<IntArray, Int, MultiDiscrete, Discrete> {
     enum class Action(val value: Int) {
         UP(0),
         RIGHT(1),
