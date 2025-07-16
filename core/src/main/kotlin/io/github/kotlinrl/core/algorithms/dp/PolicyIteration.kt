@@ -3,17 +3,17 @@ package io.github.kotlinrl.core.algorithms.dp
 import io.github.kotlinrl.core.*
 import kotlin.math.*
 
-class PolicyIteration(
+class PolicyIteration<State, Action>(
     private val gamma: Double = 0.99,
     private val theta: Double = 1e-6,
-    val vTable: VTable,
-    val pTable: PTable
-) : Planner<IntArray, Int> {
+    val vTable: ValueFunction<State>,
+    val pTable: MutablePolicy<State, Action>
+) : Planner<State, Action> {
 
     override fun plan(
-        stateActionListProvider: StateActionListProvider<IntArray, Int>,
-        transitionFunction: TransitionFunction<IntArray, Int>
-    ): Policy<IntArray, Int> {
+        stateActionListProvider: StateActionListProvider<State, Action>,
+        transitionFunction: TransitionFunction<State, Action>
+    ): Policy<State, Action> {
         val states = vTable.allStates()
 
         // Initial policy: arbitrary (e.g., all zeros)

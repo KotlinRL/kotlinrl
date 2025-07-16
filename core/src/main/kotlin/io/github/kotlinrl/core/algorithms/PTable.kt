@@ -17,7 +17,7 @@ class PTable(
         policy[state] = action
     }
 
-    fun copy(): PTable {
+    override fun copy(): PTable {
         val copy = PTable(shape)
         policy.data.copyInto(copy.policy.data)
         return copy

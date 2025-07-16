@@ -2,18 +2,18 @@ package io.github.kotlinrl.core.policy
 
 import kotlin.random.*
 
-abstract class ProbabilisticPolicy<S, A>(
+abstract class ProbabilisticPolicy<State, Action>(
     private val rng: Random
-) : StochasticPolicy<S, A> {
+) : StochasticPolicy<State, Action> {
 
-    abstract fun actionScores(state: S): List<Pair<A, Double>>
+    abstract fun actionScores(state: State): List<Pair<Action, Double>>
 
-    override fun invoke(state: S): A {
+    override fun invoke(state: State): Action {
         val (actions, scores) = actionScores(state).unzip()
         return calculateAndSample(scores, actions)
     }
 
-    override fun probability(state: S, action: A): Double {
+    override fun probability(state: State, action: Action): Double {
         val actionScoreList = actionScores(state)
         val actions = actionScoreList.map { it.first }
         val scores = actionScoreList.map { it.second }
@@ -26,12 +26,12 @@ abstract class ProbabilisticPolicy<S, A>(
         return scores.map { it / sum }
     }
 
-    private fun calculateAndSample(scores: List<Double>, actions: List<A>): A {
+    private fun calculateAndSample(scores: List<Double>, actions: List<Action>): Action {
         val probs = computeProbabilities(scores)
         return sample(actions, probs)
     }
 
-    private fun sample(actions: List<A>, probabilities: List<Double>): A {
+    private fun sample(actions: List<Action>, probabilities: List<Double>): Action {
         val rand = rng.nextDouble()
         var cumulative = 0.0
         for (i in actions.indices) {

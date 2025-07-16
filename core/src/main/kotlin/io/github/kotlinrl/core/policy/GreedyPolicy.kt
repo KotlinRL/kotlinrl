@@ -1,12 +1,12 @@
 package io.github.kotlinrl.core.policy
 
-import io.github.kotlinrl.core.algorithms.QTable
+import io.github.kotlinrl.core.algorithms.*
 
-class GreedyPolicy(
-    private val qTable: QTable
-) : Policy<IntArray, Int> {
+class GreedyPolicy<State, Action>(
+    private val qTable: QFunction<State, Action>
+) : Policy<State, Action> {
 
-    override operator fun invoke(state: IntArray): Int {
+    override operator fun invoke(state: State): Action {
         return qTable.bestAction(state)
     }
 }

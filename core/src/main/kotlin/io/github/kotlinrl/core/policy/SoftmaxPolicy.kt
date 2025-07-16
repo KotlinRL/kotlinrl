@@ -1,21 +1,24 @@
 package io.github.kotlinrl.core.policy
 
-import io.github.kotlinrl.core.*
 import io.github.kotlinrl.core.ExplorationFactor
-import org.jetbrains.kotlinx.multik.ndarray.operations.*
+import io.github.kotlinrl.core.algorithms.*
 import kotlin.math.*
 import kotlin.random.*
 
-class SoftmaxPolicy(
-    private val qTable: QTable,
+class SoftmaxPolicy<State, Action>(
+    private val qTable: QFunction<State, Action>,
     private val temperature: ExplorationFactor,
+    private val stateActionListProvider: StateActionListProvider<State, Action>,
     rng: Random
-) : ProbabilisticPolicy<IntArray, Int>(rng) {
+) : ProbabilisticPolicy<State, Action>(rng) {
 
-    override fun actionScores(state: IntArray): List<Pair<Int, Double>> {
+    override fun actionScores(state: State): List<Pair<Action, Double>> {
         val temperature = temperature()
-        val qValues = qTable.qValues(state)
-        val mapIndexed = qValues.mapIndexed { action, q -> action to exp(q / temperature) }
-        return mapIndexed.toList()
+        val actions = stateActionListProvider(state)
+        return actions.map { action ->
+            val q = qTable[state, action]
+            val score = exp(q / temperature)
+            action to score
+        }
     }
 }

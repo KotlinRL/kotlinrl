@@ -1,15 +1,16 @@
 package io.github.kotlinrl.core.algorithms.td
 
+import io.github.kotlinrl.core.QFunction
 import io.github.kotlinrl.core.agent.*
 import io.github.kotlinrl.core.algorithms.QTable
 
-class QLearning(
-    qTable: QTable,
+class QLearning<State, Action>(
+    qTable: QFunction<State, Action>,
     alpha: Double,
     gamma: Double
-) : TabularTDLearning(qTable, alpha, gamma) {
+) : TabularTDLearning<State, Action>(qTable, alpha, gamma) {
 
-    override fun invoke(trajectory: Trajectory<IntArray, Int>) {
+    override fun invoke(trajectory: Trajectory<State, Action>) {
         val (s, a, r, sPrime, terminated, truncated, _) = trajectory
         val done = terminated || truncated
 

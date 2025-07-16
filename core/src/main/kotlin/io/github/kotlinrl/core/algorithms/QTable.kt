@@ -11,7 +11,7 @@ import kotlin.collections.plus
 
 class QTable(
     val shape: IntArray,
-): QFunction<IntArray, Int, NDArray<Double, D1>> {
+): QFunction<IntArray, Int> {
     private var table = mk.zeros<Double, DN>(shape, DoubleDataType).asDNArray()
 
     override operator fun get(state: IntArray, action: Int): Double = table[state + action]
@@ -19,9 +19,9 @@ class QTable(
         table[state + action] = value
     }
 
-    override fun qValues(index: IntArray): NDArray<Double, D1> {
-        val axes = IntArray(index.size) { it }
-        return table.view(index, axes).asDNArray().asD1Array()
+    private fun qValues(state: IntArray): NDArray<Double, D1> {
+        val axes = IntArray(state.size) { it }
+        return table.view(state, axes).asDNArray().asD1Array()
     }
 
     override fun maxValue(state: IntArray): Double = qValues(state).max() ?: 0.0

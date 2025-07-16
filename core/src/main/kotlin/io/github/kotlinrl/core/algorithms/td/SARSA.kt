@@ -2,18 +2,18 @@ package io.github.kotlinrl.core.algorithms.td
 
 import io.github.kotlinrl.core.*
 
-class SARSA(
-    qTable: QTable,
+class SARSA<State, Action>(
+    qTable: QFunction<State, Action>,
     alpha: Double,
     gamma: Double
-) : TabularTDLearning(qTable, alpha, gamma), StepCallback<IntArray, Int> {
-    private var action: Int? = null
+) : TabularTDLearning<State, Action>(qTable, alpha, gamma), StepCallback<State, Action> {
+    private var action: Action? = null
 
-    override fun afterStep(state: IntArray, action: Int) {
+    override fun afterStep(state: State, action: Action) {
         this.action = action
     }
 
-    override fun invoke(trajectory: Trajectory<IntArray, Int>) {
+    override fun invoke(trajectory: Trajectory<State, Action>) {
         val aPrime = action ?: return
         val (s, a, r, sPrime, terminated, truncated, _) = trajectory
         val done = terminated || truncated
