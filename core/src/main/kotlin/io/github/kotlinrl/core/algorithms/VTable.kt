@@ -4,7 +4,7 @@ import org.jetbrains.kotlinx.multik.api.*
 import org.jetbrains.kotlinx.multik.ndarray.data.*
 
 class VTable(
-    vararg val shape: Int
+    val shape: IntArray
 ): ValueFunction<IntArray> {
     private val table: NDArray<Double, DN> = mk.dnarray<Double, DN>(shape) { 0.0 }.asDNArray()
 
@@ -18,7 +18,7 @@ class VTable(
     override fun allStates(): List<IntArray> = cartesianProduct(*shape.map { 0 until it }.toTypedArray())
 
     fun copy(): VTable {
-        val copy = VTable(*shape)
+        val copy = VTable(shape)
         table.data.copyInto(copy.table.data)
         return copy
     }

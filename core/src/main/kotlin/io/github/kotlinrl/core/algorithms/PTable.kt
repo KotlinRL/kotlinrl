@@ -5,7 +5,7 @@ import org.jetbrains.kotlinx.multik.api.*
 import org.jetbrains.kotlinx.multik.ndarray.data.*
 
 class PTable(
-    vararg val shape: Int,
+    val shape: IntArray,
     private val defaultAction: Int = 0
 ): MutablePolicy<IntArray, Int> {
     private val policy: NDArray<Int, DN> = mk.dnarray<Int, DN>(shape) { defaultAction }.asDNArray()
@@ -18,7 +18,7 @@ class PTable(
     }
 
     fun copy(): PTable {
-        val copy = PTable(*shape)
+        val copy = PTable(shape)
         policy.data.copyInto(copy.policy.data)
         return copy
     }
