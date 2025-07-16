@@ -38,7 +38,13 @@ class QTable(
     }
 
     override fun load(path: String) {
-        table = mk.readCsvSafely(path)
+        val dn = mk.readCsvSafely(path)
+        table =  when (shape.size) {
+            2 -> dn.reshape(shape[0], shape[1])
+            3 -> dn.reshape(shape[0], shape[1], shape[2])
+            4 -> dn.reshape(shape[0], shape[1], shape[2], shape[3])
+            else -> dn.reshape(shape[0], shape[1], shape[2], shape[3], *shape.copyOfRange(4, shape.size))
+        }.asDNArray()
     }
 }
 
