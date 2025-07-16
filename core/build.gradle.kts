@@ -10,6 +10,7 @@ dependencies {
     implementation("org.jcodec:jcodec:0.2.5")
     implementation("org.jcodec:jcodec-javase:0.2.5")
     compileOnly("org.jetbrains.kotlinx:kotlin-jupyter-api:0.14.1-514")
+    implementation("org.apache.commons:commons-csv:1.9.0")
 }
 
 javafx {

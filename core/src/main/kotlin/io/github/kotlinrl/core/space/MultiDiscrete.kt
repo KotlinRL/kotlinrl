@@ -3,7 +3,7 @@ package io.github.kotlinrl.core.space
 import kotlin.random.*
 
 class MultiDiscrete(
-    val nvec: IntArray,
+    vararg val nvec: Int,
     val seed: Int? = null
 ) : Space<IntArray> {
 
