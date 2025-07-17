@@ -46,12 +46,12 @@ fun <State, Action> softMaxPolicy(
 fun <State, Action> epsilonSoftPolicy(
     stateActionListProvider: StateActionListProvider<State, Action>,
     qTable: QFunction<State, Action>,
-    epsilon: ExplorationFactor,
+    explorationFactor: ExplorationFactor,
     rng: Random = Random.Default
 ): ProbabilisticPolicy<State, Action> = EpsilonSoftPolicy(
     stateActionListProvider = stateActionListProvider,
     qTable=qTable,
-    epsilon = epsilon,
+    explorationFactor = explorationFactor,
     rng = rng)
 
 fun <State, Action> StochasticPolicy<State, Action>.asPolicyProbabilities(

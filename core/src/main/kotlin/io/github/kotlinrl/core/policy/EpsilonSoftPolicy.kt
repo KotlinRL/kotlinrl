@@ -2,13 +2,11 @@ package io.github.kotlinrl.core.policy
 
 import io.github.kotlinrl.core.ExplorationFactor
 import io.github.kotlinrl.core.algorithms.QFunction
-import io.github.kotlinrl.core.algorithms.QTable
-import org.jetbrains.kotlinx.multik.ndarray.operations.map
 import kotlin.random.*
 
 class EpsilonSoftPolicy<State, Action>(
     private val qTable: QFunction<State, Action>,
-    private val epsilon: ExplorationFactor,
+    private val explorationFactor: ExplorationFactor,
     private val stateActionListProvider: StateActionListProvider<State, Action>,
     rng: Random
 ) : ProbabilisticPolicy<State, Action>(rng) {
@@ -17,7 +15,7 @@ class EpsilonSoftPolicy<State, Action>(
         val actions = stateActionListProvider(state)
         val greedyAction = qTable.bestAction(state)
         val n = actions.size
-        val epsilon = epsilon()
+        val epsilon = explorationFactor()
 
         return actions.map { action ->
             val prob = if (action == greedyAction) {
