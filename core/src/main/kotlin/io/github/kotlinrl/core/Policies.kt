@@ -13,6 +13,7 @@ typealias ProbabilisticPolicy<State, Action> = io.github.kotlinrl.core.policy.Pr
 typealias PolicyProbabilities<State, Action> = io.github.kotlinrl.core.policy.PolicyProbabilities<State, Action>
 typealias StateActionListProvider<State, Action> = io.github.kotlinrl.core.policy.StateActionListProvider<State, Action>
 typealias MutablePolicy<State, Action> = io.github.kotlinrl.core.policy.MutablePolicy<State, Action>
+typealias StochasticPolicy<State, Action> = io.github.kotlinrl.core.policy.StochasticPolicy<State, Action>
 
 fun <State, Action> randomPolicy(
     actionProvider: StateActionListProvider<State, Action>,
@@ -52,6 +53,12 @@ fun <State, Action> epsilonSoftPolicy(
     qTable=qTable,
     epsilon = epsilon,
     rng = rng)
+
+fun <State, Action> StochasticPolicy<State, Action>.asPolicyProbabilities(
+    stateActionListProvider: StateActionListProvider<State, Action>
+): PolicyProbabilities<State, Action> = PolicyProbabilities { state ->
+    stateActionListProvider(state).associateWith { action -> this.probability(state, action) }
+}
 
 fun constantEpsilon(factor: Double) = ExplorationFactor { factor }
 

@@ -6,15 +6,15 @@ class SARSA<State, Action>(
     qTable: QFunction<State, Action>,
     alpha: Double,
     gamma: Double
-) : TabularTDLearning<State, Action>(qTable, alpha, gamma), StepCallback<State, Action> {
+) : TabularTDLearning<State, Action>(qTable, alpha, gamma) {
     private var action: Action? = null
 
-    override fun afterStep(state: State, action: Action) {
-        this.action = action
-    }
-
     override fun invoke(trajectory: Trajectory<State, Action>) {
-        val aPrime = action ?: return
+        if (action == null) {
+            action = trajectory.action
+            return
+        }
+        val aPrime = action!!
         val (s, a, r, sPrime, terminated, truncated, _) = trajectory
         val done = terminated || truncated
 
