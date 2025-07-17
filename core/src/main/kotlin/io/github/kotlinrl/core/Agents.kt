@@ -44,18 +44,17 @@ fun sarsaAgent(
 
 fun expectedSARSAAgent(
     id: String = UUID.randomUUID().toString(),
-    policy: Policy<IntArray, Int>,
+    policy: StochasticPolicy<IntArray, Int>,
     qTable: QTable,
     alpha: Double,
     gamma: Double,
-    stateActionListProvider: StateActionListProvider<IntArray, Int>,
-    policyProbabilities: PolicyProbabilities<IntArray, Int>
+    stateActionListProvider: StateActionListProvider<IntArray, Int>
 ): Agent<IntArray, Int> = agent(id, policy, expectedSARSA(
     qTable = qTable,
     alpha = alpha,
     gamma = gamma,
     stateActionListProvider = stateActionListProvider,
-    policyProbabilities = policyProbabilities
+    policyProbabilities = policy.asPolicyProbabilities(stateActionListProvider)
 ))
 
 fun monteCarloAgent(
