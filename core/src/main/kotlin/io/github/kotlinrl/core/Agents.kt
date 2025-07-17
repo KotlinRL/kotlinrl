@@ -42,7 +42,7 @@ fun sarsaAgent(
     return agent(id, policy, learning)
 }
 
-fun expectedSarsaAgent(
+fun expectedSARSAAgent(
     id: String = UUID.randomUUID().toString(),
     policy: Policy<IntArray, Int>,
     qTable: QTable,
