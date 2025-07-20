@@ -105,7 +105,7 @@ private val digits = 5
 private val numberFormat = "%0${digits}d"
 
 internal fun episodeFolderName(episode: Int) =
-    numberFormat.format(episode)
+    "episode_${numberFormat.format(episode)}"
 
 fun renderFrameToBufferedImage(frame: RenderFrame): BufferedImage {
     val img = BufferedImage(frame.width, frame.height, BufferedImage.TYPE_INT_RGB)
