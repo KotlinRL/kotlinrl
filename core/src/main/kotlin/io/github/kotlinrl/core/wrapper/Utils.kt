@@ -128,7 +128,7 @@ fun renderFrameToBufferedImage(frame: RenderFrame): BufferedImage {
 fun saveFrameAsPng(frame: RenderFrame, folder: String, episode: Int , frameIdx: Int) {
     val img = renderFrameToBufferedImage(frame)
     val digits = 5
-    val numberFormat = "%0${digits}d.png"
+    val numberFormat = "%0${digits}d"
     val pngFile = File(folder, "episode_${numberFormat.format(episode)}/frame_${numberFormat.format(frameIdx)}.png")
     pngFile.parentFile?.mkdirs()
     ImageIO.write(img, "png", pngFile)
