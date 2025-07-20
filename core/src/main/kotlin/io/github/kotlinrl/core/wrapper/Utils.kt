@@ -125,31 +125,38 @@ fun renderFrameToBufferedImage(frame: RenderFrame): BufferedImage {
     return img
 }
 
-fun saveEpisodeAsMp4JCodec(frames: List<BufferedImage>, folder: String, episode: Int = 1) {
+fun saveFrameAsPng(frame: RenderFrame, folder: String, episode: Int , frameIdx: Int) {
+    val img = renderFrameToBufferedImage(frame)
+    val digits = 5
+    val numberFormat = "%0${digits}d.png"
+    val pngFile = File(folder, "episode_${numberFormat.format(episode)}/frame_${numberFormat.format(frameIdx)}.png")
+    pngFile.parentFile?.mkdirs()
+    ImageIO.write(img, "png", pngFile)
+}
 
-    fun deleteRecursively(file: File) {
-        if (file.isDirectory) {
-            file.listFiles()?.forEach(::deleteRecursively)
-        }
-        file.delete()
+fun deleteRecursively(file: File) {
+    if (file.isDirectory) {
+        file.listFiles()?.forEach(::deleteRecursively)
     }
+    file.delete()
+}
 
-    val mp4File = File(folder, "episode_$episode.mp4")
+fun saveEpisodeAsMp4JCodec(folder: String, episode: Int = 1) {
+    val digits = 5
+    val episodeFolder = File(folder, "episode_%0${digits}d".format(episode))
+    val pngFiles = episodeFolder
+        .listFiles { file -> file.extension == "png" }
+        ?.sortedBy { it.name } ?: return
+
+    if (pngFiles.isEmpty()) return
+
+    val mp4File = File(folder, "episode_%0${digits}d.mp4".format(episode))
     mp4File.parentFile?.mkdirs()
+
     val encoder = AWTSequenceEncoder.createSequenceEncoder(mp4File, 30)
-    frames.forEach { encoder.encodeImage(it) }
+    pngFiles.forEach { file ->
+        val img = ImageIO.read(file)
+        encoder.encodeImage(img)
+    }
     encoder.finish()
-
-    val pngFolder = File(folder, "episode_$episode")
-    if (pngFolder.exists()) {
-        deleteRecursively(pngFolder)
-    }
-    pngFolder.mkdirs()
-
-    val digits = frames.size.toString().length
-    val numberFormat = "frame_%0${digits}d.png"
-    frames.forEachIndexed { idx, img ->
-        val pngFile = File(pngFolder, numberFormat.format(idx + 1))
-        ImageIO.write(img, "png", pngFile)
-    }
 }
