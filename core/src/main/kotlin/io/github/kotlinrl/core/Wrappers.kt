@@ -39,12 +39,14 @@ typealias TransformReward<State, Action, ObservationSpace, ActionSpace> = io.git
 typealias TransformState<State, Action, ObservationSpace, ActionSpace, WrappedState, WrappedObservationSpace> = io.github.kotlinrl.core.wrapper.TransformState<State, Action, ObservationSpace, ActionSpace, WrappedState, WrappedObservationSpace>
 
 fun displayVideo(
-    episode: Int,
-    folder: String
+    folder: String,
+    episode: Int
 ): Any? {
-    val digits = 5
-    val numberFormat = "%0${digits}d"
-    return displayVideo(File(folder, "episode_${numberFormat.format(episode)}"))
+    return displayVideo(File(folder, episodeFolderName(episode)))
+}
+
+fun displayVideo(file: String): Any {
+    return displayVideo(File(file))
 }
 
 fun displayVideo(file: File): Any {
