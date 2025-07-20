@@ -141,17 +141,17 @@ fun deleteRecursively(file: File) {
     file.delete()
 }
 
-fun saveEpisodeAsMp4JCodec(folder: String, episode: Int = 1) {
+fun saveEpisodeAsMp4JCodec(folder: String, episode: Int) {
     val digits = 5
-    val episodeFolder = File(folder, "episode_%0${digits}d".format(episode))
+    val baseName = "episode_%0${digits}d".format(episode)
+    val episodeFolder = File(folder, baseName)
     val pngFiles = episodeFolder
-        .listFiles { file -> file.extension == "png" }
+        .listFiles { it.extension == "png" }
         ?.sortedBy { it.name } ?: return
 
     if (pngFiles.isEmpty()) return
 
-    val mp4File = File(folder, "episode_%0${digits}d.mp4".format(episode))
-    mp4File.parentFile?.mkdirs()
+    val mp4File = File(folder, "$baseName.mp4")
 
     val encoder = AWTSequenceEncoder.createSequenceEncoder(mp4File, 30)
     pngFiles.forEach { file ->
