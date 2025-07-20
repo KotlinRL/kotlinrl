@@ -1,20 +1,12 @@
 package io.github.kotlinrl.core.wrapper
 
 import io.github.kotlinrl.core.RenderFrame
-import io.github.kotlinrl.core.env.*
 import io.github.kotlinrl.core.space.*
-import javafx.application.*
-import javafx.scene.*
-import javafx.scene.layout.*
-import javafx.scene.media.*
-import javafx.stage.*
 import org.jcodec.api.awt.*
-import org.jetbrains.kotlinx.jupyter.api.*
 import org.jetbrains.kotlinx.multik.api.*
 import org.jetbrains.kotlinx.multik.ndarray.data.*
 import org.jetbrains.kotlinx.multik.ndarray.data.DataType.*
 import org.jetbrains.kotlinx.multik.ndarray.data.Dimension
-import java.awt.*
 import java.awt.image.*
 import java.io.*
 import javax.imageio.ImageIO
@@ -109,6 +101,12 @@ fun <Num : Number, D : Dimension> clipToBox(
     }
 }
 
+private val digits = 5
+private val numberFormat = "%0${digits}d"
+
+internal fun episodeFolderName(episode: Int) =
+    numberFormat.format(episode)
+
 fun renderFrameToBufferedImage(frame: RenderFrame): BufferedImage {
     val img = BufferedImage(frame.width, frame.height, BufferedImage.TYPE_INT_RGB)
     val bytes = frame.bytes
@@ -127,9 +125,7 @@ fun renderFrameToBufferedImage(frame: RenderFrame): BufferedImage {
 
 fun saveFrameAsPng(frame: RenderFrame, folder: String, episode: Int , frameIdx: Int) {
     val img = renderFrameToBufferedImage(frame)
-    val digits = 5
-    val numberFormat = "%0${digits}d"
-    val pngFile = File(folder, "episode_${numberFormat.format(episode)}/frame_${numberFormat.format(frameIdx)}.png")
+    val pngFile = File(folder, "${episodeFolderName(episode)}/frame_${numberFormat.format(frameIdx)}.png")
     pngFile.parentFile?.mkdirs()
     ImageIO.write(img, "png", pngFile)
 }
@@ -142,8 +138,7 @@ fun deleteRecursively(file: File) {
 }
 
 fun saveEpisodeAsMp4JCodec(folder: String, episode: Int) {
-    val digits = 5
-    val baseName = "episode_%0${digits}d".format(episode)
+    val baseName = episodeFolderName(episode)
     val episodeFolder = File(folder, baseName)
     val pngFiles = episodeFolder
         .listFiles { it.extension == "png" }
