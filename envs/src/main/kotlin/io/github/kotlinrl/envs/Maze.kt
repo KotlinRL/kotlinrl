@@ -122,11 +122,11 @@ class Maze(
         }
     }
 
-    override fun step(action: Int): Transition<IntArray> {
+    override fun step(action: Int): StepResult<IntArray> {
         val reward = computeReward(state, action)
         state = nextState(state, action)
         val terminated = state.contentEquals(goal)
-        return Transition(state, reward, terminated, false, emptyMap())
+        return StepResult(state, reward, terminated, false, emptyMap())
     }
 
     override fun reset(seed: Int?, options: Map<String, String>?): InitialState<IntArray> {
@@ -237,10 +237,10 @@ class Maze(
         }
     }
 
-    override fun simulateStep(state: IntArray, action: Int): Transition<IntArray> {
+    override fun simulateStep(state: IntArray, action: Int): StepResult<IntArray> {
         val reward = computeReward(state, action)
         val nextState = nextState(state, action)
         val terminated = state.contentEquals(goal)
-        return Transition(nextState, reward, terminated, false, emptyMap())
+        return StepResult(nextState, reward, terminated, false, emptyMap())
     }
 }

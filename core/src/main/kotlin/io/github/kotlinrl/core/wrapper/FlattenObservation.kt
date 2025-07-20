@@ -47,10 +47,10 @@ class FlattenObservation<Num : Number, WrappedState, Action, WrappedObservationS
         )
     }
 
-    override fun step(action: Action): Transition<NDArray<Num, D1>> {
+    override fun step(action: Action): StepResult<NDArray<Num, D1>> {
         val t = env.step(action)
         val flat = toNDArray<Num>(flattenObservation(t.state, dtype), dtype)
-        return Transition(
+        return StepResult(
             state = flat,
             reward = t.reward,
             terminated = t.terminated,

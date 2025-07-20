@@ -135,7 +135,7 @@ class FramePlayer : Application() {
                 style = "-fx-text-fill: white; -fx-font-weight: bold;"
             }
             val timeSlider = Slider(0.0, frames.size - 1.0, 0.0)
-            val fpsSlider = Slider(15.0, 60.0, initialFps.toDouble()).apply {
+            val fpsSlider = Slider(6.0, 60.0, initialFps.toDouble()).apply {
                 majorTickUnit = 15.0
                 minorTickCount = 0
                 isSnapToTicks = true
@@ -193,12 +193,13 @@ class FramePlayer : Application() {
                 (playPauseButton.graphic as SVGPath).content = if (isPlaying) pauseIcon else playIcon
             }
 
+            val availableFps = listOf(6.0, 15.0, 30.0, 45.0, 60.0)
             rewindButton.setOnAction {
-                fpsSlider.value = listOf(15.0, 30.0, 45.0, 60.0).filter { it < fpsSlider.value }.maxOrNull() ?: 15.0
+                fpsSlider.value = availableFps.filter { it < fpsSlider.value }.maxOrNull() ?: 15.0
             }
 
             forwardButton.setOnAction {
-                fpsSlider.value = listOf(15.0, 30.0, 45.0, 60.0).filter { it > fpsSlider.value }.minOrNull() ?: 60.0
+                fpsSlider.value = availableFps.filter { it > fpsSlider.value }.minOrNull() ?: 60.0
             }
 
             stepLeftButton.setOnAction {
@@ -219,8 +220,16 @@ class FramePlayer : Application() {
                 timeLabel.text = formatFrameName(currentFrame, frameFiles)
             }
 
-            val controlRow = HBox(10.0, stepLeftButton, rewindButton, playPauseButton, forwardButton, stepRightButton, timeLabel).apply {
-                alignment = Pos.CENTER_LEFT
+            val buttonRow = HBox(10.0, stepLeftButton, rewindButton, playPauseButton, forwardButton, stepRightButton).apply {
+                alignment = Pos.CENTER
+            }
+
+            val labelRow = HBox(timeLabel).apply {
+                alignment = Pos.CENTER
+            }
+
+            val controlRow = VBox(5.0, buttonRow, labelRow).apply {
+                alignment = Pos.CENTER
                 padding = Insets(10.0)
                 style = "-fx-background-color: rgba(0,0,0,0.6); -fx-background-radius: 10;"
                 isVisible = false
@@ -233,30 +242,32 @@ class FramePlayer : Application() {
                 isVisible = false
             }
 
-            val hideDelay = PauseTransition(Duration.seconds(2.5)).apply {
-                setOnFinished {
-                    controlRow.isVisible = false
-                    sliderRow.isVisible = false
-                }
-            }
-
             val root = StackPane(imageView, VBox(controlRow, sliderRow).apply {
                 alignment = Pos.BOTTOM_CENTER
                 padding = Insets(20.0)
             })
-
-            fun showControls(@Suppress("UNUSED_PARAMETER") e: MouseEvent? = null) {
-                controlRow.isVisible = true
-                sliderRow.isVisible = true
-                hideDelay.stop()
-                hideDelay.playFromStart()
+            fun hideControlsIfNotHovering() {
+                PauseTransition(Duration.millis(150.0)).apply {
+                    setOnFinished {
+                        if (!controlRow.isHover && !sliderRow.isHover && !root.isHover) {
+                            controlRow.isVisible = false
+                            sliderRow.isVisible = false
+                        }
+                    }
+                    play()
+                }
             }
 
-            root.setOnMouseMoved(::showControls)
-            controlRow.setOnMouseEntered { hideDelay.stop() }
-            controlRow.setOnMouseExited { hideDelay.playFromStart() }
-            sliderRow.setOnMouseEntered { hideDelay.stop() }
-            sliderRow.setOnMouseExited { hideDelay.playFromStart() }
+            fun showControls() {
+                controlRow.isVisible = true
+                sliderRow.isVisible = true
+            }
+
+            root.setOnMouseMoved { showControls() }
+            root.setOnMouseExited { hideControlsIfNotHovering() }
+
+            controlRow.setOnMouseExited { hideControlsIfNotHovering() }
+            sliderRow.setOnMouseExited { hideControlsIfNotHovering() }
 
             val scene = Scene(root, width, height)
             val finalStage = Stage()

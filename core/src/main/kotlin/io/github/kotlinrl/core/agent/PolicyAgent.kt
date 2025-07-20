@@ -1,14 +1,14 @@
 package io.github.kotlinrl.core.agent
 
-import io.github.kotlinrl.core.policy.*
+import io.github.kotlinrl.core.*
 
 class PolicyAgent<State, Action>(
     override val id: String,
     val policy: Policy<State, Action>,
-    val onTrajectory: TrajectoryObserver<State, Action> = TrajectoryObserver {  }
+    val onTransition: TransitionObserver<State, Action> = TransitionObserver { }
 ) : Agent<State, Action> {
 
     override fun act(state: State): Action = policy(state)
 
-    override fun observe(trajectory: Trajectory<State, Action>) = onTrajectory(trajectory)
+    override fun observe(transition: Transition<State, Action>) = onTransition(transition)
 }

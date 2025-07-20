@@ -1,19 +1,17 @@
 package io.github.kotlinrl.core
 
-
 import java.util.*
 
 typealias Agent<State, Action> = io.github.kotlinrl.core.agent.Agent<State, Action>
-typealias TrajectoryObserver<State, Action> = io.github.kotlinrl.core.agent.TrajectoryObserver<State, Action>
-typealias StepCallback<State, Action> = io.github.kotlinrl.core.agent.StepCallback<State, Action>
+typealias TransitionObserver<State, Action> = io.github.kotlinrl.core.agent.TransitionObserver<State, Action>
+typealias Transition<State, Action> = io.github.kotlinrl.core.agent.Transition<State, Action>
 typealias PolicyAgent<State, Action> = io.github.kotlinrl.core.agent.PolicyAgent<State, Action>
-typealias Trajectory<State, Action> = io.github.kotlinrl.core.agent.Trajectory<State, Action>
 
 fun <State, Action> agent(
     id: String = UUID.randomUUID().toString(),
     policy: Policy<State, Action>,
-    onTrajectory: TrajectoryObserver<State, Action> = TrajectoryObserver { }
-): Agent<State, Action> = PolicyAgent(id, policy, onTrajectory)
+    onTransition: TransitionObserver<State, Action> = TransitionObserver { }
+): Agent<State, Action> = PolicyAgent(id, policy, onTransition)
 
 fun qLearningAgent(
     id: String = UUID.randomUUID().toString(),
@@ -57,30 +55,37 @@ fun expectedSARSAAgent(
     policyProbabilities = policy.asPolicyProbabilities(stateActionListProvider)
 ))
 
+fun nStepSARSAAgent(
+    id: String = UUID.randomUUID().toString(),
+    policy: StochasticPolicy<IntArray, Int>,
+    qTable: QTable,
+    alpha: Double,
+    gamma: Double,
+    n: Int,
+    stateActionListProvider: StateActionListProvider<IntArray, Int>
+): Pair<Agent<IntArray, Int>, EpisodeCallback<IntArray, Int>>  {
+    val learning = nStepSARSA(
+        qTable = qTable,
+        alpha = alpha,
+        gamma = gamma,
+        n = n,
+        policyProbabilities = policy.asPolicyProbabilities(stateActionListProvider)
+    )
+    return agent(id, policy, learning) to learning
+}
+
 fun monteCarloAgent(
     id: String = UUID.randomUUID().toString(),
     policy: Policy<IntArray, Int>
 ): Agent<IntArray, Int> {
-    return agent(id = id, policy = policy) { /* no-op TransitionObserver */ }
+    return agent(id = id, policy = policy)
 }
 
-
-fun <State, Action> Agent<State, Action>.withStepCallback(
-    callback: StepCallback<State, Action>
+fun <State, Action> Agent<State, Action>.withTransitionObserver(
+    onTransition: TransitionObserver<State, Action>
 ): Agent<State, Action> = object : Agent<State, Action> by this {
-    override fun act(state: State): Action {
-        callback.beforeStep(state)
-        val action = this@withStepCallback.act(state)
-        callback.afterStep(state, action)
-        return action
-    }
-}
-
-fun <State, Action> Agent<State, Action>.withTrajectoryObserver(
-    onTrajectory: TrajectoryObserver<State, Action>
-): Agent<State, Action> = object : Agent<State, Action> by this {
-    override fun observe(trajectory: Trajectory<State, Action>) {
-        this@withTrajectoryObserver.observe(trajectory)
-        onTrajectory(trajectory)
+    override fun observe(transition: Transition<State, Action>) {
+        this@withTransitionObserver.observe(transition)
+        onTransition(transition)
     }
 }

@@ -14,7 +14,7 @@ class OrderEnforcing<State, Action, ObservationSpace : Space<State>, ActionSpace
         return env.reset(seed, options)
     }
 
-    override fun step(action: Action): Transition<State> {
+    override fun step(action: Action): StepResult<State> {
         if (needsReset) {
             throw IllegalStateException(
                 "step() called beforeStep reset(), or afterStep episode done. " +

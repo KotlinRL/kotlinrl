@@ -14,7 +14,7 @@ class OnPolicyMonteCarloControl<State, Action>(
         val visited = mutableSetOf<Pair<State, Action>>()
         var G = 0.0
 
-        for ((s, a, r) in stats.trajectories.asReversed()) {
+        for ((s, a, r) in stats.transitions.asReversed()) {
             G = r + gamma * G
             val key = Pair(s, a)
 

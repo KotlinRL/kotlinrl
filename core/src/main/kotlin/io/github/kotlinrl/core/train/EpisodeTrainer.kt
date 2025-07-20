@@ -1,7 +1,6 @@
 package io.github.kotlinrl.core.train
 
-import io.github.kotlinrl.core.agent.*
-import io.github.kotlinrl.core.env.*
+import io.github.kotlinrl.core.*
 
 class EpisodeTrainer<State, Action>(
     private val env: Env<State, Action, *, *>,
@@ -13,47 +12,45 @@ class EpisodeTrainer<State, Action>(
     override fun train(episodes: Int): TrainingResult {
         val episodeRewards = mutableListOf<Double>()
 
-        repeat(episodes) { episode ->
+        for(episode in 1 until episodes + 1) {
             callbacks.forEach { it.onEpisodeStart(episode) }
 
-            val trajectories = mutableListOf<Trajectory<State, Action>>()
+            val transitions = mutableListOf<Transition<State, Action>>()
             val actions = mutableListOf<Action>()
 
             var state = env.reset().state
             var totalReward = 0.0
-            var steps = 0
             var done = false
 
-            while (!done && steps < maxStepsPerEpisode) {
+            while (!done && transitions.size < maxStepsPerEpisode) {
                 val action = agent.act(state)
-                val transition = env.step(action)
-                totalReward += transition.reward
+                val stepResult = env.step(action)
+                totalReward += stepResult.reward
 
-                val trajectory = Trajectory(
+                val transition = Transition(
                     state = state,
                     action = action,
-                    nextState = transition.state,
-                    reward = transition.reward,
-                    terminated = transition.terminated,
-                    truncated = transition.truncated,
-                    info = transition.info
+                    nextState = stepResult.state,
+                    reward = stepResult.reward,
+                    terminated = stepResult.terminated,
+                    truncated = stepResult.truncated,
+                    info = stepResult.info
                 )
 
-                agent.observe(trajectory)
+                agent.observe(transition)
 
-                trajectories += trajectory
+                transitions += transition
                 actions += action
-                steps++
 
-                state = transition.state
-                done = transition.terminated || transition.truncated
+                state = transition.nextState
+                done = transition.done
             }
 
             val stats = EpisodeStats(
                 episode = episode,
                 totalReward = totalReward,
-                steps = steps,
-                trajectories = trajectories
+                steps = transitions.size,
+                transitions = transitions
             )
 
             callbacks.forEach { it.onEpisodeEnd(stats) }

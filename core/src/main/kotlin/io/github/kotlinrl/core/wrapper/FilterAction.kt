@@ -30,7 +30,7 @@ class FilterAction<State, ObservationSpace : Space<State>>(
     override fun reset(seed: Int?, options: Map<String, String>?): InitialState<State> =
         env.reset(seed, options)
 
-    override fun step(action: Map<String, Any>): Transition<State> {
+    override fun step(action: Map<String, Any>): StepResult<State> {
         // Fill missing keys using default (or actionSpace.sample() if not provided)
         val fullAction = buildMap<String, Any> {
             // Agent-controlled keys

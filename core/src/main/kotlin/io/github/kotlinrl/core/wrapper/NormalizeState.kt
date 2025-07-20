@@ -28,7 +28,7 @@ class NormalizeState<Num : Number, D : Dimension, Action, ObservationSpace : Spa
         return InitialState(state = normalize(initial.state), info = initial.info)
     }
 
-    override fun step(action: Action): Transition<NDArray<Num, D>> {
+    override fun step(action: Action): StepResult<NDArray<Num, D>> {
         val t = env.step(action)
         return t.copy(state = normalize(t.state))
     }

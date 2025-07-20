@@ -2,7 +2,6 @@ package io.github.kotlinrl.core.algorithms
 
 import org.apache.commons.csv.*
 import org.jetbrains.kotlinx.multik.api.*
-import org.jetbrains.kotlinx.multik.api.math.*
 import org.jetbrains.kotlinx.multik.ndarray.data.*
 import org.jetbrains.kotlinx.multik.ndarray.data.DataType.*
 import org.jetbrains.kotlinx.multik.ndarray.operations.*
@@ -25,7 +24,12 @@ class QTable(
 
     override fun maxValue(state: IntArray): Double = qValues(state).max() ?: 0.0
 
-    override fun bestAction(state: IntArray): Int = qValues(state).argMax()
+    override fun bestAction(state: IntArray): Int {
+        val q = qValues(state)
+        val max = q.max() ?: 0.0
+        val candidate = q.indices.filter { q[it] == max }
+        return candidate.random()
+    }
 
     fun copy(): QTable {
         val copy = QTable(*shape)
@@ -39,13 +43,16 @@ class QTable(
 
     override fun load(path: String) {
         val dn = mk.readCsvSafely(path)
-        table =  when (shape.size) {
+        val t =  when (shape.size) {
             2 -> dn.reshape(shape[0], shape[1])
             3 -> dn.reshape(shape[0], shape[1], shape[2])
             4 -> dn.reshape(shape[0], shape[1], shape[2], shape[3])
             else -> dn.reshape(shape[0], shape[1], shape[2], shape[3], *shape.copyOfRange(4, shape.size))
         }.asDNArray()
+        t.data.copyInto(table.data)
     }
+
+    fun print() = println(table)
 }
 
 private fun mk.writeCsvSafely(path: String, ndarray: NDArray<Double, DN>): Unit =

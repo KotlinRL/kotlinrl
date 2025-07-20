@@ -16,7 +16,7 @@ class RecordEpisodeStatistics<State, Action, ObservationSpace : Space<State>, Ac
         return env.reset(seed, options)
     }
 
-    override fun step(action: Action): Transition<State> {
+    override fun step(action: Action): StepResult<State> {
         val t = env.step(action)
         episodeReward += t.reward
         episodeLength += 1

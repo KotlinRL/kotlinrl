@@ -34,7 +34,7 @@ class FilterObservation<Action, ActionSpace : Space<Action>>(
         )
     }
 
-    override fun step(action: Action): Transition<Map<String, Any>> {
+    override fun step(action: Action): StepResult<Map<String, Any>> {
         val t = env.step(action)
         return t.copy(state = filter(t.state))
     }

@@ -31,7 +31,7 @@ internal class RemoteEnvClient<State, Action, ObservationSpace : Space<State>, A
         )
     }
 
-    override fun step(action: Action): Transition<State> {
+    override fun step(action: Action): StepResult<State> {
         val (state, reward, terminated, truncated, info) = env.step(when(action) {
             is String -> action(action as String)
             is Int -> action(action as Int)
@@ -57,7 +57,7 @@ internal class RemoteEnvClient<State, Action, ObservationSpace : Space<State>, A
             )
             else -> TODO()
         })
-        return Transition(
+        return StepResult(
             state = state.toTypedState() as State,
             reward = reward,
             terminated = terminated,

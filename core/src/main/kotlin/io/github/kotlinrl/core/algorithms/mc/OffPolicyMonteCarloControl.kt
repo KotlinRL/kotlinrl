@@ -15,7 +15,7 @@ class OffPolicyMonteCarloControl<State, Action>(
         var G = 0.0
         var W = 1.0
 
-        for ((s, a, r) in stats.trajectories.asReversed()) {
+        for ((s, a, r) in stats.transitions.asReversed()) {
             G = gamma * G + r
 
             val key = Pair(s, a)
