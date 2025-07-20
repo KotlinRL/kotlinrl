@@ -23,7 +23,7 @@ class ValueIteration<State, Action>(
             for (s in states) {
                 val oldV = vTable[s]
                 val bestValue = stateActionListProvider(s).maxOfOrNull { a ->
-                    val (next, _, r) = transitionFunction(s, a)
+                    val (_, _, r, next) = transitionFunction(s, a)
                     r + gamma * vTable[next]
                 } ?: 0.0
 
@@ -36,9 +36,9 @@ class ValueIteration<State, Action>(
             val bestAction = stateActionListProvider(s)
                 .sortedWith(actionComparator)
                 .maxByOrNull { a ->
-                    val (next, _, r) = transitionFunction(s, a)
+                    val (_, _, r, next) = transitionFunction(s, a)
                     r + gamma * vTable[next]
-                } ?: error("No actions available for state $s")
+                } ?: error("No actions available for state ${s.format()}")
             pTable[s] = bestAction
         }
 
@@ -46,6 +46,7 @@ class ValueIteration<State, Action>(
         return Policy { pi[it] }
     }
 }
+
 private fun Any?.format(): String = when (this) {
     is IntArray -> this.contentToString()
     is Array<*> -> this.contentToString()
