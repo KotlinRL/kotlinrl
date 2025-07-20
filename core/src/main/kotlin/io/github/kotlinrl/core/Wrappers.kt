@@ -43,7 +43,7 @@ fun displayVideo(
     folder: String
 ): Any? {
     val digits = 5
-    val numberFormat = "%0${digits}"
+    val numberFormat = "%0${digits}d"
     return displayVideo(File(folder, "episode_${numberFormat.format(episode)}"))
 }
 
