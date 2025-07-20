@@ -202,7 +202,7 @@ class Maze(
             rgbBytes[i * 3 + 2] = (pixel and 0xFF).toByte()          // B
         }
 
-        return Rendering.RenderFrame(width = imgSize, height = imgSize, bytes = rgbBytes)
+        return Rendering.RenderFrame(width = imgSize, height = imgSize, bytes = rgbBytes.copyOf())
     }
 
     override fun close() {

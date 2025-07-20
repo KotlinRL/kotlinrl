@@ -45,11 +45,6 @@ fun displayVideo(
     return displayVideo(File(folder, "episode_$episode"))
 }
 
-fun displayVideo(frames: List<RenderFrame>, folder: String = "videos", fileName: String = "episode_1"): Any {
-    saveEpisodeAsMp4JCodec(frames.map { renderFrameToBufferedImage(it) }, folder)
-    return displayVideo(File(folder, fileName))
-}
-
 fun displayVideo(file: File): Any {
     // Try notebook HTML
     return if (System.getenv("JPY_PARENT_PID") != null) {
