@@ -30,7 +30,7 @@ class PolicyIteration<State, Action>(
                 for (s in states) {
                     val oldV = vTable[s]
                     val a = pTable[s]
-                    val (next, _, r) = transitionFunction(s, a)
+                    val (_, _, r, next) = transitionFunction(s, a)
                     val newV = r + gamma * vTable[next]
                     vTable[s] = newV
                     delta = max(delta, abs(oldV - newV))
@@ -42,7 +42,7 @@ class PolicyIteration<State, Action>(
             for (s in states) {
                 val oldAction = pTable[s]
                 val bestAction = stateActionListProvider(s).maxByOrNull { a ->
-                    val (next, _, r) = transitionFunction(s, a)
+                    val (_, _, r, next) = transitionFunction(s, a)
                     r + gamma * vTable[next]
                 } ?: oldAction
 

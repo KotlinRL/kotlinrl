@@ -123,8 +123,8 @@ class Maze(
     }
 
     override fun step(action: Int): StepResult<IntArray> {
-        val reward = computeReward(state, action)
         state = nextState(state, action)
+        val reward = computeReward(state)
         val terminated = state.contentEquals(goal)
         return StepResult(state, reward, terminated, false, emptyMap())
     }
@@ -226,10 +226,9 @@ class Maze(
         }
     }
 
-    private fun computeReward(state: IntArray, action: Int): Double {
-        val nextState = nextState(state, action)
+    private fun computeReward(state: IntArray): Double {
         return if(shapedRewards) {
-            val goalDistance = distances[nextState[0]][nextState[1]]
+            val goalDistance = distances[state[0]][state[1]]
             val maxDistance = distances.flatten().maxOrNull() ?: Double.POSITIVE_INFINITY
             - (goalDistance / maxDistance)
         } else {
@@ -238,9 +237,9 @@ class Maze(
     }
 
     override fun simulateStep(state: IntArray, action: Int): StepResult<IntArray> {
-        val reward = computeReward(state, action)
         val nextState = nextState(state, action)
-        val terminated = state.contentEquals(goal)
+        val reward = computeReward(nextState)
+        val terminated = nextState.contentEquals(goal)
         return StepResult(nextState, reward, terminated, false, emptyMap())
     }
 }
