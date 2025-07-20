@@ -42,7 +42,9 @@ fun displayVideo(
     episode: Int,
     folder: String
 ): Any? {
-    return displayVideo(File(folder, "episode_$episode"))
+    val digits = 5
+    val numberFormat = "%0${digits}"
+    return displayVideo(File(folder, "episode_${numberFormat.format(episode)}"))
 }
 
 fun displayVideo(file: File): Any {
