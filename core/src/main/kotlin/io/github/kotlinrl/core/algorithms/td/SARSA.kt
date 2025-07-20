@@ -9,14 +9,14 @@ class SARSA<State, Action>(
 ) : TabularTDLearning<State, Action>(qTable, alpha, gamma) {
     private var action: Action? = null
 
-    override fun invoke(trajectory: Trajectory<State, Action>) {
+    override fun invoke(transition: Transition<State, Action>) {
         if (action == null) {
-            action = trajectory.action
+            action = transition.action
             return
         }
         val aPrime = action!!
-        val (s, a, r, sPrime, terminated, truncated, _) = trajectory
-        val done = terminated || truncated
+        val (s, a, r, sPrime) = transition
+        val done = transition.done
 
         val currentValue = qTable[s, a]
         val nextValue = if (done) 0.0 else qTable[sPrime, aPrime]

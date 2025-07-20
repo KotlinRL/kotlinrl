@@ -13,9 +13,9 @@ class TransformState<State, Action, ObservationSpace : Space<State>, ActionSpace
         return InitialState(state = transform(initial.state), info = initial.info)
     }
 
-    override fun step(action: Action): Transition<State> {
+    override fun step(action: Action): StepResult<State> {
         val transition = env.step(action)
-        return Transition(
+        return StepResult(
             state = transform(transition.state),
             reward = transition.reward,
             terminated = transition.terminated,

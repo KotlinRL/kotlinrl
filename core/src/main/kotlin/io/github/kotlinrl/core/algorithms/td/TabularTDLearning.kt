@@ -6,6 +6,4 @@ abstract class TabularTDLearning<State, Action>(
     protected val qTable: QFunction<State, Action>,
     protected val alpha: Double,
     protected val gamma: Double
-) : TrajectoryObserver<State, Action> {
-
-}
+) : TransitionObserver<State, Action>

@@ -32,7 +32,7 @@ class ClipAction<
     override fun reset(seed: Int?, options: Map<String, String>?): InitialState<State> =
         env.reset(seed, options)
 
-    override fun step(action: NDArray<Num, D>): Transition<State> {
+    override fun step(action: NDArray<Num, D>): StepResult<State> {
         val clipped = clipToBox(action, env.actionSpace)
         return env.step(clipped)
     }

@@ -1,9 +1,8 @@
 package io.github.kotlinrl.core.algorithms.td
 
-import io.github.kotlinrl.core.QFunction
-import io.github.kotlinrl.core.agent.*
-import io.github.kotlinrl.core.algorithms.QTable
-import io.github.kotlinrl.core.policy.*
+import io.github.kotlinrl.core.*
+import io.github.kotlinrl.core.policy.PolicyProbabilities
+import io.github.kotlinrl.core.policy.StateActionListProvider
 
 class ExpectedSARSA<State, Action>(
     qTable: QFunction<State, Action>,
@@ -13,9 +12,9 @@ class ExpectedSARSA<State, Action>(
     private val policyProbabilities: PolicyProbabilities<State, Action>
 ) : TabularTDLearning<State, Action>(qTable, alpha, gamma) {
 
-    override fun invoke(trajectory: Trajectory<State, Action>) {
-        val (s, a, r, sPrime, terminated, truncated, _) = trajectory
-        val done = terminated || truncated
+    override fun invoke(transition: Transition<State, Action>) {
+        val (s, a, r, sPrime) = transition
+        val done = transition.done
         val currentValue = qTable[s, a]
 
         val expectedValue = if (done) {

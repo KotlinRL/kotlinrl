@@ -1,5 +1,6 @@
 package io.github.kotlinrl.core
 
+import kotlin.math.pow
 import kotlin.random.*
 
 typealias ExplorationFactor = io.github.kotlinrl.core.policy.ExplorationFactor
@@ -62,10 +63,18 @@ fun <State, Action> StochasticPolicy<State, Action>.asPolicyProbabilities(
 
 fun constantEpsilon(factor: Double) = ExplorationFactor { factor }
 
-fun decayingEpsilon(factor: Double, decayRate: Double, minFactor: Double): ExplorationFactor {
+fun decayingEpsilon(
+    factor: Double,
+    decayRate: Double,
+    minFactor: Double,
+    burnInEpisodes: Int = 0
+): ExplorationFactor {
+    var episode = 0
     var epsilon = factor
     return ExplorationFactor {
-        epsilon = (epsilon * decayRate).coerceAtLeast(minFactor)
+        val eps = if (episode < burnInEpisodes) epsilon else
+            (epsilon * decayRate.pow((episode - burnInEpisodes).toDouble())).coerceAtLeast(minFactor)
+        episode++
         epsilon
     }
 }

@@ -27,7 +27,7 @@ class RecordVideo<State, Action, ObservationSpace : Space<State>, ActionSpace : 
         return initial
     }
 
-    override fun step(action: Action): Transition<State> {
+    override fun step(action: Action): StepResult<State> {
         val t = env.step(action)
         if (record) {
             val rendering = env.render()

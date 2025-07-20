@@ -15,7 +15,7 @@ class TimeLimit<State, Action, ObservationSpace : Space<State>, ActionSpace : Sp
         return env.reset(seed, options)
     }
 
-    override fun step(action: Action): Transition<State> {
+    override fun step(action: Action): StepResult<State> {
         val transition = env.step(action)
         elapsedSteps += 1
 

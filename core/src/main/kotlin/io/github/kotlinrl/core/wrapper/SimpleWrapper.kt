@@ -7,7 +7,7 @@ open class SimpleWrapper<State, Action, ObservationSpace : Space<State>, ActionS
     env: Env<State, Action, ObservationSpace, ActionSpace>
 ) : Wrapper<State, Action, ObservationSpace, ActionSpace, State, Action, ObservationSpace, ActionSpace>(env) {
 
-    override fun step(action: Action): Transition<State> = env.step(action)
+    override fun step(action: Action): StepResult<State> = env.step(action)
 
     override fun reset(seed: Int?, options: Map<String, String>?): InitialState<State>  = env.reset(seed, options)
 

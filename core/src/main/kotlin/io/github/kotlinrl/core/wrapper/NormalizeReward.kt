@@ -13,7 +13,7 @@ class NormalizeReward<State, Action, ObservationSpace : Space<State>, ActionSpac
     override fun reset(seed: Int?, options: Map<String, String>?): InitialState<State> =
         env.reset(seed, options)
 
-    override fun step(action: Action): Transition<State> {
+    override fun step(action: Action): StepResult<State> {
         val t = env.step(action)
         stats.update(t.reward)
         val normalized = (t.reward - stats.mean) / maxOf(stats.std, epsilon)

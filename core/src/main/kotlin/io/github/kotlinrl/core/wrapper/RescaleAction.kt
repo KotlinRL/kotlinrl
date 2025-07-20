@@ -28,7 +28,7 @@ class RescaleAction<State, Num : Number, D : Dimension, ObservationSpace : Space
     override fun reset(seed: Int?, options: Map<String, String>?): InitialState<State> =
         env.reset(seed, options)
 
-    override fun step(action: NDArray<Num, D>): Transition<State> {
+    override fun step(action: NDArray<Num, D>): StepResult<State> {
         val innerBox = env.actionSpace
         val scaled = rescale(
             x = action,

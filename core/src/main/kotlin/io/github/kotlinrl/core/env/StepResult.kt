@@ -1,6 +1,6 @@
 package io.github.kotlinrl.core.env
 
-data class Transition<State>(
+data class StepResult<State>(
     val state: State,
     val reward: Double,
     val terminated: Boolean,
