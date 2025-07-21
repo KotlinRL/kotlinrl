@@ -6,10 +6,11 @@ class OffPolicyMonteCarloControl<State, Action>(
     private val qTable: QFunction<State, Action>,
     private val gamma: Double,
     private val behaviorPolicy: ProbabilisticPolicy<State, Action>,
-    private val targetPolicy: MutablePolicy<State, Action>
+    private val targetPolicy: MutablePolicy<State, Action>,
+    private val stateActionKeyFunction: StateActionKeyFunction<State, Action> = ::defaultKeyFunction
 ) : EpisodeCallback<State, Action> {
 
-    private val C: MutableMap<Pair<State, Action>, Double> = mutableMapOf()
+    private val C: MutableMap<Any, Double> = mutableMapOf()
 
     override fun onEpisodeEnd(stats: EpisodeStats<State, Action>) {
         var G = 0.0
@@ -18,7 +19,7 @@ class OffPolicyMonteCarloControl<State, Action>(
         for ((s, a, r) in stats.transitions.asReversed()) {
             G = gamma * G + r
 
-            val key = Pair(s, a)
+            val key = stateActionKeyFunction(s, a)
             val c = C.getOrDefault(key, 0.0)
             C[key] = c + W
 

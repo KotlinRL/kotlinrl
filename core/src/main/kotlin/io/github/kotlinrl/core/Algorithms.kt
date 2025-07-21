@@ -1,16 +1,14 @@
 package io.github.kotlinrl.core
 
-import io.github.kotlinrl.core.algorithms.dp.PolicyIteration
-import io.github.kotlinrl.core.algorithms.dp.ValueIteration
-import io.github.kotlinrl.core.algorithms.td.TabularTDLearning
-import io.github.kotlinrl.core.env.StepResult
+import io.github.kotlinrl.core.algorithms.mc.defaultKeyFunction
 
 typealias QFunction<State, Action> = io.github.kotlinrl.core.algorithms.QFunction<State, Action>
 typealias QTable = io.github.kotlinrl.core.algorithms.QTable
 typealias VTable = io.github.kotlinrl.core.algorithms.VTable
 typealias PTable = io.github.kotlinrl.core.algorithms.PTable
-typealias ValueIteration<State, Action> = ValueIteration<State, Action>
-typealias PolicyIteration<State, Action> = PolicyIteration<State, Action>
+typealias ValueIteration<State, Action> = io.github.kotlinrl.core.algorithms.dp.ValueIteration<State, Action>
+typealias PolicyIteration<State, Action> = io.github.kotlinrl.core.algorithms.dp.PolicyIteration<State, Action>
+typealias StateActionKeyFunction<State, Action> = io.github.kotlinrl.core.algorithms.mc.StateActionKeyFunction<State, Action>
 typealias OnPolicyMonteCarloControl<State, Action> = io.github.kotlinrl.core.algorithms.mc.OnPolicyMonteCarloControl<State, Action>
 typealias ConstantAlphaMonteCarloControl<State, Action> = io.github.kotlinrl.core.algorithms.mc.ConstantAlphaMonteCarloControl<State, Action>
 typealias OffPolicyMonteCarloControl<State, Action> = io.github.kotlinrl.core.algorithms.mc.OffPolicyMonteCarloControl<State, Action>
@@ -18,7 +16,7 @@ typealias ExpectedSARSA<State, Action> = io.github.kotlinrl.core.algorithms.td.E
 typealias QLearning<State, Action> = io.github.kotlinrl.core.algorithms.td.QLearning<State, Action>
 typealias SARSA<State, Action> = io.github.kotlinrl.core.algorithms.td.SARSA<State, Action>
 typealias NStepSARSA<State, Action> = io.github.kotlinrl.core.algorithms.td.nstep.NStepSARSA<State, Action>
-typealias TabularTDLearning<State, Action> = TabularTDLearning<State, Action>
+typealias TabularTDLearning<State, Action> = io.github.kotlinrl.core.algorithms.td.TabularTDLearning<State, Action>
 
 fun <State, Action> qLearning(
     qTable: QFunction<State, Action>,
@@ -124,40 +122,55 @@ fun <State, Action> policyIteration(
         }
     )
 
-fun policyIteration(
+fun <State, Action> policyIteration(
     gamma: Double = 0.99,
     theta: Double = 1e-6,
-    vTable: VTable,
-    pTable: PTable,
-    stateActionListProvider: StateActionListProvider<IntArray, Int>,
-    transitionFunction: TransitionFunction<IntArray, Int>
-): Policy<IntArray, Int> = policyIterationPlanner(gamma, theta, vTable, pTable)
+    vTable: ValueFunction<State>,
+    pTable: MutablePolicy<State, Action> ,
+    stateActionListProvider: StateActionListProvider<State, Action>,
+    transitionFunction: TransitionFunction<State, Action>
+): Policy<State, Action> = policyIterationPlanner(gamma, theta, vTable, pTable)
     .plan(
         stateActionListProvider = stateActionListProvider,
         transitionFunction = transitionFunction
     )
 
-fun onPolicyMonteCarloControl(
-    qTable: QTable,
+fun <State, Action> onPolicyMonteCarloControl(
+    qTable: QFunction<State, Action>,
     gamma: Double = 0.99,
-    firstVisitOnly: Boolean = true
-): EpisodeCallback<IntArray, Int> = OnPolicyMonteCarloControl(qTable, gamma, firstVisitOnly)
+    firstVisitOnly: Boolean = true,
+    stateActionKeyFunction: StateActionKeyFunction<State, Action> = ::defaultKeyFunction
+): EpisodeCallback<State, Action> = OnPolicyMonteCarloControl(
+    qTable = qTable,
+    gamma = gamma,
+    firstVisitOnly = firstVisitOnly,
+    stateActionKeyFunction = stateActionKeyFunction
+)
 
-fun constantAlphaMonteCarloControl(
-    qTable: QTable,
+fun <State, Action> constantAlphaMonteCarloControl(
+    qTable: QFunction<State, Action> ,
     gamma: Double = 0.99,
     alpha: Double = 0.05,
-    firstVisitOnly: Boolean = true
-): EpisodeCallback<IntArray, Int> = ConstantAlphaMonteCarloControl(qTable, gamma, alpha, firstVisitOnly)
+    firstVisitOnly: Boolean = true,
+    stateActionKeyFunction: StateActionKeyFunction<State, Action> = ::defaultKeyFunction
+): EpisodeCallback<State, Action>  = ConstantAlphaMonteCarloControl(
+    qTable = qTable,
+    gamma = gamma,
+    alpha = alpha,
+    firstVisitOnly = firstVisitOnly,
+    stateActionKeyFunction = stateActionKeyFunction
+)
 
-fun offPolicyMonteCarloControl(
-    qTable: QTable,
+fun <State, Action> offPolicyMonteCarloControl(
+    qTable: QFunction<State, Action> ,
     gamma: Double = 0.99,
-    behaviorPolicy: ProbabilisticPolicy<IntArray, Int>,
-    targetPolicy: MutablePolicy<IntArray, Int>
-): EpisodeCallback<IntArray, Int> = OffPolicyMonteCarloControl(
+    behaviorPolicy: ProbabilisticPolicy<State, Action> ,
+    targetPolicy: MutablePolicy<State, Action>,
+    stateActionKeyFunction: StateActionKeyFunction<State, Action> = ::defaultKeyFunction
+): EpisodeCallback<State, Action> = OffPolicyMonteCarloControl(
     qTable = qTable,
     gamma = gamma,
     behaviorPolicy = behaviorPolicy,
-    targetPolicy = targetPolicy
+    targetPolicy = targetPolicy,
+    stateActionKeyFunction = stateActionKeyFunction
 )

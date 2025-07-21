@@ -6,16 +6,17 @@ class ConstantAlphaMonteCarloControl<State, Action>(
     private val qTable: QFunction<State, Action>,
     private val gamma: Double = 0.99,
     private val alpha: Double = 0.05,
-    private val firstVisitOnly: Boolean = true
+    private val firstVisitOnly: Boolean = true,
+    private val stateActionKeyFunction: StateActionKeyFunction<State, Action> = ::defaultKeyFunction
 ) : EpisodeCallback<State, Action> {
 
     override fun onEpisodeEnd(stats: EpisodeStats<State, Action>) {
-        val visited = mutableSetOf<Pair<State, Action>>() // Optional: first-visit only
+        val visited = mutableSetOf<StateActionKey<*, *>>()
         var G = 0.0
 
         for ((s, a, r) in stats.transitions.asReversed()) {
             G = r + gamma * G
-            val key = Pair(s, a)
+            val key = stateActionKeyFunction(s, a)
 
             if (firstVisitOnly && key in visited) continue
 

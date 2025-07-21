@@ -2,21 +2,23 @@ package io.github.kotlinrl.core.algorithms.mc
 
 import io.github.kotlinrl.core.*
 
+
 class OnPolicyMonteCarloControl<State, Action>(
     private val qTable: QFunction<State, Action>,
     private val gamma: Double,
-    private val firstVisitOnly: Boolean = true
+    private val firstVisitOnly: Boolean = true,
+    private val stateActionKeyFunction: StateActionKeyFunction<State, Action> = ::defaultKeyFunction
 ) : EpisodeCallback<State, Action> {
 
-    private val returns: MutableMap<Pair<State, Action>, Int> = mutableMapOf()
+    private val returns: MutableMap<StateActionKey<*, *>, Int> = mutableMapOf()
 
     override fun onEpisodeEnd(stats: EpisodeStats<State, Action>) {
-        val visited = mutableSetOf<Pair<State, Action>>()
+        val visited = mutableSetOf<StateActionKey<*, *>>()
         var G = 0.0
 
         for ((s, a, r) in stats.transitions.asReversed()) {
             G = r + gamma * G
-            val key = Pair(s, a)
+            val key = stateActionKeyFunction(s, a)
 
             if (firstVisitOnly && key in visited) continue
 
@@ -27,7 +29,6 @@ class OnPolicyMonteCarloControl<State, Action>(
             qTable[s, a] = newQ
             returns[key] = count + 1
         }
-
     }
 }
 
