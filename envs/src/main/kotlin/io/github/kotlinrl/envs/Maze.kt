@@ -237,8 +237,8 @@ class Maze(
     }
 
     override fun simulateStep(state: IntArray, action: Int): StepResult<IntArray> {
+        val reward = computeReward(state)
         val nextState = nextState(state, action)
-        val reward = computeReward(nextState)
         val terminated = nextState.contentEquals(goal)
         return StepResult(nextState, reward, terminated, false, emptyMap())
     }
