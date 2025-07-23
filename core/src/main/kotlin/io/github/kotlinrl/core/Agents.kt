@@ -147,32 +147,24 @@ fun <State, Action> expectedSARSAAgent(
         policyProbabilities = policy.asPolicyProbabilities(policy.stateActionListProvider)
     )
 )
-//
-//fun nStepSARSAAgent(
-//    id: String = UUID.randomUUID().toString(),
-//    policy: StochasticPolicy<IntArray, Int>,
-//    qTable: QTable,
-//    alpha: Double,
-//    gamma: Double,
-//    n: Int,
-//    stateActionListProvider: StateActionListProvider<IntArray, Int>
-//): Pair<Agent<IntArray, Int>, EpisodeCallback<IntArray, Int>> {
-//    val learning = nStepSARSA(
-//        qTable = qTable,
-//        alpha = alpha,
-//        gamma = gamma,
-//        n = n,
-//        policyProbabilities = policy.asPolicyProbabilities(stateActionListProvider)
-//    )
-//    return agent(id, policy, learning) to learning
-//}
-//
-//fun <State, Action> offPolicyMonteCarloControlAgent(
-//    id: String = UUID.randomUUID().toString(),
-//    policy: Policy<State, Action>
-//): Agent<State, Action> {
-//    return agent(id = id, policy = policy)
-//}
+
+fun <State, Action> nStepSARSAAgent(
+    id: String = UUID.randomUUID().toString(),
+    policy: StochasticPolicy<State, Action>,
+    alpha: Double,
+    gamma: Double,
+    n: Int,
+): Agent<State, Action> {
+    val learning = nStepSARSA(
+        qTable = policy.qTable,
+        alpha = alpha,
+        gamma = gamma,
+        n = n,
+        policyProbabilities = policy.asPolicyProbabilities(policy.stateActionListProvider)
+    )
+    return agent(id, policy, learning)
+}
+
 
 fun <State, Action> Agent<State, Action>.withTransitionLearner(
     onTransition: TransitionLearner<State, Action>
