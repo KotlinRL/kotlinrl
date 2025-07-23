@@ -1,4 +1,4 @@
-package io.github.kotlinrl.core.algorithms
+package io.github.kotlinrl.core.policy
 
 interface ValueFunction<State> {
     operator fun get(state: State): Double

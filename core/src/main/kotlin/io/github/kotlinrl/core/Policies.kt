@@ -1,5 +1,6 @@
 package io.github.kotlinrl.core
 
+import io.github.kotlinrl.core.policy.QFunctionPolicy
 import kotlin.math.pow
 import kotlin.random.*
 
@@ -23,14 +24,14 @@ fun <State, Action> randomPolicy(
 
 fun <State, Action> greedyPolicy(
     qTable: QFunction<State, Action>
-): Policy<State, Action> = GreedyPolicy(qTable)
+): QFunctionPolicy<State, Action> = GreedyPolicy(qTable)
 
 fun <State, Action> epsilonGreedyPolicy(
     stateActionListProvider: StateActionListProvider<State, Action>,
     explorationFactor: ExplorationFactor,
     qTable: QFunction<State, Action>,
     rng: Random = Random.Default
-): Policy<State, Action> = EpsilonGreedyPolicy(stateActionListProvider, qTable, explorationFactor, rng)
+): QFunctionPolicy<State, Action> = EpsilonGreedyPolicy(stateActionListProvider, qTable, explorationFactor, rng)
 
 fun <State, Action> softMaxPolicy(
     qTable: QFunction<State, Action>,

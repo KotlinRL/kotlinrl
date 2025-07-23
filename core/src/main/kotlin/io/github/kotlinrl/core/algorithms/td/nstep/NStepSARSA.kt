@@ -1,8 +1,7 @@
 package io.github.kotlinrl.core.algorithms.td.nstep
 
 import io.github.kotlinrl.core.*
-import io.github.kotlinrl.core.train.EpisodeStats
-import kotlin.math.pow
+import kotlin.math.*
 
 class NStepSARSA<State, Action>(
     qTable: QFunction<State, Action>,
@@ -10,19 +9,23 @@ class NStepSARSA<State, Action>(
     gamma: Double,
     private val n: Int,
     private val policyProbabilities: PolicyProbabilities<State, Action>
-) : TabularTDLearning<State, Action>(qTable, alpha, gamma), EpisodeCallback<State, Action> {
+) : TabularTDLearning<State, Action>(qTable, alpha, gamma), TrajectoryLearner<State, Action> {
 
     private val queue = ArrayDeque<Transition<State, Action>>(n)
 
-    override fun onEpisodeStart(episode: Int) {
-        queue.clear()
+    override fun invoke(trajectory: Trajectory<State, Action>, episode: Int) {
+        TODO("Not yet implemented")
     }
-
-    override fun onEpisodeEnd(stats: EpisodeStats<State, Action>) {
-        while (queue.isNotEmpty<Transition<State, Action>>()) {
-            update(queue.size)
-        }
-    }
+//
+//    override fun onEpisodeStart(episode: Int) {
+//        queue.clear()
+//    }
+//
+//    override fun onEpisodeEnd(stats: EpisodeStats<State, Action>) {
+//        while (queue.isNotEmpty<Transition<State, Action>>()) {
+//            update(queue.size)
+//        }
+//    }
 
     override fun invoke(transition: Transition<State, Action>) {
         queue.addLast(transition)

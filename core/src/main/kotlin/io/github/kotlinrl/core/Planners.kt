@@ -1,6 +1,6 @@
 package io.github.kotlinrl.core
 
-typealias ValueFunction<State> = io.github.kotlinrl.core.algorithms.ValueFunction<State>
+typealias ValueFunction<State> = io.github.kotlinrl.core.policy.ValueFunction<State>
 typealias Planner<State, Action> = io.github.kotlinrl.core.plan.Planner<State, Action>
 typealias TransitionFunction<State, Action> = io.github.kotlinrl.core.plan.TransitionFunction<State, Action>
 
