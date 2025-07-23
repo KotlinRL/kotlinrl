@@ -1,6 +1,6 @@
 package io.github.kotlinrl.core
 
-import io.github.kotlinrl.core.algorithms.mc.defaultKeyFunction
+import io.github.kotlinrl.core.algorithms.mc.*
 
 typealias QFunction<State, Action> = io.github.kotlinrl.core.algorithms.QFunction<State, Action>
 typealias QTable = io.github.kotlinrl.core.algorithms.QTable
@@ -74,7 +74,7 @@ fun <State, Action> valueIteration(
             Transition(
                 state = state,
                 action = action,
-                reward =  stepResult.reward,
+                reward = stepResult.reward,
                 nextState = stepResult.state,
                 terminated = stepResult.terminated,
                 truncated = stepResult.truncated,
@@ -113,7 +113,7 @@ fun <State, Action> policyIteration(
             Transition(
                 state = state,
                 action = action,
-                reward =  stepResult.reward,
+                reward = stepResult.reward,
                 nextState = stepResult.state,
                 terminated = stepResult.terminated,
                 truncated = stepResult.truncated,
@@ -126,7 +126,7 @@ fun <State, Action> policyIteration(
     gamma: Double = 0.99,
     theta: Double = 1e-6,
     vTable: ValueFunction<State>,
-    pTable: MutablePolicy<State, Action> ,
+    pTable: MutablePolicy<State, Action>,
     stateActionListProvider: StateActionListProvider<State, Action>,
     transitionFunction: TransitionFunction<State, Action>
 ): Policy<State, Action> = policyIterationPlanner(gamma, theta, vTable, pTable)
@@ -148,12 +148,12 @@ fun <State, Action> onPolicyMonteCarloControl(
 )
 
 fun <State, Action> constantAlphaMonteCarloControl(
-    qTable: QFunction<State, Action> ,
+    qTable: QFunction<State, Action>,
     gamma: Double = 0.99,
     alpha: Double = 0.05,
     firstVisitOnly: Boolean = true,
     stateActionKeyFunction: StateActionKeyFunction<State, Action> = ::defaultKeyFunction
-): EpisodeCallback<State, Action>  = ConstantAlphaMonteCarloControl(
+): EpisodeCallback<State, Action> = ConstantAlphaMonteCarloControl(
     qTable = qTable,
     gamma = gamma,
     alpha = alpha,
@@ -162,15 +162,15 @@ fun <State, Action> constantAlphaMonteCarloControl(
 )
 
 fun <State, Action> offPolicyMonteCarloControl(
-    qTable: QFunction<State, Action> ,
+    qTable: QFunction<State, Action>,
     gamma: Double = 0.99,
-    behaviorPolicy: ProbabilisticPolicy<State, Action> ,
-    targetPolicy: MutablePolicy<State, Action>,
+    targetPolicy: Policy<State, Action>,
+    probability: ProbabilityFunction<State, Action>,
     stateActionKeyFunction: StateActionKeyFunction<State, Action> = ::defaultKeyFunction
 ): EpisodeCallback<State, Action> = OffPolicyMonteCarloControl(
     qTable = qTable,
     gamma = gamma,
-    behaviorPolicy = behaviorPolicy,
     targetPolicy = targetPolicy,
+    probability = probability,
     stateActionKeyFunction = stateActionKeyFunction
 )

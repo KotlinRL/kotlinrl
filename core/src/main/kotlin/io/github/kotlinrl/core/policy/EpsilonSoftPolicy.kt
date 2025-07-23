@@ -9,7 +9,7 @@ class EpsilonSoftPolicy<State, Action>(
     private val explorationFactor: ExplorationFactor,
     private val stateActionListProvider: StateActionListProvider<State, Action>,
     rng: Random
-) : ProbabilisticPolicy<State, Action>(rng) {
+) : StochasticPolicy<State, Action>(rng) {
 
     override fun actionScores(state: State): List<Pair<Action, Double>> {
         val actions = stateActionListProvider(state)

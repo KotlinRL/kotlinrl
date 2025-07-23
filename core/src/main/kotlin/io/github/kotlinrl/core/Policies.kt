@@ -10,11 +10,11 @@ typealias EpsilonGreedyPolicy<State, Action> = io.github.kotlinrl.core.policy.Ep
 typealias SoftmaxPolicy<State, Action> = io.github.kotlinrl.core.policy.SoftmaxPolicy<State, Action>
 typealias EpsilonSoftPolicy<State, Action> = io.github.kotlinrl.core.policy.EpsilonSoftPolicy<State, Action>
 typealias Policy<State, Action> = io.github.kotlinrl.core.policy.Policy<State, Action>
-typealias ProbabilisticPolicy<State, Action> = io.github.kotlinrl.core.policy.ProbabilisticPolicy<State, Action>
+typealias StochasticPolicy<State, Action> = io.github.kotlinrl.core.policy.StochasticPolicy<State, Action>
 typealias PolicyProbabilities<State, Action> = io.github.kotlinrl.core.policy.PolicyProbabilities<State, Action>
 typealias StateActionListProvider<State, Action> = io.github.kotlinrl.core.policy.StateActionListProvider<State, Action>
 typealias MutablePolicy<State, Action> = io.github.kotlinrl.core.policy.MutablePolicy<State, Action>
-typealias StochasticPolicy<State, Action> = io.github.kotlinrl.core.policy.StochasticPolicy<State, Action>
+typealias ProbabilityFunction<State, Action> = io.github.kotlinrl.core.policy.ProbabilityFunction<State, Action>
 
 fun <State, Action> randomPolicy(
     actionProvider: StateActionListProvider<State, Action>,
@@ -37,7 +37,7 @@ fun <State, Action> softMaxPolicy(
     temperature: ExplorationFactor,
     stateActionListProvider: StateActionListProvider<State, Action>,
     rng: Random = Random.Default
-): ProbabilisticPolicy<State, Action> = SoftmaxPolicy(
+): StochasticPolicy<State, Action> = SoftmaxPolicy(
     qTable = qTable,
     temperature = temperature,
     stateActionListProvider = stateActionListProvider,
@@ -49,16 +49,16 @@ fun <State, Action> epsilonSoftPolicy(
     qTable: QFunction<State, Action>,
     explorationFactor: ExplorationFactor,
     rng: Random = Random.Default
-): ProbabilisticPolicy<State, Action> = EpsilonSoftPolicy(
+): StochasticPolicy<State, Action> = EpsilonSoftPolicy(
     stateActionListProvider = stateActionListProvider,
     qTable=qTable,
     explorationFactor = explorationFactor,
     rng = rng)
 
-fun <State, Action> StochasticPolicy<State, Action>.asPolicyProbabilities(
+fun <State, Action> ProbabilityFunction<State, Action>.asPolicyProbabilities(
     stateActionListProvider: StateActionListProvider<State, Action>
 ): PolicyProbabilities<State, Action> = PolicyProbabilities { state ->
-    stateActionListProvider(state).associateWith { action -> this.probability(state, action) }
+    stateActionListProvider(state).associateWith { action -> this.invoke(state, action) }
 }
 
 fun constantEpsilon(factor: Double) = ExplorationFactor { factor }
