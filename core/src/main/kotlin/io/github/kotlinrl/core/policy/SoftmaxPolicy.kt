@@ -10,7 +10,7 @@ class SoftmaxPolicy<State, Action>(
     private val temperature: ExplorationFactor,
     private val stateActionListProvider: StateActionListProvider<State, Action>,
     rng: Random
-) : ProbabilisticPolicy<State, Action>(rng) {
+) : StochasticPolicy<State, Action>(rng) {
 
     override fun actionScores(state: State): List<Pair<Action, Double>> {
         val temperature = temperature()

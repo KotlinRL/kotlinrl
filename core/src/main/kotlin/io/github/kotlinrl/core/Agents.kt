@@ -74,10 +74,10 @@ fun nStepSARSAAgent(
     return agent(id, policy, learning) to learning
 }
 
-fun monteCarloAgent(
+fun <State, Action> offPolicyMonteCarloControlAgent(
     id: String = UUID.randomUUID().toString(),
-    policy: Policy<IntArray, Int>
-): Agent<IntArray, Int> {
+    policy: Policy<State, Action>
+): Agent<State, Action> {
     return agent(id = id, policy = policy)
 }
 
