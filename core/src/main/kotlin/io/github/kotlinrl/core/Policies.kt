@@ -16,6 +16,7 @@ typealias PolicyProbabilities<State, Action> = io.github.kotlinrl.core.policy.Po
 typealias StateActionListProvider<State, Action> = io.github.kotlinrl.core.policy.StateActionListProvider<State, Action>
 typealias MutablePolicy<State, Action> = io.github.kotlinrl.core.policy.MutablePolicy<State, Action>
 typealias ProbabilityFunction<State, Action> = io.github.kotlinrl.core.policy.ProbabilityFunction<State, Action>
+typealias QFunctionPolicy<State, Action> = io.github.kotlinrl.core.policy.QFunctionPolicy<State, Action>
 
 fun <State, Action> randomPolicy(
     actionProvider: StateActionListProvider<State, Action>,

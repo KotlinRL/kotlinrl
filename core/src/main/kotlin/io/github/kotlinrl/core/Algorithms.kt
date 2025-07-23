@@ -1,6 +1,7 @@
 package io.github.kotlinrl.core
 
 import io.github.kotlinrl.core.algorithms.mc.defaultKeyFunction
+import kotlin.random.Random
 
 typealias QFunction<State, Action> = io.github.kotlinrl.core.policy.QFunction<State, Action>
 typealias QTable = io.github.kotlinrl.core.algorithms.QTable
@@ -122,19 +123,6 @@ fun <State, Action> policyIteration(
         }
     )
 
-fun <State, Action> policyIteration(
-    gamma: Double = 0.99,
-    theta: Double = 1e-6,
-    vTable: ValueFunction<State>,
-    pTable: MutablePolicy<State, Action>,
-    stateActionListProvider: StateActionListProvider<State, Action>,
-    transitionFunction: TransitionFunction<State, Action>
-): Policy<State, Action> = policyIterationPlanner(gamma, theta, vTable, pTable)
-    .plan(
-        stateActionListProvider = stateActionListProvider,
-        transitionFunction = transitionFunction
-    )
-
 fun <State, Action> onPolicyMonteCarloControl(
     qTable: QFunction<State, Action>,
     gamma: Double = 0.99,
@@ -162,15 +150,43 @@ fun <State, Action> constantAlphaMonteCarloControl(
 )
 
 fun <State, Action> offPolicyMonteCarloControl(
-    qTable: QFunction<State, Action>,
     gamma: Double = 0.99,
-    targetPolicy: Policy<State, Action>,
+    targetPolicy: QFunctionPolicy<State, Action>,
     probability: ProbabilityFunction<State, Action>,
     stateActionKeyFunction: StateActionKeyFunction<State, Action> = ::defaultKeyFunction
 ): TrajectoryLearner<State, Action> = OffPolicyMonteCarloControl(
-    qTable = qTable,
+    qTable = targetPolicy.qTable,
     gamma = gamma,
     targetPolicy = targetPolicy,
     probability = probability,
     stateActionKeyFunction = stateActionKeyFunction
 )
+
+fun <State, Action> epsilonGreedySoftOffPolicyControls(
+    qTable: QFunction<State, Action>,
+    stateActionListProvider: StateActionListProvider<State, Action>,
+    explorationFactor: ExplorationFactor,
+    probabilityInitialEpsilon: Double,
+    probabilityDecayRate: Double,
+    probabilityMinEpsilon: Double,
+    rng: Random = Random.Default
+): Pair<QFunctionPolicy<State, Action>, ProbabilityFunction<State, Action>> {
+
+    val behavior = epsilonGreedyPolicy(
+        stateActionListProvider = stateActionListProvider,
+        explorationFactor = explorationFactor,
+        qTable = qTable,
+        rng = rng
+    )
+    val probability = epsilonSoftPolicy(
+        qTable = qTable,
+        stateActionListProvider = stateActionListProvider,
+        explorationFactor = decayingEpsilon(
+            factor = probabilityInitialEpsilon,
+            decayRate = probabilityDecayRate,
+            minFactor = probabilityMinEpsilon
+        ),
+        rng = rng
+    )
+    return behavior to probability
+}
