@@ -15,6 +15,8 @@ Dynamic Programming
 - [MazePolicyIteration](MazePolicyIteration.ipynb)
 
 Monte Carlo Control
-- [BlackjackOnPolicyMonteCarloControl](BlackjackOnPolicyMonteCarloControl.ipynb)
-- [BlackjackConstantAlpaMonteCarloControl](BlackjackConstantAlphaMonteCarloControl.ipynb)
-- [BlackjackOffPolicyMonteCarloControl](BlackjackOffPolicyMonteCarloControl.ipynb)
+- [MazeOnPolicyMonteCarloControl](MazeOnPolicyMonteCarloControl.ipynb)
+- [MazeOffPolicyMonteCarloControl](MazeOffPolicyMonteCarloControl.ipynb)
+
+Temporal Difference Learning
+- [CliffWalkingQLearning](CliffWalkingQLearning.ipynb)
