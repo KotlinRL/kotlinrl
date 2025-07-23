@@ -1,5 +1,6 @@
 package io.github.kotlinrl.core.algorithms
 
+import io.github.kotlinrl.core.policy.QFunction
 import org.apache.commons.csv.*
 import org.jetbrains.kotlinx.multik.api.*
 import org.jetbrains.kotlinx.multik.api.math.*

@@ -1,8 +1,8 @@
 package io.github.kotlinrl.core
 
-import io.github.kotlinrl.core.algorithms.mc.*
+import io.github.kotlinrl.core.algorithms.mc.defaultKeyFunction
 
-typealias QFunction<State, Action> = io.github.kotlinrl.core.algorithms.QFunction<State, Action>
+typealias QFunction<State, Action> = io.github.kotlinrl.core.policy.QFunction<State, Action>
 typealias QTable = io.github.kotlinrl.core.algorithms.QTable
 typealias VTable = io.github.kotlinrl.core.algorithms.VTable
 typealias PTable = io.github.kotlinrl.core.algorithms.PTable
@@ -22,13 +22,13 @@ fun <State, Action> qLearning(
     qTable: QFunction<State, Action>,
     alpha: Double,
     gamma: Double
-): TransitionObserver<State, Action> = QLearning(qTable, alpha, gamma)
+): ObserveTransition<State, Action> = QLearning(qTable, alpha, gamma)
 
 fun <State, Action> sarsa(
     qTable: QFunction<State, Action>,
     alpha: Double,
     gamma: Double
-): TransitionObserver<State, Action> = SARSA(qTable, alpha, gamma)
+): ObserveTransition<State, Action> = SARSA(qTable, alpha, gamma)
 
 fun <State, Action> expectedSARSA(
     qTable: QFunction<State, Action>,
@@ -36,7 +36,7 @@ fun <State, Action> expectedSARSA(
     gamma: Double,
     stateActionListProvider: StateActionListProvider<State, Action>,
     policyProbabilities: PolicyProbabilities<State, Action>
-): TransitionObserver<State, Action> = ExpectedSARSA(
+): ObserveTransition<State, Action> = ExpectedSARSA(
     qTable = qTable,
     alpha = alpha,
     gamma = gamma,
@@ -140,7 +140,7 @@ fun <State, Action> onPolicyMonteCarloControl(
     gamma: Double = 0.99,
     firstVisitOnly: Boolean = true,
     stateActionKeyFunction: StateActionKeyFunction<State, Action> = ::defaultKeyFunction
-): EpisodeCallback<State, Action> = OnPolicyMonteCarloControl(
+): TrajectoryLearner<State, Action> = OnPolicyMonteCarloControl(
     qTable = qTable,
     gamma = gamma,
     firstVisitOnly = firstVisitOnly,
@@ -153,7 +153,7 @@ fun <State, Action> constantAlphaMonteCarloControl(
     alpha: Double = 0.05,
     firstVisitOnly: Boolean = true,
     stateActionKeyFunction: StateActionKeyFunction<State, Action> = ::defaultKeyFunction
-): EpisodeCallback<State, Action> = ConstantAlphaMonteCarloControl(
+): TrajectoryLearner<State, Action> = ConstantAlphaMonteCarloControl(
     qTable = qTable,
     gamma = gamma,
     alpha = alpha,
@@ -167,7 +167,7 @@ fun <State, Action> offPolicyMonteCarloControl(
     targetPolicy: Policy<State, Action>,
     probability: ProbabilityFunction<State, Action>,
     stateActionKeyFunction: StateActionKeyFunction<State, Action> = ::defaultKeyFunction
-): EpisodeCallback<State, Action> = OffPolicyMonteCarloControl(
+): TrajectoryLearner<State, Action> = OffPolicyMonteCarloControl(
     qTable = qTable,
     gamma = gamma,
     targetPolicy = targetPolicy,

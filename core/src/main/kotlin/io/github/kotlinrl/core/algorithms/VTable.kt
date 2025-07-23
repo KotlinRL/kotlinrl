@@ -1,5 +1,6 @@
 package io.github.kotlinrl.core.algorithms
 
+import io.github.kotlinrl.core.policy.ValueFunction
 import org.jetbrains.kotlinx.multik.api.*
 import org.jetbrains.kotlinx.multik.ndarray.data.*
 

@@ -3,8 +3,9 @@ package io.github.kotlinrl.core.policy
 import kotlin.random.*
 
 abstract class StochasticPolicy<State, Action>(
+    val stateActionListProvider: StateActionListProvider<State, Action>,
     private val rng: Random
-) : ProbabilityFunction<State, Action>, Policy<State, Action> {
+) : ProbabilityFunction<State, Action>, QFunctionPolicy<State, Action> {
 
     abstract fun actionScores(state: State): List<Pair<Action, Double>>
 

@@ -1,4 +1,4 @@
-package io.github.kotlinrl.core.algorithms
+package io.github.kotlinrl.core.policy
 
 interface QFunction<State, Action> {
     operator fun get(state: State, action: Action): Double
