@@ -83,6 +83,23 @@ fun <State, Action> onPolicyMonteCarloControlAgent(
     )
 )
 
+fun <State, Action> offPolicyMonteCarloControlAgent(
+    id: String = UUID.randomUUID().toString(),
+    policy: QFunctionPolicy<State, Action>,
+    gamma: Double = 0.99,
+    probability: ProbabilityFunction<State, Action>,
+    stateActionKeyFunction: StateActionKeyFunction<State, Action> = ::defaultKeyFunction
+): Agent<State, Action> = agent(
+    id = id,
+    policy = policy,
+    onTrajectory = offPolicyMonteCarloControl(
+        gamma = gamma,
+        targetPolicy = policy,
+        probability = probability,
+        stateActionKeyFunction = stateActionKeyFunction,
+    )
+)
+
 fun <State, Action> qLearningAgent(
     id: String = UUID.randomUUID().toString(),
     policy: QFunctionPolicy<State, Action>,
