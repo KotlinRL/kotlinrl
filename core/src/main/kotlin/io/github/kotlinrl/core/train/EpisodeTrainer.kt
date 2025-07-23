@@ -50,7 +50,7 @@ class EpisodeTrainer<State, Action>(
                 episode = episode,
                 totalReward = totalReward,
                 steps = transitions.size,
-                transitions = transitions
+                trajectory = transitions
             )
             agent.observe(transitions, episode)
             callbacks.forEach { it.onEpisodeEnd(stats) }
