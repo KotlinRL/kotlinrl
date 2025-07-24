@@ -9,7 +9,7 @@ open class SimpleWrapper<State, Action, ObservationSpace : Space<State>, ActionS
 
     override fun step(action: Action): StepResult<State> = env.step(action)
 
-    override fun reset(seed: Int?, options: Map<String, String>?): InitialState<State>  = env.reset(seed, options)
+    override fun reset(seed: Int?, options: Map<String, Any?>?): InitialState<State>  = env.reset(seed, options)
 
     override val observationSpace: ObservationSpace
         get() = env.observationSpace

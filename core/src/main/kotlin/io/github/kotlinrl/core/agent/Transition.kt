@@ -7,7 +7,7 @@ data class Transition<State, Action>(
     val nextState: State,
     val terminated: Boolean,
     val truncated: Boolean,
-    val info: Map<String, String> = emptyMap()
+    val info: Map<String, Any?> = emptyMap()
 ) {
     val done: Boolean get() = terminated || truncated
 }

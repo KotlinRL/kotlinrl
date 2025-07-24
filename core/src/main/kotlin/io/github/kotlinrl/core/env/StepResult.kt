@@ -5,5 +5,5 @@ data class StepResult<State>(
     val reward: Double,
     val terminated: Boolean,
     val truncated: Boolean,
-    val info: Map<String, String>
+    val info: Map<String, Any?>
 )

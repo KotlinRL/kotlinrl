@@ -8,7 +8,7 @@ class TransformState<State, Action, ObservationSpace : Space<State>, ActionSpace
     override val observationSpace: ObservationSpace
 ) : Wrapper<State, Action, ObservationSpace, ActionSpace, WrappedState, Action, WrappedObservationSpace, ActionSpace>(env) {
 
-    override fun reset(seed: Int?, options: Map<String, String>?): InitialState<State> {
+    override fun reset(seed: Int?, options: Map<String, Any?>?): InitialState<State> {
         val initial = env.reset(seed, options)
         return InitialState(state = transform(initial.state), info = initial.info)
     }

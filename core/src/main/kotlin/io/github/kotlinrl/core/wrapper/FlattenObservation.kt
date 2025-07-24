@@ -38,7 +38,7 @@ class FlattenObservation<Num : Number, WrappedState, Action, WrappedObservationS
     override val actionSpace: ActionSpace
         get() = env.actionSpace
 
-    override fun reset(seed: Int?, options: Map<String, String>?): InitialState<NDArray<Num, D1>> {
+    override fun reset(seed: Int?, options: Map<String, Any?>?): InitialState<NDArray<Num, D1>> {
         val initial = env.reset(seed, options)
         val flat = toNDArray<Num>(flattenObservation(initial.state, dtype), dtype)
         return InitialState(

@@ -15,7 +15,7 @@ class Monitor<State, Action, ObservationSpace : Space<State>, ActionSpace : Spac
         if (!exists()) writeText("episode,reward,length\n")
     }
 
-    override fun reset(seed: Int?, options: Map<String, String>?): InitialState<State> {
+    override fun reset(seed: Int?, options: Map<String, Any?>?): InitialState<State> {
         if (episodeLength > 0) {
             // Log to file beforeStep resetting counters (if previous episode finished)
             logFile.appendText("${System.currentTimeMillis()},$episodeReward,$episodeLength\n")

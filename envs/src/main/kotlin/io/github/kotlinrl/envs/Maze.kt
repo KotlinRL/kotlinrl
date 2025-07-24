@@ -13,7 +13,7 @@ class Maze(
     val shapedRewards: Boolean = false,
     val render: Boolean = true,
     val size: Int = 5,
-    override val metadata: Map<String, Any> = emptyMap(),
+    override val metadata: Map<String, Any?> = emptyMap(),
     seed: Int? = null,
 ) : ModelBasedEnv<IntArray, Int, MultiDiscrete, Discrete> {
     enum class Action(val value: Int) {
@@ -129,7 +129,7 @@ class Maze(
         return StepResult(state, reward, terminated, false, emptyMap())
     }
 
-    override fun reset(seed: Int?, options: Map<String, String>?): InitialState<IntArray> {
+    override fun reset(seed: Int?, options: Map<String, Any?>?): InitialState<IntArray> {
         if(exploringStarts) {
             while(state[0] == goal[0] && state[1] == goal[1]) {
                 state = observationSpace.sample()

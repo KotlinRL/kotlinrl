@@ -12,7 +12,7 @@ object GymnasiumEnv {
         envType: GymnasiumEnvs,
         seed: Int? = null,
         render: Boolean = true,
-        options: Map<String, String> = emptyMap(),
+        options: Map<String, Any?> = emptyMap(),
         host: String = "localhost:50051"
     ): E {
         @Suppress("UNCHECKED_CAST")

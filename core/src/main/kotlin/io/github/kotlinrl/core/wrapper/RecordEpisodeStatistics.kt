@@ -10,7 +10,7 @@ class RecordEpisodeStatistics<State, Action, ObservationSpace : Space<State>, Ac
     private var episodeReward = 0.0
     private var episodeLength = 0
 
-    override fun reset(seed: Int?, options: Map<String, String>?): InitialState<State> {
+    override fun reset(seed: Int?, options: Map<String, Any?>?): InitialState<State> {
         episodeReward = 0.0
         episodeLength = 0
         return env.reset(seed, options)
