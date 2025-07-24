@@ -1,12 +1,11 @@
 package io.github.kotlinrl.core.policy
 
-import io.github.kotlinrl.core.ExplorationFactor
 import kotlin.math.*
 import kotlin.random.*
 
 class SoftmaxPolicy<State, Action>(
     override val qTable: QFunction<State, Action>,
-    private val temperature: ExplorationFactor,
+    private val temperature: ParameterSchedule,
     stateActionListProvider: StateActionListProvider<State, Action>,
     rng: Random
 ) : StochasticPolicy<State, Action>(stateActionListProvider, rng), QFunctionPolicy<State, Action> {
