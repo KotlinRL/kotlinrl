@@ -23,6 +23,34 @@ fun EnvOuterClass.Space.toTypedSpace(seed: Int?): Space<*> {
     }
 }
 
+fun Map<String, Any?>.toStruct(): Struct {
+    fun anyToValue(key: String, value: Any?): Value {
+        return when (value) {
+            null -> Value.newBuilder().setNullValueValue(0).build()
+            is String -> Value.newBuilder().setStringValue(value).build()
+            is Number -> Value.newBuilder().setNumberValue(value.toDouble()).build()
+            is Boolean -> Value.newBuilder().setBoolValue(value).build()
+            is Map<*, *> -> {
+                @Suppress("UNCHECKED_CAST")
+                val nestedMap = value as Map<String, Any?>
+                Value.newBuilder().setStructValue(nestedMap.toStruct()).build()
+            }
+            is List<*> -> {
+                val listValues = value.mapIndexed { i, v -> anyToValue("$key[$i]", v) }
+                Value.newBuilder().setListValue(ListValue.newBuilder().addAllValues(listValues)).build()
+            }
+
+            else -> throw IllegalArgumentException("Unsupported type for Struct conversion: ${value.let { it::class }} at key: $key")
+        }
+    }
+
+    val structBuilder = Struct.newBuilder()
+    for ((key, value) in this) {
+        structBuilder.putFields(key, anyToValue(key, value))
+    }
+    return structBuilder.build()
+}
+
 fun Struct.toMap(): Map<String, Any> {
     return this.fieldsMap.mapValues { (_, v) -> v.stringValue }
 }
@@ -31,7 +59,7 @@ fun Struct.toMap(): Map<String, Any> {
 fun <State> EnvOuterClass.Observation.toTypedState():State {
     return when (this.valueCase) {
         INT32 -> this.int32
-        FLOAT -> this.float
+        DOUBLE -> this.double
         STRING -> this.string
         ARRAY -> this.array.toNDArray()
         TUPLE -> this.tuple.itemsList.map { it.toTypedState() as State }.toList()
@@ -50,8 +78,6 @@ fun EnvOuterClass.RenderResponse.toRendering(): Rendering {
                 bytes = this.rgbArray.data.toByteArray()
             )
         }
-
-        ANSI -> Rendering.Text(this.ansi)
         else -> Rendering.Empty
     }
 }

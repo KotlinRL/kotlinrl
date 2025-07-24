@@ -9,7 +9,7 @@ class OrderEnforcing<State, Action, ObservationSpace : Space<State>, ActionSpace
 
     private var needsReset = true
 
-    override fun reset(seed: Int?, options: Map<String, String>?): InitialState<State> {
+    override fun reset(seed: Int?, options: Map<String, Any?>?): InitialState<State> {
         needsReset = false
         return env.reset(seed, options)
     }

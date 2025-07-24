@@ -23,7 +23,7 @@ class NormalizeState<Num : Number, D : Dimension, Action, ObservationSpace : Spa
         return mk.ndarray(normed.toList(), obs.shape, obs.dim) as NDArray<Num, D>
     }
 
-    override fun reset(seed: Int?, options: Map<String, String>?): InitialState<NDArray<Num, D>> {
+    override fun reset(seed: Int?, options: Map<String, Any?>?): InitialState<NDArray<Num, D>> {
         val initial = env.reset(seed, options)
         return InitialState(state = normalize(initial.state), info = initial.info)
     }

@@ -13,20 +13,20 @@ internal class RemoteEnvClient<State, Action, ObservationSpace : Space<State>, A
     envName: String,
     seed: Int? = null,
     render: Boolean = true,
-    options: Map<String, String> = emptyMap(),
+    options: Map<String, Any?> = emptyMap(),
     host: String = "localhost:50051"
 
 ) : Env<State, Action, ObservationSpace, ActionSpace> {
-    internal val env = RemoteEnv(envName, render, options, host)
+    internal val env = RemoteEnv(envName, render, options.toStruct(), host)
     override val random: Random = seed?.let { Random(it) } ?: Random.Default
-    override val metadata: Map<String, Any> = env.metadata.toMap()
+    override val metadata: Map<String, Any?> = env.metadata.toMap()
     override val observationSpace = env.observationSpace.toTypedSpace(seed) as ObservationSpace
     override val actionSpace = env.actionSpace.toTypedSpace(seed) as ActionSpace
 
-    override fun reset(seed: Int?, options: Map<String, String>?): InitialState<State> {
-        val (state, info) = env.reset(seed, options)
+    override fun reset(seed: Int?, options: Map<String, Any?>?): InitialState<State> {
+        val (state, info) = env.reset(seed, options?.toStruct())
         return InitialState(
-            info = info.dataMap,
+            info = info.toMap(),
             state = state.toTypedState()
         )
     }
@@ -35,7 +35,7 @@ internal class RemoteEnvClient<State, Action, ObservationSpace : Space<State>, A
         val (state, reward, terminated, truncated, info) = env.step(when(action) {
             is String -> action(action as String)
             is Int -> action(action as Int)
-            is Float -> action(action as Float)
+            is Double -> action(action as Double)
             is NDArray<*, *> -> action(
                 dtype = when(action.dtype) {
                     ByteDataType -> uint8
@@ -62,7 +62,7 @@ internal class RemoteEnvClient<State, Action, ObservationSpace : Space<State>, A
             reward = reward,
             terminated = terminated,
             truncated = truncated,
-            info = info.dataMap
+            info = info.toMap()
         )
     }
 

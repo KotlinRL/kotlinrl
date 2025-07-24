@@ -74,7 +74,7 @@ fun decayingEpsilon(
     var episode = 0
     var epsilon = factor
     return ExplorationFactor {
-        val eps = if (episode < burnInEpisodes) epsilon else
+        epsilon = if (episode < burnInEpisodes) epsilon else
             (epsilon * decayRate.pow((episode - burnInEpisodes).toDouble())).coerceAtLeast(minFactor)
         episode++
         epsilon

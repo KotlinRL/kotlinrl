@@ -26,7 +26,7 @@ class FilterObservation<Action, ActionSpace : Space<Action>>(
     override val actionSpace: ActionSpace
         get() = env.actionSpace
 
-    override fun reset(seed: Int?, options: Map<String, String>?): InitialState<Map<String, Any>> {
+    override fun reset(seed: Int?, options: Map<String, Any?>?): InitialState<Map<String, Any>> {
         val initial = env.reset(seed, options)
         return InitialState(
             state = filter(initial.state),

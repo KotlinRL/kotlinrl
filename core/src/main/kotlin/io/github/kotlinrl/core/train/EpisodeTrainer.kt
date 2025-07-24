@@ -10,7 +10,7 @@ class EpisodeTrainer<State, Action>(
 ) : Trainer {
 
     override fun train(episodes: Int): TrainingResult {
-        val episodeRewards = mutableListOf<Double>()
+        val episodeStats = mutableListOf<EpisodeStats<State, Action>>()
 
         for(episode in 1 until episodes + 1) {
             callbacks.forEach { it.onEpisodeStart(episode) }
@@ -21,42 +21,49 @@ class EpisodeTrainer<State, Action>(
             var state = env.reset().state
             var totalReward = 0.0
             var done = false
+            var exception: Throwable? = null
 
             while (!done && transitions.size < maxStepsPerEpisode) {
-                val action = agent.act(state)
-                val stepResult = env.step(action)
-                totalReward += stepResult.reward
+                try {
+                    val action = agent.act(state)
+                    val stepResult = env.step(action)
+                    totalReward += stepResult.reward
 
-                val transition = Transition(
-                    state = state,
-                    action = action,
-                    nextState = stepResult.state,
-                    reward = stepResult.reward,
-                    terminated = stepResult.terminated,
-                    truncated = stepResult.truncated,
-                    info = stepResult.info
-                )
+                    val transition = Transition(
+                        state = state,
+                        action = action,
+                        nextState = stepResult.state,
+                        reward = stepResult.reward,
+                        terminated = stepResult.terminated,
+                        truncated = stepResult.truncated,
+                        info = stepResult.info
+                    )
 
-                agent.observe(transition)
+                    agent.observe(transition)
 
-                transitions += transition
-                actions += action
+                    transitions += transition
+                    actions += action
 
-                state = transition.nextState
-                done = transition.done
+                    state = transition.nextState
+                    done = transition.done
+                } catch (e: Exception) {
+                    done = true
+                    exception = e
+                }
             }
 
             val stats = EpisodeStats(
+                trajectory = transitions,
                 episode = episode,
-                totalReward = totalReward,
                 steps = transitions.size,
-                trajectory = transitions
+                reachedGoal = transitions.any(Transition<State, Action>::terminated),
+                info = exception?.let { mapOf("exception" to it) } ?: emptyMap()
             )
             agent.observe(transitions, episode)
             callbacks.forEach { it.onEpisodeEnd(stats) }
-            episodeRewards += totalReward
+            episodeStats += stats
         }
 
-        return TrainingResult(episodeRewards)
+        return TrainingResult(episodeStats)
     }
 }

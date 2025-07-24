@@ -2,8 +2,6 @@ package io.github.kotlinrl.core.wrapper
 
 import io.github.kotlinrl.core.env.*
 import io.github.kotlinrl.core.space.*
-import io.github.kotlinrl.core.toBufferedImage
-import java.awt.image.*
 import java.io.File
 
 class RecordVideo<State, Action, ObservationSpace : Space<State>, ActionSpace : Space<Action>>(
@@ -22,7 +20,7 @@ class RecordVideo<State, Action, ObservationSpace : Space<State>, ActionSpace : 
         file.mkdirs()
     }
 
-    override fun reset(seed: Int?, options: Map<String, String>?): InitialState<State> {
+    override fun reset(seed: Int?, options: Map<String, Any?>?): InitialState<State> {
         episodeCount++
         record = (episodeCount % every == 0)
         val initial = env.reset(seed, options)

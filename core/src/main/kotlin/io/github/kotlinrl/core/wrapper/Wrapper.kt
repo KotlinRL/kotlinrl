@@ -19,13 +19,13 @@ abstract class Wrapper<
 
     abstract override fun step(action: Action): StepResult<State>
 
-    abstract override fun reset(seed: Int?, options: Map<String, String>?): InitialState<State>
+    abstract override fun reset(seed: Int?, options: Map<String, Any?>?): InitialState<State>
 
     override fun render(): Rendering = env.render()
 
     override fun close() = env.close()
 
-    override val metadata: Map<String, Any>
+    override val metadata: Map<String, Any?>
         get() = env.metadata
 
     abstract override val observationSpace: ObservationSpace

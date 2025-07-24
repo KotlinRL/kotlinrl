@@ -10,7 +10,7 @@ class TimeLimit<State, Action, ObservationSpace : Space<State>, ActionSpace : Sp
 
     private var elapsedSteps = 0
 
-    override fun reset(seed: Int?, options: Map<String, String>?): InitialState<State> {
+    override fun reset(seed: Int?, options: Map<String, Any?>?): InitialState<State> {
         elapsedSteps = 0
         return env.reset(seed, options)
     }

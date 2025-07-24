@@ -1,7 +1,6 @@
 package io.github.kotlinrl.core.env
 
 sealed class Rendering {
-    data class Text(val ansi: String) : Rendering()
     object Empty : Rendering()
     data class RenderFrame(
         val width: Int,
