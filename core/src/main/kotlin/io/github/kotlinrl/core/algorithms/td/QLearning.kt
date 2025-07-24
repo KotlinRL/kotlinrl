@@ -4,7 +4,7 @@ import io.github.kotlinrl.core.*
 
 class QLearning<State, Action>(
     qTable: QFunction<State, Action>,
-    alpha: Double,
+    alpha: ParameterSchedule,
     gamma: Double
 ) : TabularTDLearning<State, Action>(qTable, alpha, gamma) {
 
@@ -15,7 +15,7 @@ class QLearning<State, Action>(
         val currentValue = qTable[s, a]
         val nextValue = if (done) 0.0 else qTable.maxValue(sPrime)
         val target = r + gamma * nextValue
-        val updated = currentValue + alpha * (target - currentValue)
+        val updated = currentValue + alpha() * (target - currentValue)
 
         qTable[s, a] = updated
     }

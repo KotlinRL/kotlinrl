@@ -5,27 +5,19 @@ import kotlin.math.*
 
 class NStepSARSA<State, Action>(
     qTable: QFunction<State, Action>,
-    alpha: Double,
+    alpha: ParameterSchedule,
     gamma: Double,
     private val n: Int,
     private val policyProbabilities: PolicyProbabilities<State, Action>
 ) : TabularTDLearning<State, Action>(qTable, alpha, gamma), TrajectoryLearner<State, Action> {
 
-    private val queue = ArrayDeque<Transition<State, Action>>(n)
+    private val queue = ArrayDeque<Transition<State, Action>>()
 
     override fun invoke(trajectory: Trajectory<State, Action>, episode: Int) {
-        TODO("Not yet implemented")
+        while (queue.isNotEmpty()) {
+            update(queue.size)
+        }
     }
-//
-//    override fun onEpisodeStart(episode: Int) {
-//        queue.clear()
-//    }
-//
-//    override fun onEpisodeEnd(stats: EpisodeStats<State, Action>) {
-//        while (queue.isNotEmpty<Transition<State, Action>>()) {
-//            update(queue.size)
-//        }
-//    }
 
     override fun invoke(transition: Transition<State, Action>) {
         queue.addLast(transition)
@@ -52,9 +44,8 @@ class NStepSARSA<State, Action>(
         }
 
         val currentQ = qTable[s0, a0]
-        qTable[s0, a0] = currentQ + alpha * (g - currentQ)
+        qTable[s0, a0] = currentQ + alpha() * (g - currentQ)
 
         queue.removeFirst()
     }
-
 }

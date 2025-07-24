@@ -1,5 +1,5 @@
 package io.github.kotlinrl.core.policy
 
-fun interface ExplorationFactor {
+fun interface ParameterSchedule {
     operator fun invoke(): Double
 }

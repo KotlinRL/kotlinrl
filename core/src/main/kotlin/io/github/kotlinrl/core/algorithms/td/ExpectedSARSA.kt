@@ -6,7 +6,7 @@ import io.github.kotlinrl.core.policy.StateActionListProvider
 
 class ExpectedSARSA<State, Action>(
     qTable: QFunction<State, Action>,
-    alpha: Double,
+    alpha: ParameterSchedule,
     gamma: Double,
     private val stateActionListProvider: StateActionListProvider<State, Action>,
     private val policyProbabilities: PolicyProbabilities<State, Action>
@@ -28,7 +28,7 @@ class ExpectedSARSA<State, Action>(
         }
 
         val target = r + gamma * expectedValue
-        val updated = currentValue + alpha * (target - currentValue)
+        val updated = currentValue + alpha() * (target - currentValue)
 
         qTable[s, a] = updated
     }

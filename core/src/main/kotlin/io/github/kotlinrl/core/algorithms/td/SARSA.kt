@@ -4,7 +4,7 @@ import io.github.kotlinrl.core.*
 
 class SARSA<State, Action>(
     qTable: QFunction<State, Action>,
-    alpha: Double,
+    alpha: ParameterSchedule,
     gamma: Double
 ) : TabularTDLearning<State, Action>(qTable, alpha, gamma) {
     private var action: Action? = null
@@ -22,7 +22,7 @@ class SARSA<State, Action>(
         val nextValue = if (done) 0.0 else qTable[sPrime, aPrime]
 
         val target = r + gamma * nextValue
-        val updated = currentValue + alpha * (target - currentValue)
+        val updated = currentValue + alpha() * (target - currentValue)
 
         qTable[s, a] = updated
     }

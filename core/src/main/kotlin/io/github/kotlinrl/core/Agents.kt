@@ -103,7 +103,7 @@ fun <State, Action> offPolicyMonteCarloControlAgent(
 fun <State, Action> qLearningAgent(
     id: String = UUID.randomUUID().toString(),
     policy: QFunctionPolicy<State, Action>,
-    alpha: Double,
+    alpha: ParameterSchedule,
     gamma: Double
 ): Agent<State, Action> = agent(
     id = id,
@@ -119,7 +119,7 @@ fun <State, Action> sarsaAgent(
     id: String = UUID.randomUUID().toString(),
     policy: Policy<State, Action>,
     qTable: QFunction<State, Action>,
-    alpha: Double,
+    alpha: ParameterSchedule,
     gamma: Double
 ): Agent<State, Action> = agent(
     id = id,
@@ -134,7 +134,7 @@ fun <State, Action> sarsaAgent(
 fun <State, Action> expectedSARSAAgent(
     id: String = UUID.randomUUID().toString(),
     policy: StochasticPolicy<State, Action>,
-    alpha: Double,
+    alpha: ParameterSchedule,
     gamma: Double,
 ): Agent<State, Action> = agent(
     id = id,
@@ -151,7 +151,7 @@ fun <State, Action> expectedSARSAAgent(
 fun <State, Action> nStepSARSAAgent(
     id: String = UUID.randomUUID().toString(),
     policy: StochasticPolicy<State, Action>,
-    alpha: Double,
+    alpha: ParameterSchedule,
     gamma: Double,
     n: Int,
 ): Agent<State, Action> {

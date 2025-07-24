@@ -1,10 +1,9 @@
 package io.github.kotlinrl.core
 
-import io.github.kotlinrl.core.policy.QFunctionPolicy
-import kotlin.math.pow
+import kotlin.math.*
 import kotlin.random.*
 
-typealias ExplorationFactor = io.github.kotlinrl.core.policy.ExplorationFactor
+typealias ParameterSchedule = io.github.kotlinrl.core.policy.ParameterSchedule
 typealias RandomPolicy<State, Action> = io.github.kotlinrl.core.policy.RandomPolicy<State, Action>
 typealias GreedyPolicy<State, Action> = io.github.kotlinrl.core.policy.GreedyPolicy<State, Action>
 typealias EpsilonGreedyPolicy<State, Action> = io.github.kotlinrl.core.policy.EpsilonGreedyPolicy<State, Action>
@@ -29,14 +28,14 @@ fun <State, Action> greedyPolicy(
 
 fun <State, Action> epsilonGreedyPolicy(
     stateActionListProvider: StateActionListProvider<State, Action>,
-    explorationFactor: ExplorationFactor,
+    epsilon: ParameterSchedule,
     qTable: QFunction<State, Action>,
     rng: Random = Random.Default
-): QFunctionPolicy<State, Action> = EpsilonGreedyPolicy(stateActionListProvider, qTable, explorationFactor, rng)
+): QFunctionPolicy<State, Action> = EpsilonGreedyPolicy(stateActionListProvider, qTable, epsilon, rng)
 
 fun <State, Action> softMaxPolicy(
     qTable: QFunction<State, Action>,
-    temperature: ExplorationFactor,
+    temperature: ParameterSchedule,
     stateActionListProvider: StateActionListProvider<State, Action>,
     rng: Random = Random.Default
 ): StochasticPolicy<State, Action> = SoftmaxPolicy(
@@ -49,13 +48,14 @@ fun <State, Action> softMaxPolicy(
 fun <State, Action> epsilonSoftPolicy(
     stateActionListProvider: StateActionListProvider<State, Action>,
     qTable: QFunction<State, Action>,
-    explorationFactor: ExplorationFactor,
+    epsilon: ParameterSchedule,
     rng: Random = Random.Default
 ): StochasticPolicy<State, Action> = EpsilonSoftPolicy(
     stateActionListProvider = stateActionListProvider,
-    qTable=qTable,
-    explorationFactor = explorationFactor,
-    rng = rng)
+    qTable = qTable,
+    epsilon = epsilon,
+    rng = rng
+)
 
 fun <State, Action> ProbabilityFunction<State, Action>.asPolicyProbabilities(
     stateActionListProvider: StateActionListProvider<State, Action>
@@ -63,19 +63,19 @@ fun <State, Action> ProbabilityFunction<State, Action>.asPolicyProbabilities(
     stateActionListProvider(state).associateWith { action -> this.invoke(state, action) }
 }
 
-fun constantEpsilon(factor: Double) = ExplorationFactor { factor }
+fun constantParameterSchedule(value: Double) = ParameterSchedule { value }
 
-fun decayingEpsilon(
-    factor: Double,
+fun decayingParameterSchedule(
+    initialValue: Double,
     decayRate: Double,
-    minFactor: Double,
+    minValue: Double,
     burnInEpisodes: Int = 0
-): ExplorationFactor {
+): ParameterSchedule {
     var episode = 0
-    var epsilon = factor
-    return ExplorationFactor {
+    var epsilon = initialValue
+    return ParameterSchedule {
         epsilon = if (episode < burnInEpisodes) epsilon else
-            (epsilon * decayRate.pow((episode - burnInEpisodes).toDouble())).coerceAtLeast(minFactor)
+            (epsilon * decayRate.pow((episode - burnInEpisodes).toDouble())).coerceAtLeast(minValue)
         episode++
         epsilon
     }

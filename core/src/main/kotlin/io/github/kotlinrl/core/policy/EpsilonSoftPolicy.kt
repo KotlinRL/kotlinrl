@@ -1,12 +1,12 @@
 package io.github.kotlinrl.core.policy
 
-import io.github.kotlinrl.core.ExplorationFactor
+import io.github.kotlinrl.core.ParameterSchedule
 import kotlin.random.*
 
 class EpsilonSoftPolicy<State, Action>(
     override val qTable: QFunction<State, Action>,
-    private val explorationFactor: ExplorationFactor,
-   stateActionListProvider: StateActionListProvider<State, Action>,
+    private val epsilon: ParameterSchedule,
+    stateActionListProvider: StateActionListProvider<State, Action>,
     rng: Random
 ) : StochasticPolicy<State, Action>(stateActionListProvider, rng), QFunctionPolicy<State, Action> {
 
@@ -14,7 +14,7 @@ class EpsilonSoftPolicy<State, Action>(
         val actions = stateActionListProvider(state)
         val greedyAction = qTable.bestAction(state)
         val n = actions.size
-        val epsilon = explorationFactor()
+        val epsilon = epsilon()
 
         return actions.map { action ->
             val prob = if (action == greedyAction) {

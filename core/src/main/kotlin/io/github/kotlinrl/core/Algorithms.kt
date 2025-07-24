@@ -21,19 +21,19 @@ typealias TabularTDLearning<State, Action> = io.github.kotlinrl.core.algorithms.
 
 fun <State, Action> qLearning(
     qTable: QFunction<State, Action>,
-    alpha: Double,
+    alpha: ParameterSchedule,
     gamma: Double
 ): ObserveTransition<State, Action> = QLearning(qTable, alpha, gamma)
 
 fun <State, Action> sarsa(
     qTable: QFunction<State, Action>,
-    alpha: Double,
+    alpha: ParameterSchedule,
     gamma: Double
 ): ObserveTransition<State, Action> = SARSA(qTable, alpha, gamma)
 
 fun <State, Action> expectedSARSA(
     qTable: QFunction<State, Action>,
-    alpha: Double,
+    alpha: ParameterSchedule,
     gamma: Double,
     stateActionListProvider: StateActionListProvider<State, Action>,
     policyProbabilities: PolicyProbabilities<State, Action>
@@ -47,7 +47,7 @@ fun <State, Action> expectedSARSA(
 
 fun <State, Action> nStepSARSA(
     qTable: QFunction<State, Action>,
-    alpha: Double,
+    alpha: ParameterSchedule,
     gamma: Double,
     n: Int,
     policyProbabilities: PolicyProbabilities<State, Action>
@@ -138,7 +138,7 @@ fun <State, Action> onPolicyMonteCarloControl(
 fun <State, Action> constantAlphaMonteCarloControl(
     qTable: QFunction<State, Action>,
     gamma: Double = 0.99,
-    alpha: Double = 0.05,
+    alpha: ParameterSchedule = constantParameterSchedule(0.05),
     firstVisitOnly: Boolean = true,
     stateActionKeyFunction: StateActionKeyFunction<State, Action> = ::defaultKeyFunction
 ): TrajectoryLearner<State, Action> = ConstantAlphaMonteCarloControl(
@@ -165,7 +165,7 @@ fun <State, Action> offPolicyMonteCarloControl(
 fun <State, Action> epsilonGreedySoftOffPolicyControls(
     qTable: QFunction<State, Action>,
     stateActionListProvider: StateActionListProvider<State, Action>,
-    explorationFactor: ExplorationFactor,
+    epsilon: ParameterSchedule,
     probabilityInitialEpsilon: Double,
     probabilityDecayRate: Double,
     probabilityMinEpsilon: Double,
@@ -174,17 +174,17 @@ fun <State, Action> epsilonGreedySoftOffPolicyControls(
 
     val behavior = epsilonGreedyPolicy(
         stateActionListProvider = stateActionListProvider,
-        explorationFactor = explorationFactor,
+        epsilon = epsilon,
         qTable = qTable,
         rng = rng
     )
     val probability = epsilonSoftPolicy(
         qTable = qTable,
         stateActionListProvider = stateActionListProvider,
-        explorationFactor = decayingEpsilon(
-            factor = probabilityInitialEpsilon,
+        epsilon = decayingParameterSchedule(
+            initialValue = probabilityInitialEpsilon,
             decayRate = probabilityDecayRate,
-            minFactor = probabilityMinEpsilon
+            minValue = probabilityMinEpsilon
         ),
         rng = rng
     )
