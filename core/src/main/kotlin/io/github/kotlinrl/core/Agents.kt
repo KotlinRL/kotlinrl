@@ -140,15 +140,19 @@ fun <State, Action> sarsaAgent(
     policy: QFunctionPolicy<State, Action>,
     alpha: ParameterSchedule,
     gamma: Double
-): Agent<State, Action> = agent(
-    id = id,
-    policy = policy,
-    onTransition = sarsa(
+): Agent<State, Action> {
+    val learning = sarsa(
         qTable = policy.qTable,
         alpha = alpha,
         gamma = gamma
     )
-)
+    return agent(
+        id = id,
+        policy = policy,
+        onTransition = learning,
+        onTrajectory = learning
+    )
+}
 
 fun <State, Action> expectedSarsaAgent(
     id: String = UUID.randomUUID().toString(),
@@ -181,5 +185,10 @@ fun <State, Action> nStepSarsaAgent(
         n = n,
         policyProbabilities = policy.asPolicyProbabilities(policy.stateActionListProvider)
     )
-    return agent(id, policy, learning)
+    return agent(
+        id = id,
+        policy = policy,
+        onTransition = learning,
+        onTrajectory = learning
+    )
 }

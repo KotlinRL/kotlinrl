@@ -166,7 +166,7 @@ fun <State, Action> sarsa(
     qTable: QFunction<State, Action>,
     alpha: ParameterSchedule,
     gamma: Double
-): ObserveTransition<State, Action> = SARSA(qTable, alpha, gamma)
+): SARSA<State, Action> = SARSA(qTable, alpha, gamma)
 
 fun <State, Action> expectedSarsa(
     qTable: QFunction<State, Action>,
