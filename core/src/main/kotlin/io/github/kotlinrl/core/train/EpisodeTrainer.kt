@@ -6,13 +6,14 @@ class EpisodeTrainer<State, Action>(
     private val env: Env<State, Action, *, *>,
     private val agent: Agent<State, Action>,
     private val maxStepsPerEpisode: Int = 10_000,
-    private val callbacks: List<EpisodeCallback<State, Action>> = emptyList()
+    private val callbacks: List<EpisodeCallback<State, Action>> = emptyList(),
 ) : Trainer {
 
-    override fun train(episodes: Int): TrainingResult {
+    override fun train(stopCondition: TrainingStopCondition): TrainingResult {
         val episodeStats = mutableListOf<EpisodeStats<State, Action>>()
+        var episode = 1
 
-        for(episode in 1 until episodes + 1) {
+        while(true) {
             callbacks.forEach { it.onEpisodeStart(episode) }
 
             val transitions = mutableListOf<Transition<State, Action>>()
@@ -62,8 +63,12 @@ class EpisodeTrainer<State, Action>(
             agent.observe(transitions, episode)
             callbacks.forEach { it.onEpisodeEnd(stats) }
             episodeStats += stats
-        }
 
-        return TrainingResult(episodeStats)
+            val result = TrainingResult(episodeStats)
+            if (stopCondition(result)) {
+                return result
+            }
+            episode++
+        }
     }
 }
