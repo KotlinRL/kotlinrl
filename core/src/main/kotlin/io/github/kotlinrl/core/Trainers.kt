@@ -1,5 +1,6 @@
 package io.github.kotlinrl.core
 
+import io.github.kotlinrl.core.train.SuccessfulTermination
 import io.github.kotlinrl.core.train.TrainingStopCondition
 import kotlin.math.absoluteValue
 import kotlin.math.pow
@@ -16,11 +17,13 @@ fun <State, Action> episodicTrainer(
     env: Env<State, Action, *, *>,
     agent: Agent<State, Action>,
     maxStepsPerEpisode: Int = 10_000,
+    successfulTermination: SuccessfulTermination<State, Action>,
     callbacks: List<EpisodeCallback<State, Action>> = emptyList()
 ): Trainer = EpisodeTrainer(
     env = env,
     agent = agent,
     maxStepsPerEpisode = maxStepsPerEpisode,
+    successfulTermination = successfulTermination,
     callbacks = callbacks
 )
 
@@ -54,7 +57,7 @@ fun noRecentImprovementAfter(minEpisodes: Int, windowSize: Int, tolerance: Doubl
     val previousAvg = rewards.dropLast(windowSize).takeLast(windowSize).average()
 
     val condition = (recentAvg - previousAvg).absoluteValue < tolerance
-    if(condition) println("No significant improvement in ${windowSize} episodes since episode ${minEpisodes}.")
+    if(condition) println("No significant improvement in ${windowSize} episodes since episode ${it.episodeStats.last().episode - windowSize}")
     condition
 }
 

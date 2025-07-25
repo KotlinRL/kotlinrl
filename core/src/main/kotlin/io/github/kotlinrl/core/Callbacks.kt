@@ -17,11 +17,9 @@ fun <State, Action> printEpisodeTotalTransitions(
     }
 }
 
-fun <State, Action> printEpisodeOnGoalReached(
-    goalReward : Double
-) : EpisodeCallback<State, Action> = object : EpisodeCallback<State, Action> {
+fun <State, Action> printEpisodeOnGoalReached() : EpisodeCallback<State, Action> = object : EpisodeCallback<State, Action> {
     override fun onEpisodeEnd(stats: EpisodeStats<State, Action>) {
-        if(stats.trajectory.count { it.reward == goalReward } > 0)
+        if(stats.reachedGoal)
             println("Goal reached in episode ${stats.episode}.")
     }
 }
