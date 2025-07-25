@@ -30,22 +30,31 @@ fun averageRewardGreaterThan(target: Double) = TrainingStopCondition {
     condition
 }
 
-fun goalSuccessRateGreaterThan(target: Double, minEpisodes: Int) = TrainingStopCondition {
-    if (it.totalEpisodes < minEpisodes) return@TrainingStopCondition false
-    val condition = it.goalSuccessRate > target
-    if(condition) println("Goal success rate reached: ${it.goalSuccessRate}")
+fun goalSuccessRateGreaterThanAfter(
+    minEpisodes: Int,
+    windowSize: Int,
+    target: Double
+) = TrainingStopCondition {
+    if (it.totalEpisodes < minEpisodes + windowSize) return@TrainingStopCondition false
+
+    val relevant = it.episodeStats.drop(it.totalEpisodes - windowSize)
+    val rate = relevant.count { it.reachedGoal }.toDouble() / windowSize
+
+    val condition = rate > target
+    if (condition) println("Goal success rate in last $windowSize episodes reached: $rate")
     condition
 }
 
-fun noSignificantImprovement(windowSize: Int, tolerance: Double = 1e-4) = TrainingStopCondition {
-    val rewards = it.episodeRewards
+fun noRecentImprovementAfter(minEpisodes: Int, windowSize: Int, tolerance: Double = 1e-4) = TrainingStopCondition {
+    if (it.totalEpisodes < minEpisodes) return@TrainingStopCondition false
+    val rewards = it.episodeRewards.drop(minEpisodes)
     if (rewards.size < windowSize * 2) return@TrainingStopCondition false
 
     val recentAvg = rewards.takeLast(windowSize).average()
     val previousAvg = rewards.dropLast(windowSize).takeLast(windowSize).average()
 
     val condition = (recentAvg - previousAvg).absoluteValue < tolerance
-    if(condition) println("No significant improvement in ${windowSize} episodes.")
+    if(condition) println("No significant improvement in ${windowSize} episodes since episode ${minEpisodes}.")
     condition
 }
 
