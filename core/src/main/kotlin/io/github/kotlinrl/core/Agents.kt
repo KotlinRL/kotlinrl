@@ -1,6 +1,6 @@
 package io.github.kotlinrl.core
 
-import io.github.kotlinrl.core.algorithms.mc.defaultKeyFunction
+import io.github.kotlinrl.core.algorithms.mc.*
 import io.github.kotlinrl.core.policy.QFunctionPolicy
 import java.util.*
 
@@ -100,6 +100,26 @@ fun <State, Action> offPolicyMonteCarloControlAgent(
     )
 )
 
+fun <State, Action> constantAlphaMonteCarloControlAgent(
+    id: String = UUID.randomUUID().toString(),
+    policy: QFunctionPolicy<State, Action>,
+    qTable: QFunction<State, Action>,
+    gamma: Double = 0.99,
+    alpha: ParameterSchedule = ParameterSchedule { 0.05 },
+    firstVisitOnly: Boolean = true,
+    stateActionKeyFunction: StateActionKeyFunction<State, Action> = ::defaultKeyFunction
+): Agent<State, Action> = agent(
+    id = id,
+    policy = policy,
+    onTrajectory = constantAlphaMonteCarloControl(
+        qTable = qTable,
+        gamma = gamma,
+        alpha = alpha,
+        firstVisitOnly = firstVisitOnly,
+        stateActionKeyFunction = stateActionKeyFunction
+    )
+)
+
 fun <State, Action> qLearningAgent(
     id: String = UUID.randomUUID().toString(),
     policy: QFunctionPolicy<State, Action>,
@@ -163,23 +183,4 @@ fun <State, Action> nStepSARSAAgent(
         policyProbabilities = policy.asPolicyProbabilities(policy.stateActionListProvider)
     )
     return agent(id, policy, learning)
-}
-
-
-fun <State, Action> Agent<State, Action>.withTransitionLearner(
-    onTransition: TransitionLearner<State, Action>
-): Agent<State, Action> = object : Agent<State, Action> by this {
-    override fun observe(transition: Transition<State, Action>) {
-        this@withTransitionLearner.observe(transition)
-        onTransition(transition)
-    }
-}
-
-fun <State, Action> Agent<State, Action>.withEpisodeLearner(
-    onEpisode: TrajectoryLearner<State, Action>
-): Agent<State, Action> = object : Agent<State, Action> by this {
-    override fun observe(trajectory: List<Transition<State, Action>>, episode: Int) {
-        this@withEpisodeLearner.observe(trajectory, episode)
-        onEpisode(trajectory, episode)
-    }
 }
