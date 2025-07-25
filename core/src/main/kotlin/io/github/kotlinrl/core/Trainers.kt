@@ -57,7 +57,7 @@ fun noRecentImprovementAfter(minEpisodes: Int, windowSize: Int, tolerance: Doubl
     val previousAvg = rewards.dropLast(windowSize).takeLast(windowSize).average()
 
     val condition = (recentAvg - previousAvg).absoluteValue < tolerance
-    if(condition) println("No significant improvement in ${windowSize} episodes since episode ${minEpisodes}.")
+    if(condition) println("No significant improvement in ${windowSize} episodes since episode ${it.episodeStats.last().episode - windowSize}")
     condition
 }
 
