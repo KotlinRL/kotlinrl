@@ -137,21 +137,20 @@ fun <State, Action> qLearningAgent(
 
 fun <State, Action> sarsaAgent(
     id: String = UUID.randomUUID().toString(),
-    policy: Policy<State, Action>,
-    qTable: QFunction<State, Action>,
+    policy: QFunctionPolicy<State, Action>,
     alpha: ParameterSchedule,
     gamma: Double
 ): Agent<State, Action> = agent(
     id = id,
     policy = policy,
     onTransition = sarsa(
-        qTable = qTable,
+        qTable = policy.qTable,
         alpha = alpha,
         gamma = gamma
     )
 )
 
-fun <State, Action> expectedSARSAAgent(
+fun <State, Action> expectedSarsaAgent(
     id: String = UUID.randomUUID().toString(),
     policy: StochasticPolicy<State, Action>,
     alpha: ParameterSchedule,
@@ -159,7 +158,7 @@ fun <State, Action> expectedSARSAAgent(
 ): Agent<State, Action> = agent(
     id = id,
     policy = policy,
-    onTransition = expectedSARSA(
+    onTransition = expectedSarsa(
         qTable = policy.qTable,
         alpha = alpha,
         gamma = gamma,
@@ -168,14 +167,14 @@ fun <State, Action> expectedSARSAAgent(
     )
 )
 
-fun <State, Action> nStepSARSAAgent(
+fun <State, Action> nStepSarsaAgent(
     id: String = UUID.randomUUID().toString(),
     policy: StochasticPolicy<State, Action>,
     alpha: ParameterSchedule,
     gamma: Double,
     n: Int,
 ): Agent<State, Action> {
-    val learning = nStepSARSA(
+    val learning = nStepSarsa(
         qTable = policy.qTable,
         alpha = alpha,
         gamma = gamma,

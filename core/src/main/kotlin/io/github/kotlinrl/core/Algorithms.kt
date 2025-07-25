@@ -168,7 +168,7 @@ fun <State, Action> sarsa(
     gamma: Double
 ): ObserveTransition<State, Action> = SARSA(qTable, alpha, gamma)
 
-fun <State, Action> expectedSARSA(
+fun <State, Action> expectedSarsa(
     qTable: QFunction<State, Action>,
     alpha: ParameterSchedule,
     gamma: Double,
@@ -182,7 +182,7 @@ fun <State, Action> expectedSARSA(
     policyProbabilities = policyProbabilities
 )
 
-fun <State, Action> nStepSARSA(
+fun <State, Action> nStepSarsa(
     qTable: QFunction<State, Action>,
     alpha: ParameterSchedule,
     gamma: Double,
