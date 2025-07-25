@@ -7,19 +7,21 @@ class SARSA<State, Action>(
     alpha: ParameterSchedule,
     gamma: Double
 ) : TabularTDLearning<State, Action>(qTable, alpha, gamma) {
-    private var action: Action? = null
+
+    private var lastTransition: Transition<State, Action>? = null
 
     override fun invoke(transition: Transition<State, Action>) {
-        if (action == null) {
-            action = transition.action
-            return
-        }
-        val aPrime = action!!
-        val (s, a, r, sPrime) = transition
-        val done = transition.done
+        // If no previous transition, store and wait for next
+        val prev = lastTransition
+        lastTransition = transition
+
+        if (prev == null) return
+
+        val (s, a) = prev
+        val (sPrime, aPrime, r) = transition
 
         val currentValue = qTable[s, a]
-        val nextValue = if (done) 0.0 else qTable[sPrime, aPrime]
+        val nextValue = if (transition.done) 0.0 else qTable[sPrime, aPrime]
 
         val target = r + gamma * nextValue
         val updated = currentValue + alpha() * (target - currentValue)
@@ -27,5 +29,6 @@ class SARSA<State, Action>(
         qTable[s, a] = updated
     }
 }
+
 
 
