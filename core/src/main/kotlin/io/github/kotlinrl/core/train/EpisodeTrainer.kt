@@ -6,6 +6,7 @@ class EpisodeTrainer<State, Action>(
     private val env: Env<State, Action, *, *>,
     private val agent: Agent<State, Action>,
     private val maxStepsPerEpisode: Int = 10_000,
+    private val successfulTermination: SuccessfulTermination<State, Action>,
     private val callbacks: List<EpisodeCallback<State, Action>> = emptyList(),
 ) : Trainer {
 
@@ -57,7 +58,7 @@ class EpisodeTrainer<State, Action>(
                 trajectory = transitions,
                 episode = episode,
                 steps = transitions.size,
-                reachedGoal = transitions.any(Transition<State, Action>::terminated),
+                reachedGoal = transitions.lastOrNull()?.let { successfulTermination(it) } ?: false,
                 info = exception?.let { mapOf("exception" to it) } ?: emptyMap()
             )
             agent.observe(transitions, episode)
