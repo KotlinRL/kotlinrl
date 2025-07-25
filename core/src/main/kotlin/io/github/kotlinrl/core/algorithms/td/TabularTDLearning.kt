@@ -6,4 +6,4 @@ abstract class TabularTDLearning<State, Action>(
     protected val qTable: QFunction<State, Action>,
     protected val alpha: ParameterSchedule,
     protected val gamma: Double
-) : ObserveTransition<State, Action>
+) : TransitionLearner<State, Action>

@@ -3,12 +3,12 @@ package io.github.kotlinrl.core.algorithms.mc
 import io.github.kotlinrl.core.*
 
 class ConstantAlphaMonteCarloControl<State, Action>(
-    private val qTable: QFunction<State, Action>,
-    private val gamma: Double = 0.99,
+    qTable: QFunction<State, Action>,
+    gamma: Double = 0.99,
     private val alpha: ParameterSchedule = ParameterSchedule { 0.05},
     private val firstVisitOnly: Boolean = true,
-    private val stateActionKeyFunction: StateActionKeyFunction<State, Action> = ::defaultKeyFunction
-) : TrajectoryLearner<State, Action> {
+    stateActionKeyFunction: StateActionKeyFunction<State, Action> = ::defaultKeyFunction
+) : MCLearning<State, Action>(qTable, gamma, stateActionKeyFunction) {
 
     override fun invoke(trajectory: Trajectory<State, Action>, episode: Int) {
         val visited = mutableSetOf<StateActionKey<*, *>>()
