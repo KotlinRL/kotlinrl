@@ -4,11 +4,11 @@ import io.github.kotlinrl.core.*
 import kotlin.math.*
 
 class PolicyIteration<State, Action>(
-    private val gamma: Double = 0.99,
-    private val theta: Double = 1e-6,
-    val vTable: ValueFunction<State>,
-    val pTable: MutablePolicy<State, Action>
-) : Planner<State, Action> {
+    gamma: Double = 0.99,
+    theta: Double = 1e-6,
+    vTable: ValueFunction<State>,
+    pTable: MutablePolicy<State, Action>
+) : DPIteration<State, Action>(gamma, theta, vTable, pTable) {
 
     override fun plan(
         stateActionListProvider: StateActionListProvider<State, Action>,

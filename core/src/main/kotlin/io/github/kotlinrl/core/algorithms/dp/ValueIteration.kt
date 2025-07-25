@@ -1,16 +1,15 @@
 package io.github.kotlinrl.core.algorithms.dp
 
 import io.github.kotlinrl.core.*
-import io.github.kotlinrl.core.algorithms.PTable
 import kotlin.math.*
 
 class ValueIteration<State, Action>(
-    private val gamma: Double = 0.99,
-    private val theta: Double = 1e-6,
-    val vTable: ValueFunction<State>,
-    val pTable: MutablePolicy<State, Action>,
+    gamma: Double = 0.99,
+    theta: Double = 1e-6,
+    vTable: ValueFunction<State>,
+    pTable: MutablePolicy<State, Action>,
     private val actionComparator: Comparator<Action>
-) : Planner<State, Action> {
+) : DPIteration<State, Action>(gamma, theta, vTable, pTable) {
     override fun plan(
         stateActionListProvider: StateActionListProvider<State, Action>,
         transitionFunction: TransitionFunction<State, Action>

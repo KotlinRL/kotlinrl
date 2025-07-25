@@ -3,12 +3,12 @@ package io.github.kotlinrl.core.algorithms.mc
 import io.github.kotlinrl.core.*
 
 class OffPolicyMonteCarloControl<State, Action>(
-    private val qTable: QFunction<State, Action>,
-    private val gamma: Double,
+    qTable: QFunction<State, Action>,
+    gamma: Double,
     private val targetPolicy: Policy<State, Action>,
     private val probability: ProbabilityFunction<State, Action>,
-    private val stateActionKeyFunction: StateActionKeyFunction<State, Action> = ::defaultKeyFunction
-) : TrajectoryLearner<State, Action> {
+    stateActionKeyFunction: StateActionKeyFunction<State, Action> = ::defaultKeyFunction
+) : MCLearning<State, Action>(qTable, gamma, stateActionKeyFunction) {
 
     private val C: MutableMap<StateActionKey<*, *>, Double> = mutableMapOf()
 
