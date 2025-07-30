@@ -5,8 +5,9 @@ import io.github.kotlinrl.core.*
 class EpisodeTrainer<State, Action>(
     private val env: Env<State, Action, *, *>,
     private val agent: Agent<State, Action>,
-    private val maxStepsPerEpisode: Int = 10_000,
     private val successfulTermination: SuccessfulTermination<State, Action>,
+    private val closeOnSuccess: Boolean = false,
+    private val maxStepsPerEpisode: Int = 10_000,
     private val callbacks: List<EpisodeCallback<State, Action>> = emptyList(),
 ) : Trainer {
 
@@ -67,6 +68,7 @@ class EpisodeTrainer<State, Action>(
 
             val result = TrainingResult(episodeStats)
             if (stopCondition(result)) {
+                if (closeOnSuccess) env.close()
                 return result
             }
             episode++

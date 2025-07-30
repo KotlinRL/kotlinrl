@@ -1,6 +1,5 @@
 package io.github.kotlinrl.core
 
-import kotlin.math.*
 import kotlin.random.*
 
 typealias ParameterSchedule = io.github.kotlinrl.core.policy.ParameterSchedule
@@ -65,18 +64,30 @@ fun <State, Action> ProbabilityFunction<State, Action>.asPolicyProbabilities(
 
 fun constantParameterSchedule(value: Double) = ParameterSchedule { value }
 
-fun decayingParameterSchedule(
+fun linearDecaySchedule(
     initialValue: Double,
     decayRate: Double,
     minValue: Double,
-    burnInEpisodes: Int = 0
-): ParameterSchedule {
+    burnInEpisodes: Int = 0,
+    callback: (Int, Double) -> Unit = { _, _ -> }
+): Pair<ParameterSchedule, ParameterScheduleDecay> {
+
     var episode = 0
-    var epsilon = initialValue
-    return ParameterSchedule {
-        epsilon = if (episode < burnInEpisodes) epsilon else
-            (epsilon * decayRate.pow((episode - burnInEpisodes).toDouble())).coerceAtLeast(minValue)
-        episode++
-        epsilon
+    var parameter = initialValue
+
+    val schedule = ParameterSchedule {
+        parameter
     }
+
+    val decrement: ParameterScheduleDecay = {
+        if (episode >= burnInEpisodes) {
+            parameter = (parameter - decayRate).coerceAtLeast(minValue)
+        }
+        episode++
+        callback(episode, parameter)
+    }
+
+    return schedule to decrement
 }
+
+typealias ParameterScheduleDecay = () -> Unit

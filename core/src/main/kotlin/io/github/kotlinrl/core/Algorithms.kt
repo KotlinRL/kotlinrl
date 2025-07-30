@@ -127,6 +127,12 @@ fun <State, Action> offPolicyMonteCarloControl(
     stateActionKeyFunction = stateActionKeyFunction
 )
 
+data class PolicyControls<State, Action>(
+    val policy: QFunctionPolicy<State, Action>,
+    val probabilityFunction: ProbabilityFunction<State, Action>,
+    val parameterDecayFunction: ParameterScheduleDecay
+)
+
 fun <State, Action> epsilonGreedySoftOffPolicyControls(
     qTable: QFunction<State, Action>,
     stateActionListProvider: StateActionListProvider<State, Action>,
@@ -135,8 +141,13 @@ fun <State, Action> epsilonGreedySoftOffPolicyControls(
     probabilityDecayRate: Double,
     probabilityMinEpsilon: Double,
     rng: Random = Random.Default
-): Pair<QFunctionPolicy<State, Action>, ProbabilityFunction<State, Action>> {
+): PolicyControls<State, Action> {
 
+    val (parameterSchedule, decrementFunction) = linearDecaySchedule(
+        initialValue = probabilityInitialEpsilon,
+        decayRate = probabilityDecayRate,
+        minValue = probabilityMinEpsilon
+    )
     val behavior = epsilonGreedyPolicy(
         stateActionListProvider = stateActionListProvider,
         epsilon = epsilon,
@@ -146,14 +157,14 @@ fun <State, Action> epsilonGreedySoftOffPolicyControls(
     val probability = epsilonSoftPolicy(
         qTable = qTable,
         stateActionListProvider = stateActionListProvider,
-        epsilon = decayingParameterSchedule(
-            initialValue = probabilityInitialEpsilon,
-            decayRate = probabilityDecayRate,
-            minValue = probabilityMinEpsilon
-        ),
+        epsilon = parameterSchedule,
         rng = rng
     )
-    return behavior to probability
+    return PolicyControls(
+        policy = behavior,
+        probabilityFunction = probability,
+        parameterDecayFunction = decrementFunction
+    )
 }
 
 fun <State, Action> qLearning(

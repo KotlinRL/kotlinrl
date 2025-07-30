@@ -1,8 +1,5 @@
 package io.github.kotlinrl.core
 
-import io.github.kotlinrl.core.train.SuccessfulTermination
-import io.github.kotlinrl.core.train.TrainingStopCondition
-import kotlin.math.absoluteValue
 import kotlin.math.pow
 
 typealias EpisodeTrainer<State, Action> = io.github.kotlinrl.core.train.EpisodeTrainer<State, Action>
@@ -10,6 +7,8 @@ typealias EpisodeCallback<State, Action> = io.github.kotlinrl.core.train.Episode
 typealias Trainer = io.github.kotlinrl.core.train.Trainer
 typealias Trajectory<State, Action> = List<Transition<State, Action>>
 typealias TrainingResult = io.github.kotlinrl.core.train.TrainingResult
+typealias TrainingStopCondition = io.github.kotlinrl.core.train.TrainingStopCondition
+typealias SuccessfulTermination<State, Action> = io.github.kotlinrl.core.train.SuccessfulTermination<State, Action>
 typealias Env<State, Action, ObservationSpace, ActionSpace> = io.github.kotlinrl.core.env.Env<State, Action, ObservationSpace, ActionSpace>
 typealias EpisodeStats<State, Action> = io.github.kotlinrl.core.train.EpisodeStats<State, Action>
 
@@ -18,16 +17,19 @@ fun <State, Action> episodicTrainer(
     agent: Agent<State, Action>,
     maxStepsPerEpisode: Int = 10_000,
     successfulTermination: SuccessfulTermination<State, Action>,
+    closeOnSuccess: Boolean = false,
     callbacks: List<EpisodeCallback<State, Action>> = emptyList()
 ): Trainer = EpisodeTrainer(
     env = env,
     agent = agent,
     maxStepsPerEpisode = maxStepsPerEpisode,
     successfulTermination = successfulTermination,
+    closeOnSuccess = closeOnSuccess,
     callbacks = callbacks
 )
 
-fun averageRewardGreaterThan(target: Double) = TrainingStopCondition {
+fun averageRewardGreaterThan(minEpisodes: Int, target: Double) = TrainingStopCondition {
+    if (it.totalEpisodes < minEpisodes) return@TrainingStopCondition false
     val condition = it.averageReward > target
     if(condition) println("Average reward at episode ${it.episodeStats.last().episode} reached: ${it.averageReward}")
     condition
@@ -56,7 +58,7 @@ fun noRecentImprovementAfter(minEpisodes: Int, windowSize: Int, tolerance: Doubl
     val recentAvg = rewards.takeLast(windowSize).average()
     val previousAvg = rewards.dropLast(windowSize).takeLast(windowSize).average()
 
-    val condition = (recentAvg - previousAvg).absoluteValue < tolerance
+    val condition = (recentAvg - previousAvg) < tolerance
     if(condition) println("No significant improvement in ${windowSize} episodes since episode ${it.episodeStats.last().episode - windowSize}")
     condition
 }
@@ -104,6 +106,7 @@ fun List<Double>.variance(): Double {
     val mean = average()
     return map { (it - mean).pow(2) }.average()
 }
+
 
 fun TrainingStopCondition.and(other: TrainingStopCondition) = TrainingStopCondition { this(it) && other(it) }
 fun TrainingStopCondition.or(other: TrainingStopCondition) = TrainingStopCondition { this(it) || other(it) }
