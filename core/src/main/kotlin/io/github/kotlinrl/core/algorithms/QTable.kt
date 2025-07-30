@@ -11,7 +11,7 @@ import kotlin.math.*
 
 class QTable(
     vararg val shape: Int,
-    private val stochastic: Boolean = false,
+    private val useArgMax: Boolean = false,
     private val tolerance: Double = 1e-6,
     private val defaultQValue: Double = 0.0
 ) : QFunction<IntArray, Int> {
@@ -31,14 +31,16 @@ class QTable(
 
     override fun bestAction(state: IntArray): Int {
         val q = qValues(state)
-        return if (stochastic) {
+        return if (useArgMax) {
+            q.argMax()
+        } else {
             val max = q.max() ?: 0.0
             val candidates = q.indices.filter { abs(q[it] - max) < tolerance }
             when {
                 candidates.isNotEmpty() -> if (candidates.size > 1) candidates.random() else candidates.first()
                 else -> q.indices.random()
             }
-        } else q.argMax()
+        }
     }
 
     fun copy(): QTable {

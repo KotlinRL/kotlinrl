@@ -8,5 +8,6 @@ data class EpisodeStats<State, Action>(
     val totalReward: Double = trajectory.sumOf { it.reward },
     val steps: Int,
     val reachedGoal: Boolean = false,
+    val truncated: Boolean = trajectory.last().truncated,
     val info: Map<String, Any?> = emptyMap()
 )
