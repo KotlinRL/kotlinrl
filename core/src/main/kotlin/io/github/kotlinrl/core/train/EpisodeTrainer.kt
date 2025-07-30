@@ -58,7 +58,6 @@ class EpisodeTrainer<State, Action>(
             val stats = EpisodeStats(
                 trajectory = transitions,
                 episode = episode,
-                steps = transitions.size,
                 reachedGoal = transitions.lastOrNull()?.let { successfulTermination(it) } ?: false,
                 info = exception?.let { mapOf("exception" to it) } ?: emptyMap()
             )

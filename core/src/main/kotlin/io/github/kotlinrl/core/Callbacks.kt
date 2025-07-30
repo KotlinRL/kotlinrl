@@ -8,16 +8,14 @@ fun <State, Action> printEpisodeStart(
 
 fun <State, Action> printEpisodeTotalTransitions(
     printEvery: Int
-) : EpisodeCallback<State, Action> = onEpisodeEnd { result ->
-    val stats = result.episodeStats.last()
-    if (stats.episode % printEvery == 0)
-        println("Finished episode ${stats.episode}, ${stats.trajectory.count()} transitions.")
+) : EpisodeCallback<State, Action> = onEpisodeEnd {
+    if (it.lastEpisode % printEvery == 0)
+        println("Finished episode ${it.lastEpisode}, ${it.lastEpisodeSteps} transitions.")
 }
 
-fun <State, Action> printEpisodeOnGoalReached(printEvery: Int = 1) : EpisodeCallback<State, Action> = onEpisodeEnd { result ->
-    val stats = result.episodeStats.last()
-    if(stats.reachedGoal && stats.episode % printEvery == 0)
-        println("Goal reached in episode ${stats.episode}.")
+fun <State, Action> printEpisodeOnGoalReached(printEvery: Int = 1) : EpisodeCallback<State, Action> = onEpisodeEnd {
+    if(it.lastEpisodeReachedGoal && it.lastEpisode % printEvery == 0)
+        println("Goal reached in episode ${it.lastEpisode}.")
 }
 
 fun <State, Action> onEpisodeStart(

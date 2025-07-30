@@ -30,8 +30,8 @@ fun <State, Action> episodicTrainer(
 
 fun averageRewardGreaterThan(minEpisodes: Int, target: Double) = TrainingStopCondition {
     if (it.totalEpisodes < minEpisodes) return@TrainingStopCondition false
-    val condition = it.averageReward > target
-    if(condition) println("Average reward at episode ${it.episodeStats.last().episode} reached: ${it.averageReward}")
+    val condition = it.totalAverageReward > target
+    if(condition) println("Average reward at episode ${it.lastEpisode} reached: ${it.totalAverageReward}")
     condition
 }
 
@@ -46,40 +46,40 @@ fun goalSuccessRateGreaterThanAfter(
     val rate = relevant.count { it.reachedGoal }.toDouble() / windowSize
 
     val condition = rate > target
-    if (condition) println("Goal success rate in last $windowSize episodes at episode ${it.episodeStats.last().episode} reached: $rate")
+    if (condition) println("Goal success rate in last $windowSize episodes at episode ${it.lastEpisode} reached: $rate")
     condition
 }
 
 fun noRecentImprovementAfter(minEpisodes: Int, windowSize: Int, tolerance: Double = 1e-4) = TrainingStopCondition {
     if (it.totalEpisodes < minEpisodes) return@TrainingStopCondition false
-    val rewards = it.episodeRewards.drop(minEpisodes)
+    val rewards = it.totalRewardsList.drop(minEpisodes)
     if (rewards.size < windowSize * 2) return@TrainingStopCondition false
 
     val recentAvg = rewards.takeLast(windowSize).average()
     val previousAvg = rewards.dropLast(windowSize).takeLast(windowSize).average()
 
     val condition = (recentAvg - previousAvg) < tolerance
-    if(condition) println("No significant improvement in ${windowSize} episodes since episode ${it.episodeStats.last().episode - windowSize}")
+    if(condition) println("No significant improvement in ${windowSize} episodes since episode ${it.lastEpisode - windowSize}")
     condition
 }
 
 fun consecutiveGoalSuccesses(threshold: Int) = TrainingStopCondition {
     val recent = it.episodeStats.takeLast(threshold)
     val condition = recent.size == threshold && recent.all { it.reachedGoal }
-    if(condition) println("Reached $threshold consecutive goal successes at episode ${it.episodeStats.last().episode}")
+    if(condition) println("Reached $threshold consecutive goal successes at episode ${it.lastEpisode}")
     condition
 }
 
 fun maxRewardReached(target: Double) = TrainingStopCondition {
-    val condition = it.maxReward >= target
-    if(condition) println("Max reward at episode ${it.episodeStats.last().episode} reached: ${it.maxReward}")
+    val condition = it.totalMaxReward >= target
+    if(condition) println("Max reward at episode ${it.lastEpisode} reached: ${it.totalMaxReward}")
     condition
 }
 
 fun movingAverageRewardGreaterThan(window: Int, threshold: Double) = TrainingStopCondition {
-    val recent = it.episodeRewards.takeLast(window)
+    val recent = it.totalRewardsList.takeLast(window)
     val condition = recent.size == window && recent.average() > threshold
-    if(condition) println("Average reward at episode ${it.episodeStats.last().episode} above threshold: ${recent.average()}")
+    if(condition) println("Average reward at episode ${it.lastEpisode} above threshold: ${recent.average()}")
     condition
 }
 
@@ -90,15 +90,15 @@ fun maxEpisodes(max: Int) = TrainingStopCondition {
 }
 
 fun rewardVarianceBelow(threshold: Double, window: Int = 100) = TrainingStopCondition {
-    val recent = it.episodeRewards.takeLast(window)
+    val recent = it.totalRewardsList.takeLast(window)
     val condition = recent.size == window && recent.variance() < threshold
-    if(condition) println("Reward variance at episode ${it.episodeStats.last().episode} below threshold: ${recent.variance()}")
+    if(condition) println("Reward variance at episode ${it.lastEpisode} below threshold: ${recent.variance()}")
     condition
 }
 
 fun firstGoalReached() = TrainingStopCondition {
     val condition = it.goalSuccessCount > 0
-    if(condition) println("First goal reached at episode ${it.episodeStats.last().episode}.")
+    if(condition) println("First goal reached at episode ${it.lastEpisode}.")
     condition
 }
 
