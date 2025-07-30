@@ -63,10 +63,10 @@ class EpisodeTrainer<State, Action>(
                 info = exception?.let { mapOf("exception" to it) } ?: emptyMap()
             )
             agent.observe(transitions, episode)
-            callbacks.forEach { it.onEpisodeEnd(stats) }
             episodeStats += stats
-
             val result = TrainingResult(episodeStats)
+            callbacks.forEach { it.onEpisodeEnd(result) }
+
             if (stopCondition(result)) {
                 if (closeOnSuccess) env.close()
                 return result
