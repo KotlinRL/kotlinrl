@@ -26,7 +26,11 @@ data class TrainingResult(
     val goalSuccessRate: Double = goalSuccessCount.toDouble() / totalEpisodes,
     val firstSuccessEpisode: Int? = goalSuccessEpisodes.firstOrNull(),
 
-    val truncatedEpisodes: List<Int> = episodeStats.filter { it.truncated }.map { it.episode },
-    val truncatedEpisodeCount: Int = episodeStats.filter { it.truncated }.size,
+    val truncatedEpisodes: List<Int> = episodeStats.filter { !it.reachedGoal && it.truncated }.map { it.episode },
+    val truncatedEpisodeCount: Int = truncatedEpisodes.size,
     val truncatedEpisodeRate: Double = truncatedEpisodeCount.toDouble() / totalEpisodes,
+
+    val goalFailureEpisodes: List<Int> = episodeStats.filter { !it.reachedGoal && !it.truncated }.map { it.episode },
+    val goalFailureCount: Int = goalFailureEpisodes.size,
+    val goalFailureRate: Double = goalFailureCount.toDouble() / totalEpisodes,
 )
