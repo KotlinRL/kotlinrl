@@ -28,8 +28,8 @@ fun <State, Action> episodicTrainer(
     callbacks = callbacks
 )
 
-fun averageRewardGreaterThan(minEpisodes: Int, target: Double) = TrainingStopCondition {
-    if (it.totalEpisodes < minEpisodes) return@TrainingStopCondition false
+fun averageRewardGreaterThan(minEpisodes: Int, target: Double) = stopCondition {
+    if (it.totalEpisodes < minEpisodes) return@stopCondition false
     val condition = it.totalAverageReward > target
     if(condition) println("Average reward at episode ${it.lastEpisode} reached: ${it.totalAverageReward}")
     condition
@@ -39,8 +39,8 @@ fun goalSuccessRateGreaterThanAfter(
     minEpisodes: Int,
     windowSize: Int,
     target: Double
-) = TrainingStopCondition {
-    if (it.totalEpisodes < minEpisodes + windowSize) return@TrainingStopCondition false
+) = stopCondition {
+    if (it.totalEpisodes < minEpisodes + windowSize) return@stopCondition false
 
     val relevant = it.episodeStats.drop(it.totalEpisodes - windowSize)
     val rate = relevant.count { it.reachedGoal }.toDouble() / windowSize
@@ -50,10 +50,10 @@ fun goalSuccessRateGreaterThanAfter(
     condition
 }
 
-fun noRecentImprovementAfter(minEpisodes: Int, windowSize: Int, tolerance: Double = 1e-4) = TrainingStopCondition {
-    if (it.totalEpisodes < minEpisodes) return@TrainingStopCondition false
+fun noRecentImprovementAfter(minEpisodes: Int, windowSize: Int, tolerance: Double = 1e-4) = stopCondition {
+    if (it.totalEpisodes < minEpisodes) return@stopCondition false
     val rewards = it.totalRewardsList.drop(minEpisodes)
-    if (rewards.size < windowSize * 2) return@TrainingStopCondition false
+    if (rewards.size < windowSize * 2) return@stopCondition false
 
     val recentAvg = rewards.takeLast(windowSize).average()
     val previousAvg = rewards.dropLast(windowSize).takeLast(windowSize).average()
@@ -63,44 +63,46 @@ fun noRecentImprovementAfter(minEpisodes: Int, windowSize: Int, tolerance: Doubl
     condition
 }
 
-fun consecutiveGoalSuccesses(threshold: Int) = TrainingStopCondition {
+fun consecutiveGoalSuccesses(threshold: Int) = stopCondition {
     val recent = it.episodeStats.takeLast(threshold)
     val condition = recent.size == threshold && recent.all { it.reachedGoal }
     if(condition) println("Reached $threshold consecutive goal successes at episode ${it.lastEpisode}")
     condition
 }
 
-fun maxRewardReached(target: Double) = TrainingStopCondition {
+fun maxRewardReached(target: Double) = stopCondition {
     val condition = it.totalMaxReward >= target
     if(condition) println("Max reward at episode ${it.lastEpisode} reached: ${it.totalMaxReward}")
     condition
 }
 
-fun movingAverageRewardGreaterThan(window: Int, threshold: Double) = TrainingStopCondition {
+fun movingAverageRewardGreaterThan(window: Int, threshold: Double) = stopCondition {
     val recent = it.totalRewardsList.takeLast(window)
     val condition = recent.size == window && recent.average() > threshold
     if(condition) println("Average reward at episode ${it.lastEpisode} above threshold: ${recent.average()}")
     condition
 }
 
-fun maxEpisodes(max: Int) = TrainingStopCondition {
+fun maxEpisodes(max: Int) = stopCondition {
     val condition = it.totalEpisodes >= max
     if(condition) println("Max episodes reached: ${it.totalEpisodes}")
     condition
 }
 
-fun rewardVarianceBelow(threshold: Double, window: Int = 100) = TrainingStopCondition {
+fun rewardVarianceBelow(threshold: Double, window: Int = 100) = stopCondition {
     val recent = it.totalRewardsList.takeLast(window)
     val condition = recent.size == window && recent.variance() < threshold
     if(condition) println("Reward variance at episode ${it.lastEpisode} below threshold: ${recent.variance()}")
     condition
 }
 
-fun firstGoalReached() = TrainingStopCondition {
-    val condition = it.goalSuccessCount > 0
+fun firstGoalReached() = stopCondition {
+    val condition = it.totalGoalSuccessCount > 0
     if(condition) println("First goal reached at episode ${it.lastEpisode}.")
     condition
 }
+
+fun stopCondition(condition: TrainingStopCondition) = condition
 
 fun List<Double>.variance(): Double {
     val mean = average()
