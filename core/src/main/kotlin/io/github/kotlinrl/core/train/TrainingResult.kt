@@ -7,6 +7,7 @@ data class TrainingResult(
     val lastEpisode: Int = lastEpisodeStats.episode,
     val lastEpisodeTotalReward: Double = lastEpisodeStats.totalReward,
     val lastEpisodeReachedGoal: Boolean = lastEpisodeStats.reachedGoal,
+    val lastEpisodeTruncated: Boolean = lastEpisodeStats.truncated,
     val lastEpisodeSteps: Int = lastEpisodeStats.steps,
 
     val totalEpisodes: Int = episodeStats.size,
@@ -21,16 +22,20 @@ data class TrainingResult(
     val totalMaxSteps: Int = totalStepsList.maxOrNull() ?: 0,
     val totalMinSteps: Int = totalStepsList.minOrNull() ?: 0,
 
-    val goalSuccessEpisodes: List<Int> = episodeStats.filter { it.reachedGoal }.map { it.episode },
-    val goalSuccessCount: Int = goalSuccessEpisodes.size,
-    val goalSuccessRate: Double = goalSuccessCount.toDouble() / totalEpisodes,
-    val firstSuccessEpisode: Int? = goalSuccessEpisodes.firstOrNull(),
+    val totalGoalSuccessEpisodes: List<Int> = episodeStats.filter { it.reachedGoal }.map { it.episode },
+    val totalGoalSuccessCount: Int = totalGoalSuccessEpisodes.size,
+    val totalGoalSuccessRate: Double = totalGoalSuccessCount.toDouble() / totalEpisodes,
+    val firstSuccessEpisode: Int? = totalGoalSuccessEpisodes.firstOrNull(),
 
-    val truncatedEpisodes: List<Int> = episodeStats.filter { !it.reachedGoal && it.truncated }.map { it.episode },
-    val truncatedEpisodeCount: Int = truncatedEpisodes.size,
-    val truncatedEpisodeRate: Double = truncatedEpisodeCount.toDouble() / totalEpisodes,
+    val totalTruncatedEpisodes: List<Int> = episodeStats.filter { !it.reachedGoal && it.truncated }.map { it.episode },
+    val totalTruncatedEpisodeCount: Int = totalTruncatedEpisodes.size,
+    val totalTruncatedEpisodeRate: Double = totalTruncatedEpisodeCount.toDouble() / totalEpisodes,
 
-    val goalFailureEpisodes: List<Int> = episodeStats.filter { !it.reachedGoal && !it.truncated }.map { it.episode },
-    val goalFailureCount: Int = goalFailureEpisodes.size,
-    val goalFailureRate: Double = goalFailureCount.toDouble() / totalEpisodes,
-)
+    val totalGoalFailureEpisodes: List<Int> = episodeStats.filter { !it.reachedGoal && !it.truncated }.map { it.episode },
+    val totalGoalFailureCount: Int = totalGoalFailureEpisodes.size,
+    val totalGoalFailureRate: Double = totalGoalFailureCount.toDouble() / totalEpisodes,
+
+    val allSucceededOrTruncated: Boolean = totalGoalFailureCount == 0
+) {
+    fun takeLast(n: Int): TrainingResult = TrainingResult(episodeStats.takeLast(n))
+}
