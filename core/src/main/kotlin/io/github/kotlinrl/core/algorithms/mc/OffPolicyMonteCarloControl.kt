@@ -1,35 +1,35 @@
 package io.github.kotlinrl.core.algorithms.mc
 
 import io.github.kotlinrl.core.*
+import io.github.kotlinrl.core.algorithms.StateActionKey
+import io.github.kotlinrl.core.algorithms.StateActionKeyFunction
+import io.github.kotlinrl.core.algorithms.defaultStateActionKeyFunction
 
 class OffPolicyMonteCarloControl<State, Action>(
-    qTable: QFunction<State, Action>,
+    initialPolicy: StochasticPolicy<State, Action>,
+    initialQ: QFunction<State, Action>,
+    targetPolicy: Policy<State, Action>,
+    improvement: PolicyImprovementStrategy<State, Action>,
     gamma: Double,
-    private val targetPolicy: Policy<State, Action>,
-    private val probability: ProbabilityFunction<State, Action>,
-    stateActionKeyFunction: StateActionKeyFunction<State, Action> = ::defaultKeyFunction
-) : MCLearning<State, Action>(qTable, gamma, stateActionKeyFunction) {
+    stateActionKeyFunction: StateActionKeyFunction<State, Action> = ::defaultStateActionKeyFunction,
+    onQFunctionUpdate: (QFunction<State, Action>) -> Unit = { },
+    onPolicyUpdate: (Policy<State, Action>) -> Unit = { },
+) : MonteCarloAlgorithm<State, Action>(initialPolicy, initialQ, improvement, gamma, onQFunctionUpdate, onPolicyUpdate) {
+    private var currentTargetPolicy: Policy<State, Action> = targetPolicy
+    private var currentQ = initialQ
 
-    private val C: MutableMap<StateActionKey<*, *>, Double> = mutableMapOf()
+    val evaluator = OffPolicyMonteCarloQFunctionEstimator(
+        currentTargetPolicy = currentTargetPolicy,
+        behaviorPolicy = policy as StochasticPolicy<State, Action>,
+        gamma = gamma,
+        stateActionKeyFunction = stateActionKeyFunction
+    )
 
-    override fun invoke(trajectory: Trajectory<State, Action>, episode: Int) {
-        var G = 0.0
-        var W = 1.0
-        for ((s, a, r) in trajectory.asReversed()) {
-            G = r + gamma * G
-
-            val key = stateActionKeyFunction(s, a)
-            val oldC = C.getOrDefault(key, 0.0)
-            val newC = oldC + W
-            C[key] = newC
-
-            val q = qTable[s, a]
-            qTable[s, a] = q + (W / newC) * (G - q)
-
-            if (a != targetPolicy(s)) break
-            val prob = probability(s, a)
-            if (prob == 0.0) break
-            W /= prob
-        }
+    override fun observe(trajectory: Trajectory<State, Action>, episode: Int) {
+        currentQ = evaluator.estimate(currentQ, trajectory, episode)
+        currentTargetPolicy = improvement(currentQ)
+        onQFunctionUpdate(currentQ)
+        onPolicyUpdate(currentTargetPolicy)
+        evaluator.targetPolicy = currentTargetPolicy
     }
 }

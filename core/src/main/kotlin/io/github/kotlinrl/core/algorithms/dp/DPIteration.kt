@@ -1,12 +1,13 @@
 package io.github.kotlinrl.core.algorithms.dp
 
-import io.github.kotlinrl.core.MutablePolicy
 import io.github.kotlinrl.core.Planner
-import io.github.kotlinrl.core.ValueFunction
+import io.github.kotlinrl.core.Policy
+import io.github.kotlinrl.core.StateActionListProvider
+import io.github.kotlinrl.core.policy.EnumerableValueFunction
 
-abstract class DPIteration<State, Action>(
-    protected val gamma: Double = 0.99,
-    protected val theta: Double = 1e-6,
-    val vTable: ValueFunction<State>,
-    val pTable: MutablePolicy<State, Action>
-) : Planner<State, Action>
+abstract class DPIteration<State, Action> : Planner<State, Action> {
+
+    override operator fun invoke(): Policy<State, Action> = plan()
+
+    abstract fun plan(): Policy<State, Action>
+}

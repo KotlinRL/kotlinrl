@@ -19,7 +19,7 @@ class FilterAction<State, ObservationSpace : Space<State>>(
         >(env) {
 
     override val actionSpace: Dict by lazy {
-        // Only expose the filtered part to the agent
+        // Only expose the filtered part to the policyAgent
         val filteredSpaces = env.actionSpace.spaces.filterKeys { it in keys }
         Dict(filteredSpaces)
     }
