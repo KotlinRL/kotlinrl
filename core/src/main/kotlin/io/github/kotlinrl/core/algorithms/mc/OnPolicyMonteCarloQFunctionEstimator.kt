@@ -9,7 +9,7 @@ class OnPolicyMonteCarloQFunctionEstimator<State, Action>(
 ) : MonteCarloQFunctionEstimator<State, Action> {
     private val returns: MutableMap<StateActionKey<*, *>, Int> = mutableMapOf()
 
-    override fun estimate(q: QFunction<State, Action>, trajectory: Trajectory<State, Action>, episode: Int): QFunction<State, Action> {
+    override fun estimate(q: QFunction<State, Action>, trajectory: Trajectory<State, Action>): QFunction<State, Action> {
         val visited = mutableSetOf<StateActionKey<*, *>>()
         var G = 0.0
         var currentQ = q

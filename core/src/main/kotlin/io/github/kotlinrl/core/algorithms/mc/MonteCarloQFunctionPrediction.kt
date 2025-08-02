@@ -12,7 +12,7 @@ class MonteCarloQFunctionPrediction<State, Action>(
         private set
 
     override fun invoke(trajectory: Trajectory<State, Action>, episode: Int) {
-        q = estimator.estimate(q, trajectory, episode)
+        q = estimator.estimate(q, trajectory)
         onQFunctionUpdate(q)
     }
 }

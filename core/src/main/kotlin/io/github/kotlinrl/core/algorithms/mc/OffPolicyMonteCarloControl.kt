@@ -1,7 +1,6 @@
 package io.github.kotlinrl.core.algorithms.mc
 
 import io.github.kotlinrl.core.*
-import io.github.kotlinrl.core.algorithms.StateActionKey
 import io.github.kotlinrl.core.algorithms.StateActionKeyFunction
 import io.github.kotlinrl.core.algorithms.defaultStateActionKeyFunction
 
@@ -15,19 +14,18 @@ class OffPolicyMonteCarloControl<State, Action>(
     onQFunctionUpdate: (QFunction<State, Action>) -> Unit = { },
     onPolicyUpdate: (Policy<State, Action>) -> Unit = { },
 ) : MonteCarloAlgorithm<State, Action>(initialPolicy, initialQ, improvement, gamma, onQFunctionUpdate, onPolicyUpdate) {
-    private var currentTargetPolicy: Policy<State, Action> = targetPolicy
     private var currentQ = initialQ
 
     val evaluator = OffPolicyMonteCarloQFunctionEstimator(
-        currentTargetPolicy = currentTargetPolicy,
+        initTargetPolicy = targetPolicy,
         behaviorPolicy = policy as StochasticPolicy<State, Action>,
         gamma = gamma,
         stateActionKeyFunction = stateActionKeyFunction
     )
 
     override fun observe(trajectory: Trajectory<State, Action>, episode: Int) {
-        currentQ = evaluator.estimate(currentQ, trajectory, episode)
-        currentTargetPolicy = improvement(currentQ)
+        currentQ = evaluator.estimate(currentQ, trajectory)
+        val currentTargetPolicy = improvement(currentQ)
         onQFunctionUpdate(currentQ)
         onPolicyUpdate(currentTargetPolicy)
         evaluator.targetPolicy = currentTargetPolicy
