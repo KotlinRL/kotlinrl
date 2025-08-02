@@ -3,20 +3,19 @@ package io.github.kotlinrl.core.algorithms.td
 import io.github.kotlinrl.core.*
 
 class QLearning<State, Action>(
-    qTable: QFunction<State, Action>,
+    initialPolicy: Policy<State, Action>,
+    initialQ: QFunction<State, Action>,
+    improvement: PolicyImprovementStrategy<State, Action>,
+    onQFunctionUpdate: (QFunction<State, Action>) -> Unit = { },
+    onPolicyUpdate: (Policy<State, Action>) -> Unit = { },
     alpha: ParameterSchedule,
     gamma: Double
-) : TabularTDLearning<State, Action>(qTable, alpha, gamma) {
+) : TabularTDAlgorithm<State, Action>(initialPolicy, initialQ, improvement, onQFunctionUpdate, onPolicyUpdate, alpha, gamma) {
+    private val estimator = QLearningQFunctionEstimator<State, Action>(alpha, gamma)
 
-    override fun invoke(transition: Transition<State, Action>) {
-        val (s, a, r, sPrime) = transition
-        val done = transition.done
-
-        val currentValue = qTable[s, a]
-        val nextValue = if (done) 0.0 else qTable.maxValue(sPrime)
-        val target = r + gamma * nextValue
-        val updated = currentValue + alpha() * (target - currentValue)
-
-        qTable[s, a] = updated
+    override fun observe(transition: Transition<State, Action>) {
+        val updatedQ = estimator.estimate(q, transition)
+        updatedQFunction(updatedQ)
+        improvePolicy()
     }
 }

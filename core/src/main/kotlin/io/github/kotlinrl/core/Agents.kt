@@ -1,22 +1,22 @@
 package io.github.kotlinrl.core
 
-import io.github.kotlinrl.core.algorithms.mc.*
-import io.github.kotlinrl.core.policy.QFunctionPolicy
+import io.github.kotlinrl.core.agent.Transition
+import io.github.kotlinrl.core.algorithms.*
+import io.github.kotlinrl.core.algorithms.StateActionKeyFunction
 import java.util.*
 
 typealias Agent<State, Action> = io.github.kotlinrl.core.agent.Agent<State, Action>
-typealias ObserveTransition<State, Action> = io.github.kotlinrl.core.agent.ObserveTransition<State, Action>
-typealias ObserveTrajectory<State, Action> = io.github.kotlinrl.core.agent.ObserveTrajectory<State, Action>
-typealias Transition<State, Action> = io.github.kotlinrl.core.agent.Transition<State, Action>
+typealias Transition<State, Action> = Transition<State, Action>
+typealias TransitionObserver<State, Action> = io.github.kotlinrl.core.agent.TransitionObserver<State, Action>
+typealias TrajectoryObserver<State, Action> = io.github.kotlinrl.core.agent.TrajectoryObserver<State, Action>
 typealias PolicyAgent<State, Action> = io.github.kotlinrl.core.agent.PolicyAgent<State, Action>
-typealias TransitionLearner<S, A> = ObserveTransition<S, A>
-typealias TrajectoryLearner<S, A> = ObserveTrajectory<S, A>
+typealias LearningAgent<State, Action> = io.github.kotlinrl.core.agent.LearningAgent<State, Action>
 
-fun <State, Action> agent(
+fun <State, Action> policyAgent(
     id: String = UUID.randomUUID().toString(),
     policy: Policy<State, Action>,
-    onTransition: ObserveTransition<State, Action> = ObserveTransition { },
-    onTrajectory: ObserveTrajectory<State, Action> = ObserveTrajectory { _, _ -> }
+    onTransition: TransitionObserver<State, Action> = TransitionObserver { },
+    onTrajectory: TrajectoryObserver<State, Action> = TrajectoryObserver { _, _ -> }
 ): Agent<State, Action> = PolicyAgent(
     id = id,
     policy = policy,
@@ -24,171 +24,233 @@ fun <State, Action> agent(
     onTrajectory = onTrajectory,
 )
 
-fun <State, Action> valueIterationAgent(
+fun <State, Action> learningAgent(
     id: String = UUID.randomUUID().toString(),
+    algorithm: LearningAlgorithm<State, Action>,
+): Agent<State, Action> = LearningAgent(
+    id = id,
+    algorithm = algorithm,
+)
+
+fun <State, Action> bellmanValueFunctionIterationAgent(
+    id: String = UUID.randomUUID().toString(),
+    initialV: EnumerableValueFunction<State>,
+    env: ModelBasedEnv<State, Action, *, *>,
+    numSamples: Int = 100,
     gamma: Double = 0.99,
     theta: Double = 1e-6,
-    vTable: ValueFunction<State>,
-    pTable: MutablePolicy<State, Action>,
-    env: ModelBasedEnv<State, Action, *, *>,
     stateActionListProvider: StateActionListProvider<State, Action>,
-    actionComparator: Comparator<Action>
-): Agent<State, Action> = agent(
+    onValueFunctionUpdate: (EnumerableValueFunction<State>) -> Unit = { }
+): Agent<State, Action> = policyAgent(
     id = id,
-    policy = valueIteration(
+    policy = bellmanValueFunctionIteration(
+        initialV = initialV,
+        env = env,
+        numSamples = numSamples,
         gamma = gamma,
         theta = theta,
-        env = env,
-        pTable = pTable,
-        vTable = vTable,
         stateActionListProvider = stateActionListProvider,
-        actionComparator = actionComparator
+        onValueFunctionUpdate = onValueFunctionUpdate,
+    ).plan()
+)
+
+fun <State, Action> bellmanQFunctionIterationAgent(
+    id: String = UUID.randomUUID().toString(),
+    initialQ: EnumerableQFunction<State, Action>,
+    env: ModelBasedEnv<State, Action, *, *>,
+    numSamples: Int = 100,
+    gamma: Double = 0.99,
+    theta: Double = 1e-6,
+    stateActionListProvider: StateActionListProvider<State, Action>,
+    onQFunctionUpdate: (EnumerableQFunction<State, Action>) -> Unit = { }
+): Agent<State, Action> = policyAgent(
+    id = id,
+    policy = bellmanQFunctionIteration(
+        initialQ = initialQ,
+        env = env,
+        numSamples = numSamples,
+        gamma = gamma,
+        theta = theta,
+        stateActionListProvider = stateActionListProvider,
+        onQFunctionUpdate = onQFunctionUpdate,
+    ).plan()
+)
+
+fun <State, Action> bellmanPolicyIterationAgent(
+    id: String = UUID.randomUUID().toString(),
+    initialV: EnumerableValueFunction<State>,
+    initialPolicy: Policy<State, Action>,
+    env: ModelBasedEnv<State, Action, *, *>,
+    numSamples: Int = 100,
+    gamma: Double = 0.99,
+    theta: Double = 1e-6,
+    stateActionListProvider: StateActionListProvider<State, Action>,
+    onValueFunctionUpdate: (ValueFunction<State>) -> Unit = { },
+    onPolicyUpdate: (Policy<State, Action>) -> Unit = { }
+): Agent<State, Action> = policyAgent(
+    id = id,
+    policy = bellmanPolicyIteration(
+        initialV = initialV,
+        initialPolicy = initialPolicy,
+        env = env,
+        numSamples = numSamples,
+        gamma = gamma,
+        theta = theta,
+        stateActionListProvider = stateActionListProvider,
+        onValueFunctionUpdate = onValueFunctionUpdate,
+        onPolicyUpdate = onPolicyUpdate,
+    ).plan()
+)
+
+@Suppress("UNCHECKED_CAST")
+fun <State, Action> onPolicyMonteCarloControlAgent(
+    id: String = UUID.randomUUID().toString(),
+    initialPolicy: QFunctionPolicy<State, Action>,
+    gamma: Double,
+    stateActionKeyFunction: StateActionKeyFunction<State, Action> = ::defaultStateActionKeyFunction,
+    onQFunctionUpdate: (QFunction<State, Action>) -> Unit = { },
+    firstVisitOnly: Boolean = true
+): Agent<State, Action> = learningAgent(
+    id = id,
+    algorithm = onPolicyMonteCarloControl(
+        initialPolicy = initialPolicy,
+        initialQ = initialPolicy.q,
+        improvement = initialPolicy as PolicyImprovementStrategy<State, Action>,
+        gamma = gamma,
+        firstVisitOnly = firstVisitOnly,
+        stateActionKeyFunction = stateActionKeyFunction,
+        onQFunctionUpdate = onQFunctionUpdate,
     )
 )
 
-fun <State, Action> policyIterationAgent(
+@Suppress("UNCHECKED_CAST")
+fun <State, Action> offPolicyMonteCarloControlAgent(
     id: String = UUID.randomUUID().toString(),
+    initialPolicy: StochasticPolicy<State, Action>,
+    initialQ: QFunction<State, Action>,
     gamma: Double = 0.99,
-    theta: Double = 1e-6,
-    vTable: ValueFunction<State>,
-    pTable: MutablePolicy<State, Action>,
-    env: ModelBasedEnv<State, Action, *, *>,
-    stateActionListProvider: StateActionListProvider<State, Action>
-): Agent<State, Action> = agent(
+    targetPolicy: Policy<State, Action>,
+    stateActionKeyFunction: StateActionKeyFunction<State, Action> = ::defaultStateActionKeyFunction,
+    onQFunctionUpdate: (QFunction<State, Action>) -> Unit = { },
+    onPolicyUpdate: (Policy<State, Action>) -> Unit = { },
+): Agent<State, Action> = learningAgent(
     id = id,
-    policy = policyIteration(
+    algorithm = offPolicyMonteCarloControl(
+        initialPolicy = initialPolicy,
+        initialQ = initialQ,
+        improvement = targetPolicy as PolicyImprovementStrategy<State, Action>,
         gamma = gamma,
-        theta = theta,
-        vTable = vTable,
-        pTable = pTable,
-        env = env,
+        targetPolicy = targetPolicy,
+        stateActionKeyFunction = stateActionKeyFunction,
+        onQFunctionUpdate = onQFunctionUpdate,
+        onPolicyUpdate = onPolicyUpdate,
+    )
+)
+
+@Suppress("UNCHECKED_CAST")
+fun <State, Action> incrementalMonteCarloControlAgent(
+    id: String = UUID.randomUUID().toString(),
+    initialPolicy: QFunctionPolicy<State, Action>,
+    gamma: Double = 0.99,
+    alpha: ParameterSchedule = ParameterSchedule { 0.05 },
+    firstVisitOnly: Boolean = true,
+    stateActionKeyFunction: StateActionKeyFunction<State, Action> = ::defaultStateActionKeyFunction,
+    onQFunctionUpdate: (QFunction<State, Action>) -> Unit = { },
+    onPolicyUpdate: (Policy<State, Action>) -> Unit = { }
+): Agent<State, Action> = learningAgent(
+    id = id,
+    algorithm = incrementalMonteCarloControl(
+        initialPolicy = initialPolicy,
+        initialQ = initialPolicy.q,
+        improvement = initialPolicy as PolicyImprovementStrategy<State, Action>,
+        gamma = gamma,
+        alpha = alpha,
+        firstVisitOnly = firstVisitOnly,
+        stateActionKeyFunction = stateActionKeyFunction,
+        onQFunctionUpdate = onQFunctionUpdate,
+        onPolicyUpdate = onPolicyUpdate
+    )
+)
+
+@Suppress("UNCHECKED_CAST")
+fun <State, Action> qLearningAgent(
+    id: String = UUID.randomUUID().toString(),
+    initialPolicy: QFunctionPolicy<State, Action>,
+    onQFunctionUpdate: (QFunction<State, Action>) -> Unit = { },
+    alpha: ParameterSchedule,
+    gamma: Double
+): Agent<State, Action> = learningAgent(
+    id = id,
+    algorithm = qLearning(
+        initialPolicy = initialPolicy,
+        initialQ = initialPolicy.q,
+        improvement = initialPolicy as PolicyImprovementStrategy<State, Action>,
+        alpha = alpha,
+        gamma = gamma,
+        onQFunctionUpdate = onQFunctionUpdate,
+    )
+)
+
+@Suppress("UNCHECKED_CAST")
+fun <State, Action> sarsaAgent(
+    id: String = UUID.randomUUID().toString(),
+    initialPolicy: Policy<State, Action>,
+    initialQ: QFunction<State, Action>,
+    onQFunctionUpdate: (QFunction<State, Action>) -> Unit = { },
+    alpha: ParameterSchedule,
+    gamma: Double
+): Agent<State, Action> = learningAgent(
+    id = id,
+    algorithm = sarsa(
+        initialPolicy = initialPolicy,
+        initialQ = initialQ,
+        improvement = initialPolicy as PolicyImprovementStrategy<State, Action>,
+        alpha = alpha,
+        gamma = gamma,
+        onQFunctionUpdate = onQFunctionUpdate,
+    )
+)
+
+
+@Suppress("UNCHECKED_CAST")
+fun <State, Action> expectedSarsaAgent(
+    id: String = UUID.randomUUID().toString(),
+    initialPolicy: StochasticPolicy<State, Action>,
+    initialQ: QFunction<State, Action>,
+    alpha: ParameterSchedule,
+    gamma: Double,
+    stateActionListProvider: StateActionListProvider<State, Action>
+): Agent<State, Action> = learningAgent(
+    id = id,
+    algorithm = expectedSarsa(
+        initialPolicy = initialPolicy,
+        initialQ = initialQ,
+        improvement = initialPolicy as PolicyImprovementStrategy<State, Action>,
+        alpha = alpha,
+        gamma = gamma,
         stateActionListProvider = stateActionListProvider
     )
 )
 
-fun <State, Action> onPolicyMonteCarloControlAgent(
-    id: String = UUID.randomUUID().toString(),
-    policy: QFunctionPolicy<State, Action>,
-    gamma: Double = 0.99,
-    firstVisitOnly: Boolean = true,
-    stateActionKeyFunction: StateActionKeyFunction<State, Action> = ::defaultKeyFunction
-): Agent<State, Action> = agent(
-    id = id,
-    policy = policy,
-    onTrajectory = onPolicyMonteCarloControl(
-        qTable = policy.qTable,
-        gamma = gamma,
-        firstVisitOnly = firstVisitOnly,
-        stateActionKeyFunction = stateActionKeyFunction
-    )
-)
-
-fun <State, Action> offPolicyMonteCarloControlAgent(
-    id: String = UUID.randomUUID().toString(),
-    policy: QFunctionPolicy<State, Action>,
-    gamma: Double = 0.99,
-    probability: ProbabilityFunction<State, Action>,
-    stateActionKeyFunction: StateActionKeyFunction<State, Action> = ::defaultKeyFunction
-): Agent<State, Action> = agent(
-    id = id,
-    policy = policy,
-    onTrajectory = offPolicyMonteCarloControl(
-        gamma = gamma,
-        targetPolicy = policy,
-        probability = probability,
-        stateActionKeyFunction = stateActionKeyFunction,
-    )
-)
-
-fun <State, Action> constantAlphaMonteCarloControlAgent(
-    id: String = UUID.randomUUID().toString(),
-    policy: QFunctionPolicy<State, Action>,
-    qTable: QFunction<State, Action>,
-    gamma: Double = 0.99,
-    alpha: ParameterSchedule = ParameterSchedule { 0.05 },
-    firstVisitOnly: Boolean = true,
-    stateActionKeyFunction: StateActionKeyFunction<State, Action> = ::defaultKeyFunction
-): Agent<State, Action> = agent(
-    id = id,
-    policy = policy,
-    onTrajectory = constantAlphaMonteCarloControl(
-        qTable = qTable,
-        gamma = gamma,
-        alpha = alpha,
-        firstVisitOnly = firstVisitOnly,
-        stateActionKeyFunction = stateActionKeyFunction
-    )
-)
-
-fun <State, Action> qLearningAgent(
-    id: String = UUID.randomUUID().toString(),
-    policy: QFunctionPolicy<State, Action>,
-    alpha: ParameterSchedule,
-    gamma: Double
-): Agent<State, Action> = agent(
-    id = id,
-    policy = policy,
-    onTransition = qLearning(
-        qTable = policy.qTable,
-        alpha = alpha,
-        gamma = gamma
-    )
-)
-
-fun <State, Action> sarsaAgent(
-    id: String = UUID.randomUUID().toString(),
-    policy: QFunctionPolicy<State, Action>,
-    alpha: ParameterSchedule,
-    gamma: Double
-): Agent<State, Action> {
-    val learning = sarsa(
-        qTable = policy.qTable,
-        alpha = alpha,
-        gamma = gamma
-    )
-    return agent(
-        id = id,
-        policy = policy,
-        onTransition = learning,
-        onTrajectory = learning
-    )
-}
-
-fun <State, Action> expectedSarsaAgent(
-    id: String = UUID.randomUUID().toString(),
-    policy: StochasticPolicy<State, Action>,
-    alpha: ParameterSchedule,
-    gamma: Double,
-): Agent<State, Action> = agent(
-    id = id,
-    policy = policy,
-    onTransition = expectedSarsa(
-        qTable = policy.qTable,
-        alpha = alpha,
-        gamma = gamma,
-        stateActionListProvider = policy.stateActionListProvider,
-        policyProbabilities = policy.asPolicyProbabilities(policy.stateActionListProvider)
-    )
-)
-
+@Suppress("UNCHECKED_CAST")
 fun <State, Action> nStepSarsaAgent(
     id: String = UUID.randomUUID().toString(),
-    policy: StochasticPolicy<State, Action>,
+    initialPolicy: StochasticPolicy<State, Action>,
+    initialQ: QFunction<State, Action>,
     alpha: ParameterSchedule,
     gamma: Double,
     n: Int,
-): Agent<State, Action> {
-    val learning = nStepSarsa(
-        qTable = policy.qTable,
+    stateActionListProvider: StateActionListProvider<State, Action>
+): Agent<State, Action> = learningAgent(
+    id = id,
+    algorithm = nStepSarsa(
+        initialPolicy = initialPolicy,
+        initialQ = initialQ,
+        improvement = initialPolicy as PolicyImprovementStrategy<State, Action>,
         alpha = alpha,
         gamma = gamma,
         n = n,
-        policyProbabilities = policy.asPolicyProbabilities(policy.stateActionListProvider)
+        stateActionListProvider = stateActionListProvider
     )
-    return agent(
-        id = id,
-        policy = policy,
-        onTransition = learning,
-        onTrajectory = learning
-    )
-}
+)
+

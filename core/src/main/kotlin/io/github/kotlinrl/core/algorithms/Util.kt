@@ -1,4 +1,4 @@
-package io.github.kotlinrl.core.algorithms.mc
+package io.github.kotlinrl.core.algorithms
 
 typealias StateActionKeyFunction<State, Action> = (State, Action) -> StateActionKey<*, *>
 
@@ -24,12 +24,22 @@ value class ComparableIntList(val data: List<Int>) : Comparable<ComparableIntLis
 }
 
 
-internal fun <State, Action> defaultKeyFunction(s: State, a: Action): StateActionKey<*, *> =
+internal fun <State, Action> defaultStateActionKeyFunction(s: State, a: Action): StateActionKey<*, *> =
     when (s) {
         is IntArray if a is Int -> StateActionKey(ComparableIntList(s.toList()), a)
         is Comparable<*> if a is Comparable<*> -> {
             @Suppress("UNCHECKED_CAST")
             StateActionKey(s as Comparable<Any>, a as Comparable<Any>)
         }
+
         else -> error("State ($s) and Action ($a) must be Comparable or mappable to a comparable form.")
+    }
+
+typealias StateKeyFunction<State> = (State) -> Comparable<*>
+
+internal fun <State> defaultStateKeyFunction(s: State): Comparable<*> =
+    when (s) {
+        is IntArray -> ComparableIntList(s.toList())
+        is Comparable<*> -> s
+        else -> error("State $s must be Comparable or mappable to a comparable key.")
     }

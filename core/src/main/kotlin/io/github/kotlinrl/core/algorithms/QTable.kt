@@ -1,6 +1,6 @@
 package io.github.kotlinrl.core.algorithms
 
-import io.github.kotlinrl.core.policy.QFunction
+import io.github.kotlinrl.core.*
 import org.apache.commons.csv.*
 import org.jetbrains.kotlinx.multik.api.*
 import org.jetbrains.kotlinx.multik.api.math.*
@@ -11,15 +11,28 @@ import kotlin.math.*
 
 class QTable(
     vararg val shape: Int,
-    private val useArgMax: Boolean = false,
+    private val deterministic: Boolean = true,
     private val tolerance: Double = 1e-6,
     private val defaultQValue: Double = 0.0
-) : QFunction<IntArray, Int> {
+) : EnumerableQFunction<IntArray, Int> {
     private var table: NDArray<Double, DN> = mk.dnarray<Double, DN>(shape) { defaultQValue }.asDNArray()
 
     override operator fun get(state: IntArray, action: Int): Double = table[state + action]
-    override operator fun set(state: IntArray, action: Int, value: Double) {
-        table[state + action] = value
+
+    override fun update(
+        state: IntArray,
+        action: Int,
+        value: Double
+    ): EnumerableQFunction<IntArray, Int> = copy().also { it.table[state + action] = value }
+
+    override fun allStates(): List<IntArray> {
+        val stateShape = shape.dropLast(1) // all but last dim
+        return cartesianProduct(*stateShape.map { 0 until it }.toTypedArray())
+    }
+
+    override fun allActions(state: IntArray): List<Int> {
+        val numActions = shape.last()
+        return (0 until numActions).toList()
     }
 
     private fun qValues(state: IntArray): NDArray<Double, D1> {
@@ -31,7 +44,7 @@ class QTable(
 
     override fun bestAction(state: IntArray): Int {
         val q = qValues(state)
-        return if (useArgMax) {
+        return if (deterministic) {
             q.argMax()
         } else {
             val max = q.max() ?: 0.0
@@ -44,16 +57,21 @@ class QTable(
     }
 
     fun copy(): QTable {
-        val copy = QTable(*shape)
-        table.data.copyInto(copy.table.data)
-        return copy
+        return QTable(
+            shape = shape,
+            deterministic = deterministic,
+            tolerance = tolerance,
+            defaultQValue = defaultQValue
+        ).also {
+            table.data.copyInto(it.table.data)
+        }
     }
 
-    override fun save(path: String) {
+    fun save(path: String) {
         mk.writeCsvSafely(path, table)
     }
 
-    override fun load(path: String) {
+    fun load(path: String) {
         val dn = mk.readCsvSafely(path)
         val t = when (shape.size) {
             2 -> dn.reshape(shape[0], shape[1])
@@ -65,6 +83,12 @@ class QTable(
     }
 
     fun print() = println(table)
+
+    private fun cartesianProduct(vararg ranges: Iterable<Int>): List<IntArray> {
+        return ranges.fold(listOf(IntArray(0))) { acc, range ->
+            acc.flatMap { prefix -> range.map { i -> prefix + i } }
+        }
+    }
 }
 
 private fun mk.writeCsvSafely(path: String, ndarray: NDArray<Double, DN>): Unit =

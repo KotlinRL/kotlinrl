@@ -19,7 +19,7 @@ class RescaleAction<State, Num : Number, D : Dimension, ObservationSpace : Space
         Box<Num, D>
         >(env) {
 
-    // The agent-facing action space
+    // The policyAgent-facing action space
     override val actionSpace: Box<Num, D> = Box(minAction, maxAction, minAction.dtype)
 
     override val observationSpace: ObservationSpace

@@ -9,7 +9,6 @@ typealias Trajectory<State, Action> = List<Transition<State, Action>>
 typealias TrainingResult = io.github.kotlinrl.core.train.TrainingResult
 typealias TrainingStopCondition = io.github.kotlinrl.core.train.TrainingStopCondition
 typealias SuccessfulTermination<State, Action> = io.github.kotlinrl.core.train.SuccessfulTermination<State, Action>
-typealias Env<State, Action, ObservationSpace, ActionSpace> = io.github.kotlinrl.core.env.Env<State, Action, ObservationSpace, ActionSpace>
 typealias EpisodeStats<State, Action> = io.github.kotlinrl.core.train.EpisodeStats<State, Action>
 
 fun <State, Action> episodicTrainer(

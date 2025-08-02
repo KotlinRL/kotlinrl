@@ -1,20 +1,27 @@
 package io.github.kotlinrl.core
 
+import kotlin.math.*
 import kotlin.random.*
 
 typealias ParameterSchedule = io.github.kotlinrl.core.policy.ParameterSchedule
+typealias PolicyImprovementStrategy<State, Action> = io.github.kotlinrl.core.policy.PolicyImprovementStrategy<State, Action>
 typealias RandomPolicy<State, Action> = io.github.kotlinrl.core.policy.RandomPolicy<State, Action>
 typealias GreedyPolicy<State, Action> = io.github.kotlinrl.core.policy.GreedyPolicy<State, Action>
 typealias EpsilonGreedyPolicy<State, Action> = io.github.kotlinrl.core.policy.EpsilonGreedyPolicy<State, Action>
 typealias SoftmaxPolicy<State, Action> = io.github.kotlinrl.core.policy.SoftmaxPolicy<State, Action>
 typealias EpsilonSoftPolicy<State, Action> = io.github.kotlinrl.core.policy.EpsilonSoftPolicy<State, Action>
 typealias Policy<State, Action> = io.github.kotlinrl.core.policy.Policy<State, Action>
+typealias QFunction<State, Action> = io.github.kotlinrl.core.policy.QFunction<State, Action>
+typealias QFunctionPolicy<State, Action> = io.github.kotlinrl.core.policy.QFunctionPolicy<State, Action>
+typealias EnumerableQFunction<State, Action> = io.github.kotlinrl.core.policy.EnumerableQFunction<State, Action>
+typealias ValueFunction<State> = io.github.kotlinrl.core.policy.ValueFunction<State>
+typealias Planner<State, Action> = io.github.kotlinrl.core.policy.Planner<State, Action>
+typealias EnumerableValueFunction<State> = io.github.kotlinrl.core.policy.EnumerableValueFunction<State>
 typealias StochasticPolicy<State, Action> = io.github.kotlinrl.core.policy.StochasticPolicy<State, Action>
 typealias PolicyProbabilities<State, Action> = io.github.kotlinrl.core.policy.PolicyProbabilities<State, Action>
 typealias StateActionListProvider<State, Action> = io.github.kotlinrl.core.policy.StateActionListProvider<State, Action>
-typealias MutablePolicy<State, Action> = io.github.kotlinrl.core.policy.MutablePolicy<State, Action>
 typealias ProbabilityFunction<State, Action> = io.github.kotlinrl.core.policy.ProbabilityFunction<State, Action>
-typealias QFunctionPolicy<State, Action> = io.github.kotlinrl.core.policy.QFunctionPolicy<State, Action>
+typealias UniformStochasticPolicy<State, Action> = io.github.kotlinrl.core.policy.UniformStochasticPolicy<State, Action>
 
 fun <State, Action> randomPolicy(
     actionProvider: StateActionListProvider<State, Action>,
@@ -22,39 +29,43 @@ fun <State, Action> randomPolicy(
 ): Policy<State, Action> = RandomPolicy(actionProvider, rng)
 
 fun <State, Action> greedyPolicy(
-    qTable: QFunction<State, Action>
-): QFunctionPolicy<State, Action> = GreedyPolicy(qTable)
+    q: QFunction<State, Action>
+): QFunctionPolicy<State, Action> = GreedyPolicy(q)
 
 fun <State, Action> epsilonGreedyPolicy(
+    q: QFunction<State, Action>,
     stateActionListProvider: StateActionListProvider<State, Action>,
     epsilon: ParameterSchedule,
-    qTable: QFunction<State, Action>,
     rng: Random = Random.Default
-): QFunctionPolicy<State, Action> = EpsilonGreedyPolicy(stateActionListProvider, qTable, epsilon, rng)
+): QFunctionPolicy<State, Action> = EpsilonGreedyPolicy(q, stateActionListProvider, epsilon, rng)
 
 fun <State, Action> softMaxPolicy(
-    qTable: QFunction<State, Action>,
+    q: QFunction<State, Action>,
     temperature: ParameterSchedule,
     stateActionListProvider: StateActionListProvider<State, Action>,
     rng: Random = Random.Default
-): StochasticPolicy<State, Action> = SoftmaxPolicy(
-    qTable = qTable,
+): SoftmaxPolicy<State, Action> = SoftmaxPolicy(
+    q = q,
     temperature = temperature,
     stateActionListProvider = stateActionListProvider,
     rng = rng
 )
 
 fun <State, Action> epsilonSoftPolicy(
-    stateActionListProvider: StateActionListProvider<State, Action>,
-    qTable: QFunction<State, Action>,
+    q: QFunction<State, Action>,
     epsilon: ParameterSchedule,
+    stateActionListProvider: StateActionListProvider<State, Action>,
     rng: Random = Random.Default
-): StochasticPolicy<State, Action> = EpsilonSoftPolicy(
+): EpsilonSoftPolicy<State, Action> = EpsilonSoftPolicy(
     stateActionListProvider = stateActionListProvider,
-    qTable = qTable,
+    q = q,
     epsilon = epsilon,
     rng = rng
 )
+
+fun <State, Action> uniformRandomPolicy(
+    stateActionListProvider: StateActionListProvider<State, Action>
+): StochasticPolicy<State, Action> = UniformStochasticPolicy(stateActionListProvider)
 
 fun <State, Action> ProbabilityFunction<State, Action>.asPolicyProbabilities(
     stateActionListProvider: StateActionListProvider<State, Action>
