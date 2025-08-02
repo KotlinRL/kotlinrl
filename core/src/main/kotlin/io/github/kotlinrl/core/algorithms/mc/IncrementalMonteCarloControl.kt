@@ -23,7 +23,7 @@ class IncrementalMonteCarloControl<State, Action>(
     )
 
     override fun observe(trajectory: Trajectory<State, Action>, episode: Int) {
-        val currentQ = evaluator.estimate(q, trajectory, episode)
+        val currentQ = evaluator.estimate(q, trajectory)
         updatedQFunction(currentQ)
         improvePolicy()
     }

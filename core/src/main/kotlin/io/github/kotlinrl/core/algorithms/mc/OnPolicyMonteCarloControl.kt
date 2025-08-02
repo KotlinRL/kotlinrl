@@ -16,7 +16,7 @@ class OnPolicyMonteCarloControl<State, Action>(
     private val evaluator = OnPolicyMonteCarloQFunctionEstimator(gamma, stateActionKeyFunction, firstVisitOnly)
 
     override fun observe(trajectory: Trajectory<State, Action>, episode: Int) {
-        val currentQ = evaluator.estimate(q, trajectory, episode)
+        val currentQ = evaluator.estimate(q, trajectory)
         updatedQFunction(currentQ)
         improvePolicy()
     }

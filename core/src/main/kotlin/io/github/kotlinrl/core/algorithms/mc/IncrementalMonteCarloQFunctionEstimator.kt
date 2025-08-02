@@ -9,7 +9,7 @@ class IncrementalMonteCarloQFunctionEstimator<State, Action>(
     private val stateActionKeyFunction: StateActionKeyFunction<State, Action>
 ) : MonteCarloQFunctionEstimator<State, Action> {
 
-    override fun estimate(q: QFunction<State, Action>, trajectory: Trajectory<State, Action>, episode: Int): QFunction<State, Action> {
+    override fun estimate(q: QFunction<State, Action>, trajectory: Trajectory<State, Action>): QFunction<State, Action> {
         var currentQ = q
         val visited = mutableSetOf<StateActionKey<*, *>>()
         var G = 0.0
