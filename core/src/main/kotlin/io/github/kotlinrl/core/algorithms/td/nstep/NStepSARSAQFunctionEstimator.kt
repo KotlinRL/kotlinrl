@@ -4,15 +4,12 @@ import io.github.kotlinrl.core.*
 import kotlin.math.*
 
 class NStepSARSAQFunctionEstimator<State, Action>(
-    private val q: QFunction<State, Action>,
-    private val alpha: Double,
+    private val alpha: ParameterSchedule,
     private val gamma: Double,
-    private val policy: StochasticPolicy<State, Action>,
-    private val stateActionListProvider: StateActionListProvider<State, Action>,
+    private val policyProbabilities: PolicyProbabilities<State, Action>
 ) : NStepTDQFunctionEstimator<State, Action> {
 
-    override fun estimate(trajectory: Trajectory<State, Action>): QFunction<State, Action> {
-        val policyProbabilities = policy.asPolicyProbabilities(stateActionListProvider)
+    override fun estimate(q: QFunction<State, Action>, trajectory: Trajectory<State, Action>): QFunction<State, Action> {
 
         val (s0, a0) = trajectory.first().state to trajectory.first().action
 
@@ -30,7 +27,7 @@ class NStepSARSAQFunctionEstimator<State, Action>(
         }
 
         val currentQ = q[s0, a0]
-        val updated = currentQ + alpha * (g - currentQ)
+        val updated = currentQ + alpha() * (g - currentQ)
         return q.update(s0, a0, updated)
     }
 }

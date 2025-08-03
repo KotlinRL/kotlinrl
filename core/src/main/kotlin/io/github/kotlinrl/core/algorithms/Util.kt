@@ -20,6 +20,8 @@ value class ComparableIntList(val data: List<Int>) : Comparable<ComparableIntLis
         }
     }
 
+    fun toIntArray() = data.toIntArray()
+
     override fun toString() = data.joinToString(",")
 }
 

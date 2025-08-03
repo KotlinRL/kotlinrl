@@ -7,14 +7,13 @@ import io.github.kotlinrl.core.algorithms.defaultStateActionKeyFunction
 class IncrementalMonteCarloControl<State, Action>(
     initialPolicy: Policy<State, Action>,
     initialQ: QFunction<State, Action>,
-    improvement: PolicyImprovementStrategy<State, Action>,
+    alpha: ParameterSchedule = ParameterSchedule { 0.05},
     gamma: Double = 0.99,
+    firstVisitOnly: Boolean = true,
+    stateActionKeyFunction: StateActionKeyFunction<State, Action> = ::defaultStateActionKeyFunction,
     onQFunctionUpdate: (QFunction<State, Action>) -> Unit = { },
     onPolicyUpdate: (Policy<State, Action>) -> Unit = { },
-    stateActionKeyFunction: StateActionKeyFunction<State, Action> = ::defaultStateActionKeyFunction,
-    alpha: ParameterSchedule = ParameterSchedule { 0.05},
-    firstVisitOnly: Boolean = true
-) : MonteCarloAlgorithm<State, Action>(initialPolicy, initialQ, improvement, gamma, onQFunctionUpdate, onPolicyUpdate) {
+) : MonteCarloAlgorithm<State, Action>(initialPolicy, initialQ, gamma, onQFunctionUpdate, onPolicyUpdate) {
     private val evaluator = IncrementalMonteCarloQFunctionEstimator(
         gamma = gamma,
         alpha = alpha,
@@ -23,8 +22,7 @@ class IncrementalMonteCarloControl<State, Action>(
     )
 
     override fun observe(trajectory: Trajectory<State, Action>, episode: Int) {
-        val currentQ = evaluator.estimate(q, trajectory)
-        updatedQFunction(currentQ)
-        improvePolicy()
+        q = evaluator.estimate(q, trajectory)
+        policy = improvement(q)
     }
 }

@@ -1,4 +1,4 @@
-package io.github.kotlinrl.core.algorithms.dp
+package io.github.kotlinrl.core.model
 
 import io.github.kotlinrl.core.*
 

@@ -5,17 +5,15 @@ import io.github.kotlinrl.core.*
 class QLearning<State, Action>(
     initialPolicy: Policy<State, Action>,
     initialQ: QFunction<State, Action>,
-    improvement: PolicyImprovementStrategy<State, Action>,
+    alpha: ParameterSchedule,
+    gamma: Double,
     onQFunctionUpdate: (QFunction<State, Action>) -> Unit = { },
     onPolicyUpdate: (Policy<State, Action>) -> Unit = { },
-    alpha: ParameterSchedule,
-    gamma: Double
-) : TabularTDAlgorithm<State, Action>(initialPolicy, initialQ, improvement, onQFunctionUpdate, onPolicyUpdate, alpha, gamma) {
+) : TabularTDAlgorithm<State, Action>(initialPolicy, initialQ, alpha, gamma, onQFunctionUpdate, onPolicyUpdate) {
     private val estimator = QLearningQFunctionEstimator<State, Action>(alpha, gamma)
 
     override fun observe(transition: Transition<State, Action>) {
-        val updatedQ = estimator.estimate(q, transition)
-        updatedQFunction(updatedQ)
-        improvePolicy()
+        q = estimator.estimate(q, transition)
+        policy = improvement(q)
     }
 }

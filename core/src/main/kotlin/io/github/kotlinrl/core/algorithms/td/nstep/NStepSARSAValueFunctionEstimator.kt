@@ -4,12 +4,11 @@ import io.github.kotlinrl.core.*
 import kotlin.math.*
 
 class NStepSARSAValueFunctionEstimator<State, Action>(
-    private val v: ValueFunction<State>,
     private val alpha: Double,
     private val gamma: Double,
-) : NStepTDValueFunctionEstimator<State> {
+) : NStepTDValueFunctionEstimator<State, Action> {
 
-    override fun estimate(trajectory: Trajectory<State, *>): ValueFunction<State> {
+    override fun estimate(v: ValueFunction<State>, trajectory: Trajectory<State, Action>): ValueFunction<State> {
         if (trajectory.isEmpty()) return v
 
         val s0 = trajectory.first().state

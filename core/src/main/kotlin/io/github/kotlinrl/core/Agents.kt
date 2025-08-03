@@ -1,12 +1,10 @@
 package io.github.kotlinrl.core
 
-import io.github.kotlinrl.core.agent.Transition
-import io.github.kotlinrl.core.algorithms.*
-import io.github.kotlinrl.core.algorithms.StateActionKeyFunction
+import io.github.kotlinrl.core.algorithms.defaultStateActionKeyFunction
 import java.util.*
 
 typealias Agent<State, Action> = io.github.kotlinrl.core.agent.Agent<State, Action>
-typealias Transition<State, Action> = Transition<State, Action>
+typealias Transition<State, Action> = io.github.kotlinrl.core.agent.Transition<State, Action>
 typealias TransitionObserver<State, Action> = io.github.kotlinrl.core.agent.TransitionObserver<State, Action>
 typealias TrajectoryObserver<State, Action> = io.github.kotlinrl.core.agent.TrajectoryObserver<State, Action>
 typealias PolicyAgent<State, Action> = io.github.kotlinrl.core.agent.PolicyAgent<State, Action>
@@ -115,7 +113,6 @@ fun <State, Action> onPolicyMonteCarloControlAgent(
     algorithm = onPolicyMonteCarloControl(
         initialPolicy = initialPolicy,
         initialQ = initialPolicy.q,
-        improvement = initialPolicy as PolicyImprovementStrategy<State, Action>,
         gamma = gamma,
         firstVisitOnly = firstVisitOnly,
         stateActionKeyFunction = stateActionKeyFunction,
@@ -138,7 +135,6 @@ fun <State, Action> offPolicyMonteCarloControlAgent(
     algorithm = offPolicyMonteCarloControl(
         initialPolicy = initialPolicy,
         initialQ = initialQ,
-        improvement = targetPolicy as PolicyImprovementStrategy<State, Action>,
         gamma = gamma,
         targetPolicy = targetPolicy,
         stateActionKeyFunction = stateActionKeyFunction,
@@ -162,7 +158,6 @@ fun <State, Action> incrementalMonteCarloControlAgent(
     algorithm = incrementalMonteCarloControl(
         initialPolicy = initialPolicy,
         initialQ = initialPolicy.q,
-        improvement = initialPolicy as PolicyImprovementStrategy<State, Action>,
         gamma = gamma,
         alpha = alpha,
         firstVisitOnly = firstVisitOnly,
@@ -184,7 +179,6 @@ fun <State, Action> qLearningAgent(
     algorithm = qLearning(
         initialPolicy = initialPolicy,
         initialQ = initialPolicy.q,
-        improvement = initialPolicy as PolicyImprovementStrategy<State, Action>,
         alpha = alpha,
         gamma = gamma,
         onQFunctionUpdate = onQFunctionUpdate,
@@ -204,7 +198,6 @@ fun <State, Action> sarsaAgent(
     algorithm = sarsa(
         initialPolicy = initialPolicy,
         initialQ = initialQ,
-        improvement = initialPolicy as PolicyImprovementStrategy<State, Action>,
         alpha = alpha,
         gamma = gamma,
         onQFunctionUpdate = onQFunctionUpdate,
@@ -225,7 +218,6 @@ fun <State, Action> expectedSarsaAgent(
     algorithm = expectedSarsa(
         initialPolicy = initialPolicy,
         initialQ = initialQ,
-        improvement = initialPolicy as PolicyImprovementStrategy<State, Action>,
         alpha = alpha,
         gamma = gamma,
         stateActionListProvider = stateActionListProvider
@@ -246,7 +238,6 @@ fun <State, Action> nStepSarsaAgent(
     algorithm = nStepSarsa(
         initialPolicy = initialPolicy,
         initialQ = initialQ,
-        improvement = initialPolicy as PolicyImprovementStrategy<State, Action>,
         alpha = alpha,
         gamma = gamma,
         n = n,

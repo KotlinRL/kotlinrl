@@ -1,15 +1,13 @@
 package io.github.kotlinrl.core.algorithms.td
 
 import io.github.kotlinrl.core.*
-import io.github.kotlinrl.core.policy.StateActionListProvider
 
 class ExpectedSARSAQFunctionEstimator<State, Action>(
-    private val alpha: Double,
+    private val alpha: ParameterSchedule,
     private val gamma: Double,
-    initialPolicyProbabilities: PolicyProbabilities<State, Action>,
+    private val policyProbabilities: PolicyProbabilities<State, Action>,
     private val stateActionListProvider: StateActionListProvider<State, Action>
 ) : TDQFunctionEstimator<State, Action> {
-    var policyProbabilities: PolicyProbabilities<State, Action> = initialPolicyProbabilities
 
     override fun estimate(q: QFunction<State, Action>, transition: Transition<State, Action>): QFunction<State, Action> {
         val (s, a, r, sPrime) = transition
@@ -27,7 +25,7 @@ class ExpectedSARSAQFunctionEstimator<State, Action>(
         }
 
         val target = r + gamma * expectedValue
-        val updated = currentValue + alpha * (target - currentValue)
+        val updated = currentValue + alpha() * (target - currentValue)
         return q.update(s, a, updated)
     }
 }

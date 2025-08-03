@@ -4,8 +4,8 @@ import io.github.kotlinrl.core.*
 
 class OnPolicyMonteCarloQFunctionEstimator<State, Action>(
     private val gamma: Double,
-    private val stateActionKeyFunction: StateActionKeyFunction<State, Action>,
     private val firstVisitOnly: Boolean = true,
+    private val stateActionKeyFunction: StateActionKeyFunction<State, Action>,
 ) : MonteCarloQFunctionEstimator<State, Action> {
     private val returns: MutableMap<StateActionKey<*, *>, Int> = mutableMapOf()
 

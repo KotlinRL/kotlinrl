@@ -24,10 +24,10 @@ typealias NStepSARSA<State, Action> = io.github.kotlinrl.core.algorithms.td.nste
 typealias TabularTDAlgorithm<State, Action> = io.github.kotlinrl.core.algorithms.td.TabularTDAlgorithm<State, Action>
 typealias DPIteration<State, Action> = io.github.kotlinrl.core.algorithms.dp.DPIteration<State, Action>
 typealias MCAlgorithm<State, Action> = io.github.kotlinrl.core.algorithms.mc.MonteCarloAlgorithm<State, Action>
-typealias ProbabilisticTransition<State, Action> = io.github.kotlinrl.core.algorithms.dp.ProbabilisticTransition<State, Action>
+typealias ProbabilisticTransition<State, Action> = io.github.kotlinrl.core.model.ProbabilisticTransition<State, Action>
 typealias ProbabilisticTrajectory<State, Action> = List<ProbabilisticTransition<State, Action>>
-typealias EmpiricalMDPModel<State, Action> = io.github.kotlinrl.core.algorithms.dp.EmpiricalMDPModel<State, Action>
-typealias MDPModel<State, Action> = io.github.kotlinrl.core.algorithms.dp.MDPModel<State, Action>
+typealias EmpiricalMDPModel<State, Action> = io.github.kotlinrl.core.model.EmpiricalMDPModel<State, Action>
+typealias MDPModel<State, Action> = io.github.kotlinrl.core.model.MDPModel<State, Action>
 typealias DPValueFunctionEstimator<State, Action> = io.github.kotlinrl.core.algorithms.dp.DPValueFunctionEstimator<State, Action>
 typealias DPQFunctionEstimator<State, Action> = io.github.kotlinrl.core.algorithms.dp.DPQFunctionEstimator<State, Action>
 
@@ -89,7 +89,6 @@ fun <State, Action> bellmanPolicyIteration(
 fun <State, Action> onPolicyMonteCarloControl(
     initialPolicy: Policy<State, Action>,
     initialQ: QFunction<State, Action>,
-    improvement: PolicyImprovementStrategy<State, Action>,
     gamma: Double,
     stateActionKeyFunction: StateActionKeyFunction<State, Action> = ::defaultStateActionKeyFunction,
     firstVisitOnly: Boolean = true,
@@ -98,7 +97,6 @@ fun <State, Action> onPolicyMonteCarloControl(
 ): MCAlgorithm<State, Action> = OnPolicyMonteCarloControl(
     initialPolicy = initialPolicy,
     initialQ = initialQ,
-    improvement = improvement,
     gamma = gamma,
     firstVisitOnly = firstVisitOnly,
     stateActionKeyFunction = stateActionKeyFunction,
@@ -109,7 +107,6 @@ fun <State, Action> onPolicyMonteCarloControl(
 fun <State, Action> incrementalMonteCarloControl(
     initialPolicy: Policy<State, Action>,
     initialQ: QFunction<State, Action>,
-    improvement: PolicyImprovementStrategy<State, Action>,
     gamma: Double = 0.99,
     alpha: ParameterSchedule = constantParameterSchedule(0.05),
     firstVisitOnly: Boolean = true,
@@ -119,7 +116,6 @@ fun <State, Action> incrementalMonteCarloControl(
 ): MCAlgorithm<State, Action> = IncrementalMonteCarloControl(
     initialPolicy = initialPolicy,
     initialQ = initialQ,
-    improvement = improvement,
     gamma = gamma,
     alpha = alpha,
     firstVisitOnly = firstVisitOnly,
@@ -131,7 +127,6 @@ fun <State, Action> incrementalMonteCarloControl(
 fun <State, Action> offPolicyMonteCarloControl(
     initialPolicy: StochasticPolicy<State, Action>,
     initialQ: QFunction<State, Action>,
-    improvement: PolicyImprovementStrategy<State, Action>,
     gamma: Double = 0.99,
     targetPolicy: Policy<State, Action>,
     stateActionKeyFunction: StateActionKeyFunction<State, Action> = ::defaultStateActionKeyFunction,
@@ -140,7 +135,6 @@ fun <State, Action> offPolicyMonteCarloControl(
 ): MCAlgorithm<State, Action> = OffPolicyMonteCarloControl(
     initialPolicy = initialPolicy,
     initialQ = initialQ,
-    improvement = improvement,
     gamma = gamma,
     targetPolicy = targetPolicy,
     stateActionKeyFunction = stateActionKeyFunction,
@@ -182,27 +176,36 @@ fun <State, Action> epsilonGreedySoftOffPolicyControls(
 fun <State, Action> qLearning(
     initialPolicy: Policy<State, Action>,
     initialQ: QFunction<State, Action>,
-    improvement: PolicyImprovementStrategy<State, Action>,
     onQFunctionUpdate: (QFunction<State, Action>) -> Unit = { },
     onPolicyUpdate: (Policy<State, Action>) -> Unit = { },
     alpha: ParameterSchedule,
     gamma: Double
-): TabularTDAlgorithm<State, Action> = QLearning(initialPolicy, initialQ, improvement, onQFunctionUpdate, onPolicyUpdate, alpha, gamma)
+): TabularTDAlgorithm<State, Action> = QLearning(
+    initialPolicy = initialPolicy,
+    initialQ = initialQ,
+    alpha = alpha,
+    gamma = gamma,
+    onQFunctionUpdate = onQFunctionUpdate,
+    onPolicyUpdate = onPolicyUpdate)
 
 fun <State, Action> sarsa(
     initialPolicy: Policy<State, Action>,
     initialQ: QFunction<State, Action>,
-    improvement: PolicyImprovementStrategy<State, Action>,
     onQFunctionUpdate: (QFunction<State, Action>) -> Unit = { },
     onPolicyUpdate: (Policy<State, Action>) -> Unit = { },
     alpha: ParameterSchedule,
     gamma: Double
-): TabularTDAlgorithm<State, Action> = SARSA(initialPolicy, initialQ, improvement, onQFunctionUpdate, onPolicyUpdate, alpha, gamma)
+): TabularTDAlgorithm<State, Action> = SARSA(
+    initialPolicy = initialPolicy,
+    initialQ = initialQ,
+    alpha = alpha,
+    gamma = gamma,
+    onQFunctionUpdate = onQFunctionUpdate,
+    onPolicyUpdate = onPolicyUpdate)
 
 fun <State, Action> expectedSarsa(
     initialPolicy: StochasticPolicy<State, Action>,
     initialQ: QFunction<State, Action>,
-    improvement: PolicyImprovementStrategy<State, Action>,
     onQFunctionUpdate: (QFunction<State, Action>) -> Unit = { },
     onPolicyUpdate: (Policy<State, Action>) -> Unit = { },
     alpha: ParameterSchedule,
@@ -211,7 +214,6 @@ fun <State, Action> expectedSarsa(
 ): TabularTDAlgorithm<State, Action> = ExpectedSARSA(
     initialPolicy = initialPolicy,
     initialQ = initialQ,
-    improvement = improvement,
     alpha = alpha,
     gamma = gamma,
     stateActionListProvider = stateActionListProvider,
@@ -222,7 +224,6 @@ fun <State, Action> expectedSarsa(
 fun <State, Action> nStepSarsa(
     initialPolicy: StochasticPolicy<State, Action>,
     initialQ: QFunction<State, Action>,
-    improvement: PolicyImprovementStrategy<State, Action>,
     onQFunctionUpdate: (QFunction<State, Action>) -> Unit = { },
     onPolicyUpdate: (Policy<State, Action>) -> Unit = { },
     alpha: ParameterSchedule,
@@ -232,7 +233,6 @@ fun <State, Action> nStepSarsa(
 ): TabularTDAlgorithm<State, Action> = NStepSARSA(
     initialPolicy = initialPolicy,
     initialQ = initialQ,
-    improvement = improvement,
     alpha = alpha,
     gamma = gamma,
     n = n,
