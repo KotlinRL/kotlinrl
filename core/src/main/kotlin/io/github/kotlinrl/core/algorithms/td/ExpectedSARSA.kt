@@ -15,10 +15,13 @@ class ExpectedSARSA<State, Action>(
         alpha = alpha,
         gamma = gamma,
         policyProbabilities = initialPolicy.asPolicyProbabilities(stateActionListProvider),
-        stateActionListProvider = stateActionListProvider)
+        stateActionListProvider = stateActionListProvider
+    )
 
     override fun observe(transition: Transition<State, Action>) {
         q = estimator.estimate(q, transition)
         policy = improvement(q)
+        onQFunctionUpdate(q)
+        onPolicyUpdate(policy)
     }
 }

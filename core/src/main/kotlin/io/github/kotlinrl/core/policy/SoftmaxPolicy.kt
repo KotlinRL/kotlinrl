@@ -9,7 +9,8 @@ class SoftmaxPolicy<State, Action>(
     private val temperature: ParameterSchedule,
     stateActionListProvider: StateActionListProvider<State, Action>,
     rng: Random
-) : StochasticPolicy<State, Action>(stateActionListProvider, rng), PolicyImprovementStrategy<State, Action>, QFunctionPolicy<State, Action> {
+) : StochasticPolicy<State, Action>(stateActionListProvider, rng), PolicyImprovementStrategy<State, Action>,
+    QFunctionPolicy<State, Action> {
 
     override fun actionScores(state: State): List<Pair<Action, Double>> {
         val temperature = temperature()

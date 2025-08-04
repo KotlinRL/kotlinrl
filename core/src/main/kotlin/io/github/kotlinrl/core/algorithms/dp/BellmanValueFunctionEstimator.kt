@@ -6,7 +6,10 @@ class BellmanValueFunctionEstimator<State, Action>(
     private val gamma: Double = 0.99
 ) : DPValueFunctionEstimator<State, Action> {
 
-    override fun estimate(v: EnumerableValueFunction<State>, trajectory: ProbabilisticTrajectory<State, Action>): EnumerableValueFunction<State> {
+    override fun estimate(
+        v: EnumerableValueFunction<State>,
+        trajectory: ProbabilisticTrajectory<State, Action>
+    ): EnumerableValueFunction<State> {
         var newV = v
 
         val states = trajectory.map { it.state }.distinct()

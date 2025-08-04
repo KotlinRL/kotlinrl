@@ -5,10 +5,13 @@ import io.github.kotlinrl.core.*
 class SARSAQFunctionEstimator<State, Action>(
     private val alpha: ParameterSchedule,
     private val gamma: Double,
-) : TDQFunctionEstimator<State, Action>  {
+) : TDQFunctionEstimator<State, Action> {
     private var last: Transition<State, Action>? = null
 
-    override fun estimate(q: QFunction<State, Action>, transition: Transition<State, Action>): QFunction<State, Action> {
+    override fun estimate(
+        q: QFunction<State, Action>,
+        transition: Transition<State, Action>
+    ): QFunction<State, Action> {
         val prev = last
         last = transition
 

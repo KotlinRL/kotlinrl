@@ -1,13 +1,12 @@
 package io.github.kotlinrl.core.algorithms.mc
 
 import io.github.kotlinrl.core.*
-import io.github.kotlinrl.core.algorithms.defaultStateKeyFunction
+import io.github.kotlinrl.core.algorithms.stateKey
 
 class OffPolicyMonteCarloValueFunctionEstimator<State, Action>(
     private val gamma: Double,
     private val behaviorPolicy: StochasticPolicy<State, Action>,
     private var targetPolicy: Policy<State, Action>,
-    private val stateKeyFunction: StateKeyFunction<State> = ::defaultStateKeyFunction
 ) : MonteCarloValueFunctionEstimator<State, Action> {
 
     private val C: MutableMap<Comparable<*>, Double> = mutableMapOf()
@@ -19,7 +18,7 @@ class OffPolicyMonteCarloValueFunctionEstimator<State, Action>(
 
         for ((s, a, r) in trajectory.asReversed()) {
             G = r + gamma * G
-            val key = stateKeyFunction(s)
+            val key = stateKey(s)
 
             val c = C.getOrDefault(key, 0.0) + W
             C[key] = c

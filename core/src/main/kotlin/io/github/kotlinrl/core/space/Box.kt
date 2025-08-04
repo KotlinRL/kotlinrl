@@ -13,6 +13,7 @@ class Box<T : Number, D : Dimension>(
 ) : Space<NDArray<T, D>> {
     override val random: Random = seed?.let { Random(it) } ?: Random.Default
     private val bounds = low.data.zip(high.data)
+
     init {
         require(low.shape.contentEquals(high.shape)) {
             "Low and high bounds must have the same shape. Found low=${low.shape} and high=${high.shape}"

@@ -1,15 +1,15 @@
 package io.github.kotlinrl.core.wrapper
 
-import io.github.kotlinrl.core.RenderFrame
+import io.github.kotlinrl.core.*
 import io.github.kotlinrl.core.space.*
+import io.github.kotlinrl.core.space.Box
 import org.jcodec.api.awt.*
 import org.jetbrains.kotlinx.multik.api.*
 import org.jetbrains.kotlinx.multik.ndarray.data.*
 import org.jetbrains.kotlinx.multik.ndarray.data.DataType.*
-import org.jetbrains.kotlinx.multik.ndarray.data.Dimension
 import java.awt.image.*
 import java.io.*
-import javax.imageio.ImageIO
+import javax.imageio.*
 
 fun flattenObservation(obs: Any?, dtype: DataType): List<Number> = when (obs) {
     is Number -> listOf(obs)
@@ -70,6 +70,7 @@ fun <Num : Number, D : Dimension> rescale(
         else -> throw IllegalArgumentException("Unsupported dtype: ${x.dtype}")
     }
 }
+
 fun <Num : Number, D : Dimension> clipToBox(
     x: NDArray<Num, D>,
     box: Box<Num, D>
@@ -123,7 +124,7 @@ fun renderFrameToBufferedImage(frame: RenderFrame): BufferedImage {
     return img
 }
 
-fun saveFrameAsPng(frame: RenderFrame, folder: String, episode: Int , frameIdx: Int) {
+fun saveFrameAsPng(frame: RenderFrame, folder: String, episode: Int, frameIdx: Int) {
     val img = renderFrameToBufferedImage(frame)
     val pngFile = File(folder, "${episodeFolderName(episode)}/frame_${numberFormat.format(frameIdx)}.png")
     pngFile.parentFile?.mkdirs()

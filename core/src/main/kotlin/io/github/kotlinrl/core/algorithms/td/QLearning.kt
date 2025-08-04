@@ -15,5 +15,7 @@ class QLearning<State, Action>(
     override fun observe(transition: Transition<State, Action>) {
         q = estimator.estimate(q, transition)
         policy = improvement(q)
+        onQFunctionUpdate(q)
+        onPolicyUpdate(policy)
     }
 }

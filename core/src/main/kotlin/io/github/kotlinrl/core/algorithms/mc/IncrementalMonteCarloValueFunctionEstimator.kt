@@ -1,13 +1,12 @@
 package io.github.kotlinrl.core.algorithms.mc
 
 import io.github.kotlinrl.core.*
-import io.github.kotlinrl.core.algorithms.defaultStateKeyFunction
+import io.github.kotlinrl.core.algorithms.stateKey
 
 class IncrementalMonteCarloValueFunctionEstimator<State, Action>(
     private val gamma: Double,
     private val alpha: ParameterSchedule = ParameterSchedule { 0.05 },
     private val firstVisitOnly: Boolean = true,
-    private val stateKeyFunction: StateKeyFunction<State> = ::defaultStateKeyFunction
 ) : MonteCarloValueFunctionEstimator<State, Action> {
 
     override fun estimate(v: ValueFunction<State>, trajectory: Trajectory<State, Action>): ValueFunction<State> {
@@ -17,7 +16,7 @@ class IncrementalMonteCarloValueFunctionEstimator<State, Action>(
 
         for ((s, _, r) in trajectory.asReversed()) {
             G = r + gamma * G
-            val key = stateKeyFunction(s)
+            val key = stateKey(s)
 
             if (firstVisitOnly && key in visited) continue
             visited.add(key)

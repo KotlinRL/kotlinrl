@@ -9,7 +9,9 @@ import org.jetbrains.kotlinx.multik.ndarray.data.DataType.*
 class FlattenObservation<Num : Number, WrappedState, Action, WrappedObservationSpace : Space<WrappedState>, ActionSpace : Space<Action>>(
     env: Env<WrappedState, Action, WrappedObservationSpace, ActionSpace>,
     private val dtype: DataType
-) : Wrapper<NDArray<Num, D1>, Action, Box<Num, D1>, ActionSpace, WrappedState, Action, WrappedObservationSpace, ActionSpace>(env) {
+) : Wrapper<NDArray<Num, D1>, Action, Box<Num, D1>, ActionSpace, WrappedState, Action, WrappedObservationSpace, ActionSpace>(
+    env
+) {
 
     override val observationSpace: Box<Num, D1> by lazy {
         val sampleObs = env.observationSpace.sample()
@@ -18,18 +20,51 @@ class FlattenObservation<Num : Number, WrappedState, Action, WrappedObservationS
 
         @Suppress("UNCHECKED_CAST")
         val low = when (dtype) {
-            DoubleDataType -> mk.ndarray<Double, D1>(List(flatLength) { Double.NEGATIVE_INFINITY }, intArrayOf(flatLength)) as NDArray<Num, D1>
-            FloatDataType -> mk.ndarray<Float, D1>(List(flatLength) { Float.NEGATIVE_INFINITY }, intArrayOf(flatLength)) as NDArray<Num, D1>
-            IntDataType -> mk.ndarray<Int, D1>(List(flatLength) { Int.MIN_VALUE }, intArrayOf(flatLength)) as NDArray<Num, D1>
-            LongDataType -> mk.ndarray<Long, D1>(List(flatLength) { Long.MIN_VALUE }, intArrayOf(flatLength)) as NDArray<Num, D1>
+            DoubleDataType -> mk.ndarray<Double, D1>(
+                List(flatLength) { Double.NEGATIVE_INFINITY },
+                intArrayOf(flatLength)
+            ) as NDArray<Num, D1>
+
+            FloatDataType -> mk.ndarray<Float, D1>(
+                List(flatLength) { Float.NEGATIVE_INFINITY },
+                intArrayOf(flatLength)
+            ) as NDArray<Num, D1>
+
+            IntDataType -> mk.ndarray<Int, D1>(
+                List(flatLength) { Int.MIN_VALUE },
+                intArrayOf(flatLength)
+            ) as NDArray<Num, D1>
+
+            LongDataType -> mk.ndarray<Long, D1>(
+                List(flatLength) { Long.MIN_VALUE },
+                intArrayOf(flatLength)
+            ) as NDArray<Num, D1>
+
             else -> throw IllegalArgumentException("Unsupported dtype: $dtype")
         }
+
         @Suppress("UNCHECKED_CAST")
         val high = when (dtype) {
-            DoubleDataType -> mk.ndarray<Double, D1>(List(flatLength) { Double.POSITIVE_INFINITY }, intArrayOf(flatLength)) as NDArray<Num, D1>
-            FloatDataType -> mk.ndarray<Float, D1>(List(flatLength) { Float.POSITIVE_INFINITY }, intArrayOf(flatLength)) as NDArray<Num, D1>
-            IntDataType -> mk.ndarray<Int, D1>(List(flatLength) { Int.MAX_VALUE }, intArrayOf(flatLength)) as NDArray<Num, D1>
-            LongDataType -> mk.ndarray<Long, D1>(List(flatLength) { Long.MAX_VALUE }, intArrayOf(flatLength)) as NDArray<Num, D1>
+            DoubleDataType -> mk.ndarray<Double, D1>(
+                List(flatLength) { Double.POSITIVE_INFINITY },
+                intArrayOf(flatLength)
+            ) as NDArray<Num, D1>
+
+            FloatDataType -> mk.ndarray<Float, D1>(
+                List(flatLength) { Float.POSITIVE_INFINITY },
+                intArrayOf(flatLength)
+            ) as NDArray<Num, D1>
+
+            IntDataType -> mk.ndarray<Int, D1>(
+                List(flatLength) { Int.MAX_VALUE },
+                intArrayOf(flatLength)
+            ) as NDArray<Num, D1>
+
+            LongDataType -> mk.ndarray<Long, D1>(
+                List(flatLength) { Long.MAX_VALUE },
+                intArrayOf(flatLength)
+            ) as NDArray<Num, D1>
+
             else -> throw IllegalArgumentException("Unsupported dtype: $dtype")
         }
         Box(low, high, dtype)

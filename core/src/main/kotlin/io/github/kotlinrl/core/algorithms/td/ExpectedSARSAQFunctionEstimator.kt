@@ -9,7 +9,10 @@ class ExpectedSARSAQFunctionEstimator<State, Action>(
     private val stateActionListProvider: StateActionListProvider<State, Action>
 ) : TDQFunctionEstimator<State, Action> {
 
-    override fun estimate(q: QFunction<State, Action>, transition: Transition<State, Action>): QFunction<State, Action> {
+    override fun estimate(
+        q: QFunction<State, Action>,
+        transition: Transition<State, Action>
+    ): QFunction<State, Action> {
         val (s, a, r, sPrime) = transition
         val done = transition.done
         val currentValue = q[s, a]

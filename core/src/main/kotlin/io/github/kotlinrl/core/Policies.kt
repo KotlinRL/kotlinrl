@@ -1,6 +1,5 @@
 package io.github.kotlinrl.core
 
-import kotlin.math.*
 import kotlin.random.*
 
 typealias ParameterSchedule = io.github.kotlinrl.core.policy.ParameterSchedule

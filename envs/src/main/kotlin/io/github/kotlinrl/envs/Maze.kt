@@ -2,9 +2,12 @@ package io.github.kotlinrl.envs
 
 import io.github.kotlinrl.core.env.*
 import io.github.kotlinrl.core.space.*
-import java.awt.BasicStroke
-import java.awt.Color
-import java.awt.Graphics2D
+import org.jetbrains.kotlinx.multik.api.mk
+import org.jetbrains.kotlinx.multik.api.ndarray
+import org.jetbrains.kotlinx.multik.ndarray.data.*
+import org.jetbrains.kotlinx.multik.ndarray.operations.toIntArray
+import org.jetbrains.kotlinx.multik.ndarray.operations.toList
+import java.awt.*
 import java.awt.image.*
 import kotlin.random.*
 
@@ -15,7 +18,7 @@ class Maze(
     val size: Int = 5,
     override val metadata: Map<String, Any?> = emptyMap(),
     seed: Int? = null,
-) : ModelBasedEnv<IntArray, Int, MultiDiscrete, Discrete> {
+) : ModelBasedEnv<NDArray<Int, D1>, Int, MultiDiscrete, Discrete> {
     enum class Action(val value: Int) {
         UP(0),
         RIGHT(1),
@@ -26,10 +29,10 @@ class Maze(
     override val observationSpace = MultiDiscrete(nvec = intArrayOf(size, size), seed = seed)
     override val actionSpace = Discrete(n = 4, start = 0, seed = seed)
     override val random  = seed?.let { Random(it) } ?: Random.Default
-    private var state = intArrayOf(size - 1, size - 1)
-    private val goal = intArrayOf(size - 1, size - 1)
+    private var state = mk.ndarray(intArrayOf(size - 1, size - 1))
+    private val goal = mk.ndarray(intArrayOf(size - 1, size - 1))
     private val maze = createMaze(size)
-    private val distances = computeDistances(size, goal.toList(), maze)
+    private val distances = computeDistances(size, goal.toIntArray().toList(), maze)
 
     private companion object {
         fun setValueAt(
@@ -122,20 +125,20 @@ class Maze(
         }
     }
 
-    override fun step(action: Int): StepResult<IntArray> {
+    override fun step(action: Int): StepResult<NDArray<Int, D1>> {
         val reward = computeReward(state)
         state = nextState(state, action)
-        val terminated = state.contentEquals(goal)
+        val terminated = state == goal
         return StepResult(state, reward, terminated, false, emptyMap())
     }
 
-    override fun reset(seed: Int?, options: Map<String, Any?>?): InitialState<IntArray> {
+    override fun reset(seed: Int?, options: Map<String, Any?>?): InitialState<NDArray<Int, D1>> {
         if(exploringStarts) {
             while(state[0] == goal[0] && state[1] == goal[1]) {
                 state = observationSpace.sample()
             }
         } else {
-            state = intArrayOf(0, 0)
+            state = mk.ndarray(intArrayOf(0, 0))
         }
         return InitialState(state)
     }
@@ -209,13 +212,13 @@ class Maze(
 
     }
 
-    private fun nextState(state: IntArray, action: Int): IntArray {
-        val (row, col) = state
+    private fun nextState(state: NDArray<Int, D1>, action: Int): NDArray<Int, D1> {
+        val (row, col) = state.toList()
         val nextState = when (action) {
-            0 -> intArrayOf(row - 1, col) // Move UP
-            1 -> intArrayOf(row, col + 1) // Move RIGHT
-            2 -> intArrayOf(row + 1, col) // Move DOWN
-            3 -> intArrayOf(row, col - 1) // Move LEFT
+            0 -> mk.ndarray(intArrayOf(row - 1, col)) // Move UP
+            1 -> mk.ndarray(intArrayOf(row, col + 1)) // Move RIGHT
+            2 -> mk.ndarray(intArrayOf(row + 1, col)) // Move DOWN
+            3 -> mk.ndarray(intArrayOf(row, col - 1)) // Move LEFT
             else -> error("Action value not supported: $action")
         }
 
@@ -226,20 +229,20 @@ class Maze(
         }
     }
 
-    private fun computeReward(state: IntArray): Double {
+    private fun computeReward(state: NDArray<Int, D1>): Double {
         return if(shapedRewards) {
             val goalDistance = distances[state[0]][state[1]]
             val maxDistance = distances.flatten().maxOrNull() ?: Double.POSITIVE_INFINITY
             - (goalDistance / maxDistance)
         } else {
-            if (state.contentEquals(goal)) 0.0 else -1.0
+            if (state == goal) 0.0 else -1.0
         }
     }
 
-    override fun simulateStep(state: IntArray, action: Int): StepResult<IntArray> {
+    override fun simulateStep(state: NDArray<Int, D1>, action: Int): StepResult<NDArray<Int, D1>> {
         val reward = computeReward(state)
         val nextState = nextState(state, action)
-        val terminated = nextState.contentEquals(goal)
+        val terminated = nextState == goal
         return StepResult(nextState, reward, terminated, false, emptyMap())
     }
 }

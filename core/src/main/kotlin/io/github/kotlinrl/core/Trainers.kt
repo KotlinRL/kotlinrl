@@ -1,6 +1,6 @@
 package io.github.kotlinrl.core
 
-import kotlin.math.pow
+import kotlin.math.*
 
 typealias EpisodeTrainer<State, Action> = io.github.kotlinrl.core.train.EpisodeTrainer<State, Action>
 typealias EpisodeCallback<State, Action> = io.github.kotlinrl.core.train.EpisodeCallback<State, Action>
@@ -14,7 +14,7 @@ typealias EpisodeStats<State, Action> = io.github.kotlinrl.core.train.EpisodeSta
 fun <State, Action> episodicTrainer(
     env: Env<State, Action, *, *>,
     agent: Agent<State, Action>,
-    maxStepsPerEpisode: Int = 10_000,
+    maxStepsPerEpisode: Int = Int.MAX_VALUE,
     successfulTermination: SuccessfulTermination<State, Action>,
     closeOnSuccess: Boolean = false,
     callbacks: List<EpisodeCallback<State, Action>> = emptyList()
@@ -30,7 +30,7 @@ fun <State, Action> episodicTrainer(
 fun averageRewardGreaterThan(minEpisodes: Int, target: Double) = stopCondition {
     if (it.totalEpisodes < minEpisodes) return@stopCondition false
     val condition = it.totalAverageReward > target
-    if(condition) println("Average reward at episode ${it.lastEpisode} reached: ${it.totalAverageReward}")
+    if (condition) println("Average reward at episode ${it.lastEpisode} reached: ${it.totalAverageReward}")
     condition
 }
 
@@ -58,46 +58,46 @@ fun noRecentImprovementAfter(minEpisodes: Int, windowSize: Int, tolerance: Doubl
     val previousAvg = rewards.dropLast(windowSize).takeLast(windowSize).average()
 
     val condition = (recentAvg - previousAvg) < tolerance
-    if(condition) println("No significant improvement in ${windowSize} episodes since episode ${it.lastEpisode - windowSize}")
+    if (condition) println("No significant improvement in ${windowSize} episodes since episode ${it.lastEpisode - windowSize}")
     condition
 }
 
 fun consecutiveGoalSuccesses(threshold: Int) = stopCondition {
     val recent = it.episodeStats.takeLast(threshold)
     val condition = recent.size == threshold && recent.all { it.reachedGoal }
-    if(condition) println("Reached $threshold consecutive goal successes at episode ${it.lastEpisode}")
+    if (condition) println("Reached $threshold consecutive goal successes at episode ${it.lastEpisode}")
     condition
 }
 
 fun maxRewardReached(target: Double) = stopCondition {
     val condition = it.totalMaxReward >= target
-    if(condition) println("Max reward at episode ${it.lastEpisode} reached: ${it.totalMaxReward}")
+    if (condition) println("Max reward at episode ${it.lastEpisode} reached: ${it.totalMaxReward}")
     condition
 }
 
 fun movingAverageRewardGreaterThan(window: Int, threshold: Double) = stopCondition {
     val recent = it.totalRewardsList.takeLast(window)
     val condition = recent.size == window && recent.average() > threshold
-    if(condition) println("Average reward at episode ${it.lastEpisode} above threshold: ${recent.average()}")
+    if (condition) println("Average reward at episode ${it.lastEpisode} above threshold: ${recent.average()}")
     condition
 }
 
 fun maxEpisodes(max: Int) = stopCondition {
     val condition = it.totalEpisodes >= max
-    if(condition) println("Max episodes reached: ${it.totalEpisodes}")
+    if (condition) println("Max episodes reached: ${it.totalEpisodes}")
     condition
 }
 
 fun rewardVarianceBelow(threshold: Double, window: Int = 100) = stopCondition {
     val recent = it.totalRewardsList.takeLast(window)
     val condition = recent.size == window && recent.variance() < threshold
-    if(condition) println("Reward variance at episode ${it.lastEpisode} below threshold: ${recent.variance()}")
+    if (condition) println("Reward variance at episode ${it.lastEpisode} below threshold: ${recent.variance()}")
     condition
 }
 
 fun firstGoalReached() = stopCondition {
     val condition = it.totalGoalSuccessCount > 0
-    if(condition) println("First goal reached at episode ${it.lastEpisode}.")
+    if (condition) println("First goal reached at episode ${it.lastEpisode}.")
     condition
 }
 

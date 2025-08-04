@@ -12,14 +12,13 @@ import javafx.scene.control.Button
 import javafx.scene.control.Label
 import javafx.scene.image.*
 import javafx.scene.image.Image
-import javafx.scene.input.*
 import javafx.scene.layout.*
 import javafx.scene.shape.*
 import javafx.stage.*
 import javafx.util.*
 import org.jetbrains.kotlinx.jupyter.api.*
 import java.awt.*
-import java.awt.image.BufferedImage
+import java.awt.image.*
 import java.io.*
 
 typealias ClipAction<State, Num, D, ObservationSpace> = io.github.kotlinrl.core.wrapper.ClipAction<State, Num, D, ObservationSpace>
@@ -219,9 +218,10 @@ class FramePlayer : Application() {
                 timeLabel.text = formatFrameName(currentFrame, frameFiles)
             }
 
-            val buttonRow = HBox(10.0, stepLeftButton, rewindButton, playPauseButton, forwardButton, stepRightButton).apply {
-                alignment = Pos.CENTER
-            }
+            val buttonRow =
+                HBox(10.0, stepLeftButton, rewindButton, playPauseButton, forwardButton, stepRightButton).apply {
+                    alignment = Pos.CENTER
+                }
 
             val labelRow = HBox(timeLabel).apply {
                 alignment = Pos.CENTER
@@ -245,6 +245,7 @@ class FramePlayer : Application() {
                 alignment = Pos.BOTTOM_CENTER
                 padding = Insets(20.0)
             })
+
             fun hideControlsIfNotHovering() {
                 PauseTransition(Duration.millis(150.0)).apply {
                     setOnFinished {
@@ -275,7 +276,7 @@ class FramePlayer : Application() {
             finalStage.show()
         }
 
-        fun svgButton(svgPath: String, size: Double = 24.0, fill: String = "white" ): Button {
+        fun svgButton(svgPath: String, size: Double = 24.0, fill: String = "white"): Button {
             val icon = SVGPath().apply {
                 content = svgPath
                 style = "-fx-fill: $fill;"

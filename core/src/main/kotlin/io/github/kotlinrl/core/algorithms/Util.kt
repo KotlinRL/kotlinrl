@@ -1,6 +1,9 @@
 package io.github.kotlinrl.core.algorithms
 
-typealias StateActionKeyFunction<State, Action> = (State, Action) -> StateActionKey<*, *>
+import org.jetbrains.kotlinx.multik.api.*
+import org.jetbrains.kotlinx.multik.ndarray.data.*
+import org.jetbrains.kotlinx.multik.ndarray.operations.*
+
 
 data class StateActionKey<State : Comparable<State>, Action : Comparable<Action>>(
     val state: State,
@@ -20,28 +23,27 @@ value class ComparableIntList(val data: List<Int>) : Comparable<ComparableIntLis
         }
     }
 
-    fun toIntArray() = data.toIntArray()
+    fun toNDArray(): NDArray<Int, DN> = mk.ndarray(data).asDNArray()
 
     override fun toString() = data.joinToString(",")
 }
 
 
-internal fun <State, Action> defaultStateActionKeyFunction(s: State, a: Action): StateActionKey<*, *> =
+@Suppress("UNCHECKED_CAST")
+internal fun <State, Action> stateActionKey(s: State, a: Action): StateActionKey<*, *> =
     when (s) {
-        is IntArray if a is Int -> StateActionKey(ComparableIntList(s.toList()), a)
+        is NDArray<*, *> if a is Int -> StateActionKey(ComparableIntList((s as NDArray<Int, DN>).toList()), a)
         is Comparable<*> if a is Comparable<*> -> {
-            @Suppress("UNCHECKED_CAST")
             StateActionKey(s as Comparable<Any>, a as Comparable<Any>)
         }
 
         else -> error("State ($s) and Action ($a) must be Comparable or mappable to a comparable form.")
     }
 
-typealias StateKeyFunction<State> = (State) -> Comparable<*>
-
-internal fun <State> defaultStateKeyFunction(s: State): Comparable<*> =
+@Suppress("UNCHECKED_CAST")
+internal fun <State> stateKey(s: State): Comparable<*> =
     when (s) {
-        is IntArray -> ComparableIntList(s.toList())
+        is NDArray<*, *> -> ComparableIntList((s as NDArray<Int, DN>).toList())
         is Comparable<*> -> s
         else -> error("State $s must be Comparable or mappable to a comparable key.")
     }

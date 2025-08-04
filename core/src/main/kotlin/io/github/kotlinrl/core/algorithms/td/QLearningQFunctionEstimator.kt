@@ -6,7 +6,10 @@ class QLearningQFunctionEstimator<State, Action>(
     private val alpha: ParameterSchedule,
     private val gamma: Double
 ) : TDQFunctionEstimator<State, Action> {
-    override fun estimate(q: QFunction<State, Action>, transition: Transition<State, Action>): QFunction<State, Action> {
+    override fun estimate(
+        q: QFunction<State, Action>,
+        transition: Transition<State, Action>
+    ): QFunction<State, Action> {
         val (s, a, r, sPrime) = transition
         val done = transition.done
 

@@ -1,11 +1,11 @@
 package io.github.kotlinrl.core.policy
 
-import kotlin.random.Random
+import kotlin.random.*
 
 class UniformStochasticPolicy<State, Action>(
     stateActionListProvider: StateActionListProvider<State, Action>,
     rng: Random = Random.Default
-) : StochasticPolicy<State, Action>(stateActionListProvider, rng), PolicyImprovementStrategy<State, Action>  {
+) : StochasticPolicy<State, Action>(stateActionListProvider, rng), PolicyImprovementStrategy<State, Action> {
     private val randomPolicy = RandomPolicy(stateActionListProvider, rng)
 
     override fun invoke(state: State): Action {

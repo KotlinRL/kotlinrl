@@ -7,7 +7,10 @@ class BellmanQFunctionEstimator<State, Action>(
     private val stateActionListProvider: StateActionListProvider<State, Action>
 ) : DPQFunctionEstimator<State, Action> {
 
-    override fun estimate(q: QFunction<State, Action>, trajectory: ProbabilisticTrajectory<State, Action>): QFunction<State, Action> {
+    override fun estimate(
+        q: QFunction<State, Action>,
+        trajectory: ProbabilisticTrajectory<State, Action>
+    ): QFunction<State, Action> {
         var updatedQ = q
 
         val grouped = trajectory.groupBy { it.state to it.action }

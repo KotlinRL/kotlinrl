@@ -8,4 +8,4 @@ abstract class MonteCarloAlgorithm<State, Action>(
     protected val gamma: Double,
     onQFunctionUpdate: (QFunction<State, Action>) -> Unit = { },
     onPolicyUpdate: (Policy<State, Action>) -> Unit = { },
-) : QFunctionAlgorithm<State, Action>(initialPolicy, initialQ,  onPolicyUpdate, onQFunctionUpdate)
+) : QFunctionAlgorithm<State, Action>(initialPolicy, initialQ, onPolicyUpdate, onQFunctionUpdate)

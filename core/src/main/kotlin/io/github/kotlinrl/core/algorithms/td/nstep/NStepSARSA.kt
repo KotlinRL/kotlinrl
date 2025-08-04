@@ -37,5 +37,7 @@ class NStepSARSA<State, Action>(
         q = estimator.estimate(q, queue.take(steps))
         queue.removeFirst()
         policy = improvement(q)
+        onQFunctionUpdate(q)
+        onPolicyUpdate(policy)
     }
 }

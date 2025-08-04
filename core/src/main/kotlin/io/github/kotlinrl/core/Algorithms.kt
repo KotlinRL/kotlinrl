@@ -1,19 +1,12 @@
 package io.github.kotlinrl.core
 
-import io.github.kotlinrl.core.algorithms.defaultStateActionKeyFunction
-import kotlin.random.Random
+import kotlin.random.*
 
 typealias LearningAlgorithm<State, Action> = io.github.kotlinrl.core.algorithms.LearningAlgorithm<State, Action>
 typealias QFunctionAlgorithm<State, Action> = io.github.kotlinrl.core.algorithms.QFunctionAlgorithm<State, Action>
-typealias QTable = io.github.kotlinrl.core.algorithms.QTable
-typealias VTable = io.github.kotlinrl.core.algorithms.VTable
-typealias StateActionKey<State, Action> = io.github.kotlinrl.core.algorithms.StateActionKey<State, Action>
-typealias ComparableIntList = io.github.kotlinrl.core.algorithms.ComparableIntList
 typealias BellmanValueFunctionIteration<State, Action> = io.github.kotlinrl.core.algorithms.dp.BellmanValueFunctionIteration<State, Action>
 typealias BellmanQFunctionIteration<State, Action> = io.github.kotlinrl.core.algorithms.dp.BellmanQFunctionIteration<State, Action>
 typealias BellmanPolicyIteration<State, Action> = io.github.kotlinrl.core.algorithms.dp.BellmanPolicyIteration<State, Action>
-typealias StateActionKeyFunction<State, Action> = io.github.kotlinrl.core.algorithms.StateActionKeyFunction<State, Action>
-typealias StateKeyFunction<State> = io.github.kotlinrl.core.algorithms.StateKeyFunction<State>
 typealias OnPolicyMonteCarloControl<State, Action> = io.github.kotlinrl.core.algorithms.mc.OnPolicyMonteCarloControl<State, Action>
 typealias IncrementalMonteCarloControl<State, Action> = io.github.kotlinrl.core.algorithms.mc.IncrementalMonteCarloControl<State, Action>
 typealias OffPolicyMonteCarloControl<State, Action> = io.github.kotlinrl.core.algorithms.mc.OffPolicyMonteCarloControl<State, Action>
@@ -90,7 +83,7 @@ fun <State, Action> onPolicyMonteCarloControl(
     initialPolicy: Policy<State, Action>,
     initialQ: QFunction<State, Action>,
     gamma: Double,
-    stateActionKeyFunction: StateActionKeyFunction<State, Action> = ::defaultStateActionKeyFunction,
+//    stateActionKeyFunction: StateActionKeyFunction<State, Action> = ::defaultStateActionKeyFunction,
     firstVisitOnly: Boolean = true,
     onQFunctionUpdate: (QFunction<State, Action>) -> Unit = { },
     onPolicyUpdate: (Policy<State, Action>) -> Unit = { }
@@ -99,7 +92,6 @@ fun <State, Action> onPolicyMonteCarloControl(
     initialQ = initialQ,
     gamma = gamma,
     firstVisitOnly = firstVisitOnly,
-    stateActionKeyFunction = stateActionKeyFunction,
     onQFunctionUpdate = onQFunctionUpdate,
     onPolicyUpdate = onPolicyUpdate,
 )
@@ -110,7 +102,6 @@ fun <State, Action> incrementalMonteCarloControl(
     gamma: Double = 0.99,
     alpha: ParameterSchedule = constantParameterSchedule(0.05),
     firstVisitOnly: Boolean = true,
-    stateActionKeyFunction: StateActionKeyFunction<State, Action> = ::defaultStateActionKeyFunction,
     onQFunctionUpdate: (QFunction<State, Action>) -> Unit = { },
     onPolicyUpdate: (Policy<State, Action>) -> Unit = { }
 ): MCAlgorithm<State, Action> = IncrementalMonteCarloControl(
@@ -119,7 +110,6 @@ fun <State, Action> incrementalMonteCarloControl(
     gamma = gamma,
     alpha = alpha,
     firstVisitOnly = firstVisitOnly,
-    stateActionKeyFunction = stateActionKeyFunction,
     onQFunctionUpdate = onQFunctionUpdate,
     onPolicyUpdate = onPolicyUpdate,
 )
@@ -129,7 +119,6 @@ fun <State, Action> offPolicyMonteCarloControl(
     initialQ: QFunction<State, Action>,
     gamma: Double = 0.99,
     targetPolicy: Policy<State, Action>,
-    stateActionKeyFunction: StateActionKeyFunction<State, Action> = ::defaultStateActionKeyFunction,
     onQFunctionUpdate: (QFunction<State, Action>) -> Unit = { },
     onPolicyUpdate: (Policy<State, Action>) -> Unit = { },
 ): MCAlgorithm<State, Action> = OffPolicyMonteCarloControl(
@@ -137,7 +126,6 @@ fun <State, Action> offPolicyMonteCarloControl(
     initialQ = initialQ,
     gamma = gamma,
     targetPolicy = targetPolicy,
-    stateActionKeyFunction = stateActionKeyFunction,
     onQFunctionUpdate = onQFunctionUpdate,
     onPolicyUpdate = onPolicyUpdate,
 )
@@ -186,7 +174,8 @@ fun <State, Action> qLearning(
     alpha = alpha,
     gamma = gamma,
     onQFunctionUpdate = onQFunctionUpdate,
-    onPolicyUpdate = onPolicyUpdate)
+    onPolicyUpdate = onPolicyUpdate
+)
 
 fun <State, Action> sarsa(
     initialPolicy: Policy<State, Action>,
@@ -201,7 +190,8 @@ fun <State, Action> sarsa(
     alpha = alpha,
     gamma = gamma,
     onQFunctionUpdate = onQFunctionUpdate,
-    onPolicyUpdate = onPolicyUpdate)
+    onPolicyUpdate = onPolicyUpdate
+)
 
 fun <State, Action> expectedSarsa(
     initialPolicy: StochasticPolicy<State, Action>,

@@ -7,7 +7,10 @@ class TDZeroQFunctionEstimator<State, Action>(
     private val gamma: Double,
     private val probabilities: PolicyProbabilities<State, Action>
 ) : TDQFunctionEstimator<State, Action> {
-    override fun estimate(q: QFunction<State, Action>, transition: Transition<State, Action>): QFunction<State, Action> {
+    override fun estimate(
+        q: QFunction<State, Action>,
+        transition: Transition<State, Action>
+    ): QFunction<State, Action> {
         val (s, a, r, sPrime) = transition
         val done = transition.done
 

@@ -1,12 +1,11 @@
 package io.github.kotlinrl.core.algorithms.mc
 
 import io.github.kotlinrl.core.*
-import io.github.kotlinrl.core.algorithms.defaultStateKeyFunction
+import io.github.kotlinrl.core.algorithms.stateKey
 
 class OnPolicyMonteCarloValueFunctionEstimator<State, Action>(
     private val gamma: Double,
     private val firstVisitOnly: Boolean = true,
-    private val stateKeyFunction: StateKeyFunction<State> = ::defaultStateKeyFunction
 ) : MonteCarloValueFunctionEstimator<State, Action> {
 
     private val returnsCount: MutableMap<Comparable<*>, Int> = mutableMapOf()
@@ -19,7 +18,7 @@ class OnPolicyMonteCarloValueFunctionEstimator<State, Action>(
 
         for ((s, _, r) in trajectory.asReversed()) {
             G = r + gamma * G
-            val key = stateKeyFunction(s)
+            val key = stateKey(s)
 
             if (firstVisitOnly && key in visited) continue
             visited.add(key)

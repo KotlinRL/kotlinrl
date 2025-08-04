@@ -9,7 +9,10 @@ class NStepSARSAQFunctionEstimator<State, Action>(
     private val policyProbabilities: PolicyProbabilities<State, Action>
 ) : NStepTDQFunctionEstimator<State, Action> {
 
-    override fun estimate(q: QFunction<State, Action>, trajectory: Trajectory<State, Action>): QFunction<State, Action> {
+    override fun estimate(
+        q: QFunction<State, Action>,
+        trajectory: Trajectory<State, Action>
+    ): QFunction<State, Action> {
 
         val (s0, a0) = trajectory.first().state to trajectory.first().action
 

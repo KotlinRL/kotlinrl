@@ -1,6 +1,6 @@
 package io.github.kotlinrl.core
 
-import io.github.kotlinrl.core.algorithms.defaultStateActionKeyFunction
+//import io.github.kotlinrl.core.algorithms.defaultStateActionKeyFunction
 import java.util.*
 
 typealias Agent<State, Action> = io.github.kotlinrl.core.agent.Agent<State, Action>
@@ -105,7 +105,7 @@ fun <State, Action> onPolicyMonteCarloControlAgent(
     id: String = UUID.randomUUID().toString(),
     initialPolicy: QFunctionPolicy<State, Action>,
     gamma: Double,
-    stateActionKeyFunction: StateActionKeyFunction<State, Action> = ::defaultStateActionKeyFunction,
+//    stateActionKeyFunction: StateActionKeyFunction<State, Action> = ::defaultStateActionKeyFunction,
     onQFunctionUpdate: (QFunction<State, Action>) -> Unit = { },
     firstVisitOnly: Boolean = true
 ): Agent<State, Action> = learningAgent(
@@ -115,7 +115,6 @@ fun <State, Action> onPolicyMonteCarloControlAgent(
         initialQ = initialPolicy.q,
         gamma = gamma,
         firstVisitOnly = firstVisitOnly,
-        stateActionKeyFunction = stateActionKeyFunction,
         onQFunctionUpdate = onQFunctionUpdate,
     )
 )
@@ -127,7 +126,6 @@ fun <State, Action> offPolicyMonteCarloControlAgent(
     initialQ: QFunction<State, Action>,
     gamma: Double = 0.99,
     targetPolicy: Policy<State, Action>,
-    stateActionKeyFunction: StateActionKeyFunction<State, Action> = ::defaultStateActionKeyFunction,
     onQFunctionUpdate: (QFunction<State, Action>) -> Unit = { },
     onPolicyUpdate: (Policy<State, Action>) -> Unit = { },
 ): Agent<State, Action> = learningAgent(
@@ -137,7 +135,6 @@ fun <State, Action> offPolicyMonteCarloControlAgent(
         initialQ = initialQ,
         gamma = gamma,
         targetPolicy = targetPolicy,
-        stateActionKeyFunction = stateActionKeyFunction,
         onQFunctionUpdate = onQFunctionUpdate,
         onPolicyUpdate = onPolicyUpdate,
     )
@@ -150,7 +147,6 @@ fun <State, Action> incrementalMonteCarloControlAgent(
     gamma: Double = 0.99,
     alpha: ParameterSchedule = ParameterSchedule { 0.05 },
     firstVisitOnly: Boolean = true,
-    stateActionKeyFunction: StateActionKeyFunction<State, Action> = ::defaultStateActionKeyFunction,
     onQFunctionUpdate: (QFunction<State, Action>) -> Unit = { },
     onPolicyUpdate: (Policy<State, Action>) -> Unit = { }
 ): Agent<State, Action> = learningAgent(
@@ -161,7 +157,6 @@ fun <State, Action> incrementalMonteCarloControlAgent(
         gamma = gamma,
         alpha = alpha,
         firstVisitOnly = firstVisitOnly,
-        stateActionKeyFunction = stateActionKeyFunction,
         onQFunctionUpdate = onQFunctionUpdate,
         onPolicyUpdate = onPolicyUpdate
     )
