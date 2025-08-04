@@ -1,8 +1,6 @@
 package io.github.kotlinrl.core.algorithms.mc
 
 import io.github.kotlinrl.core.*
-import io.github.kotlinrl.core.algorithms.StateActionKey
-import io.github.kotlinrl.core.algorithms.stateActionKey
 
 class OffPolicyMonteCarloQFunctionEstimator<State, Action>(
     initTargetPolicy: Policy<State, Action>,

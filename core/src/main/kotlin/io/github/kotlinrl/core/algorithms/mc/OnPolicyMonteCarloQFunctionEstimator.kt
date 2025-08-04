@@ -1,7 +1,6 @@
 package io.github.kotlinrl.core.algorithms.mc
 
 import io.github.kotlinrl.core.*
-import io.github.kotlinrl.core.algorithms.*
 
 class OnPolicyMonteCarloQFunctionEstimator<State, Action>(
     private val gamma: Double,

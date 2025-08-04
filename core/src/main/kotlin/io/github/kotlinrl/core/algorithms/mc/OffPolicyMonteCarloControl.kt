@@ -1,22 +1,25 @@
 package io.github.kotlinrl.core.algorithms.mc
 
 import io.github.kotlinrl.core.*
+import io.github.kotlinrl.core.Policy
+import io.github.kotlinrl.core.QFunction
+import io.github.kotlinrl.core.StochasticPolicy
 import io.github.kotlinrl.core.policy.PolicyImprovementStrategy
 
 class OffPolicyMonteCarloControl<State, Action>(
-    initialPolicy: StochasticPolicy<State, Action>,
     initialQ: QFunction<State, Action>,
+    behavioralPolicy: StochasticPolicy<State, Action>,
     targetPolicy: Policy<State, Action>,
     gamma: Double,
     onQFunctionUpdate: (QFunction<State, Action>) -> Unit = { },
     onPolicyUpdate: (Policy<State, Action>) -> Unit = { },
-) : MonteCarloAlgorithm<State, Action>(initialPolicy, initialQ, gamma, onQFunctionUpdate, onPolicyUpdate) {
+) : MonteCarloAlgorithm<State, Action>(behavioralPolicy, initialQ, gamma, onQFunctionUpdate, onPolicyUpdate) {
     @Suppress("UNCHECKED_CAST")
     private val targetImprovement = targetPolicy as PolicyImprovementStrategy<State, Action>
 
     val evaluator = OffPolicyMonteCarloQFunctionEstimator(
         initTargetPolicy = targetPolicy,
-        behaviorPolicy = initialPolicy,
+        behaviorPolicy = behavioralPolicy,
         gamma = gamma,
     )
 
