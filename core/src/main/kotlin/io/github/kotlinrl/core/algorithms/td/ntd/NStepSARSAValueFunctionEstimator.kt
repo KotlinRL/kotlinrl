@@ -8,8 +8,8 @@ class NStepSARSAValueFunctionEstimator<State, Action>(
     private val gamma: Double,
 ) : NStepTDValueFunctionEstimator<State, Action> {
 
-    override fun estimate(v: ValueFunction<State>, trajectory: Trajectory<State, Action>): ValueFunction<State> {
-        if (trajectory.isEmpty()) return v
+    override fun estimate(V: ValueFunction<State>, trajectory: Trajectory<State, Action>): ValueFunction<State> {
+        if (trajectory.isEmpty()) return V
 
         val s0 = trajectory.first().state
         val isTerminal = trajectory.last().done
@@ -21,11 +21,11 @@ class NStepSARSAValueFunctionEstimator<State, Action>(
 
         if (!isTerminal) {
             val sPrime = trajectory.last().nextState
-            g += gamma.pow(trajectory.size) * v[sPrime]
+            g += gamma.pow(trajectory.size) * V[sPrime]
         }
 
-        val current = v[s0]
+        val current = V[s0]
         val updated = current + alpha * (g - current)
-        return v.update(s0, updated)
+        return V.update(s0, updated)
     }
 }
