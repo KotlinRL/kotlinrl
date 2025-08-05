@@ -1,17 +1,18 @@
 package io.github.kotlinrl.core.algorithms.mc
 
 import io.github.kotlinrl.core.*
+import io.github.kotlinrl.core.algorithms.TrajectoryQFunctionEstimator
 
 class IncrementalMonteCarloQFunctionEstimator<State, Action>(
     private val gamma: Double,
     private val alpha: ParameterSchedule = ParameterSchedule { 0.05 },
     private val firstVisitOnly: Boolean = true,
-) : MonteCarloQFunctionEstimator<State, Action> {
+) : TrajectoryQFunctionEstimator<State, Action> {
 
     override fun estimate(
-        q: QFunction<State, Action>,
+        q: EnumerableQFunction<State, Action>,
         trajectory: Trajectory<State, Action>
-    ): QFunction<State, Action> {
+    ): EnumerableQFunction<State, Action> {
         var currentQ = q
         val visited = mutableSetOf<StateActionKey<*, *>>()
         var G = 0.0

@@ -4,14 +4,14 @@ import io.github.kotlinrl.core.*
 
 abstract class LearningAlgorithm<State, Action>(
     initialPolicy: Policy<State, Action>,
-    protected val onPolicyUpdate: (Policy<State, Action>) -> Unit = { }
+    protected val onPolicyUpdate: PolicyUpdate<State, Action> = { }
 ) {
 
     var policy: Policy<State, Action> = initialPolicy
-        protected set
-
-    @Suppress("UNCHECKED_CAST")
-    protected val improvement = policy as PolicyImprovementStrategy<State, Action>
+        protected set(value) {
+            field = value
+            onPolicyUpdate(value)
+        }
 
     operator fun invoke(state: State): Action = policy(state)
 

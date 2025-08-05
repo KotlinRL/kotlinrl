@@ -1,26 +1,19 @@
 package io.github.kotlinrl.core.algorithms.mc
 
 import io.github.kotlinrl.core.*
+import io.github.kotlinrl.core.TrajectoryQFunctionAlgorithm
+import io.github.kotlinrl.core.algorithms.TrajectoryQFunctionEstimator
 
 class IncrementalMonteCarloControl<State, Action>(
-    initialPolicy: Policy<State, Action>,
-    initialQ: QFunction<State, Action>,
+    initialPolicy: QFunctionPolicy<State, Action>,
     alpha: ParameterSchedule = ParameterSchedule { 0.05 },
     gamma: Double = 0.99,
     firstVisitOnly: Boolean = true,
-    onQFunctionUpdate: (QFunction<State, Action>) -> Unit = { },
-    onPolicyUpdate: (Policy<State, Action>) -> Unit = { },
-) : MonteCarloAlgorithm<State, Action>(initialPolicy, initialQ, gamma, onQFunctionUpdate, onPolicyUpdate) {
-    private val evaluator = IncrementalMonteCarloQFunctionEstimator<State, Action>(
+    estimator: TrajectoryQFunctionEstimator<State, Action> = IncrementalMonteCarloQFunctionEstimator(
         gamma = gamma,
         alpha = alpha,
         firstVisitOnly = firstVisitOnly
-    )
-
-    override fun observe(trajectory: Trajectory<State, Action>, episode: Int) {
-        q = evaluator.estimate(q, trajectory)
-        policy = improvement(q)
-        onQFunctionUpdate(q)
-        onPolicyUpdate(policy)
-    }
-}
+    ),
+    onQFunctionUpdate: EnumerableQFunctionUpdate<State, Action> = { },
+    onPolicyUpdate: PolicyUpdate<State, Action> = { },
+) : TrajectoryQFunctionAlgorithm<State, Action>(initialPolicy, estimator, onPolicyUpdate, onQFunctionUpdate)

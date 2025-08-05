@@ -28,7 +28,7 @@ class OffPolicyMonteCarloValueFunctionEstimator<State, Action>(
 
             if (a != targetPolicy(s)) break
 
-            val prob = behaviorPolicy(s, a)
+            val prob = behaviorPolicy.probability(s, a)
             if (prob == 0.0) break
             W /= prob
         }

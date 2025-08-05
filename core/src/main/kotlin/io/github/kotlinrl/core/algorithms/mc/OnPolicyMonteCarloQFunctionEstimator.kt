@@ -5,13 +5,13 @@ import io.github.kotlinrl.core.*
 class OnPolicyMonteCarloQFunctionEstimator<State, Action>(
     private val gamma: Double,
     private val firstVisitOnly: Boolean = true,
-) : MonteCarloQFunctionEstimator<State, Action> {
+) : TrajectoryQFunctionEstimator<State, Action> {
     private val returns: MutableMap<StateActionKey<*, *>, Int> = mutableMapOf()
 
     override fun estimate(
-        q: QFunction<State, Action>,
+        q: EnumerableQFunction<State, Action>,
         trajectory: Trajectory<State, Action>
-    ): QFunction<State, Action> {
+    ): EnumerableQFunction<State, Action> {
         val visited = mutableSetOf<StateActionKey<*, *>>()
         var G = 0.0
         var currentQ = q

@@ -1,34 +1,27 @@
 package io.github.kotlinrl.core.algorithms.mc
 
 import io.github.kotlinrl.core.*
-import io.github.kotlinrl.core.Policy
-import io.github.kotlinrl.core.QFunction
-import io.github.kotlinrl.core.StochasticPolicy
-import io.github.kotlinrl.core.policy.PolicyImprovementStrategy
 
 class OffPolicyMonteCarloControl<State, Action>(
-    initialQ: QFunction<State, Action>,
-    behavioralPolicy: StochasticPolicy<State, Action>,
-    targetPolicy: Policy<State, Action>,
+    behavioralPolicy: QFunctionPolicy<State, Action>,
+    targetPolicy: QFunctionPolicy<State, Action>,
     gamma: Double,
-    onQFunctionUpdate: (QFunction<State, Action>) -> Unit = { },
-    onPolicyUpdate: (Policy<State, Action>) -> Unit = { },
-) : MonteCarloAlgorithm<State, Action>(behavioralPolicy, initialQ, gamma, onQFunctionUpdate, onPolicyUpdate) {
-    @Suppress("UNCHECKED_CAST")
-    private val targetImprovement = targetPolicy as PolicyImprovementStrategy<State, Action>
-
-    val evaluator = OffPolicyMonteCarloQFunctionEstimator(
+    estimator: TrajectoryQFunctionEstimator<State, Action> = OffPolicyMonteCarloQFunctionEstimator(
         initTargetPolicy = targetPolicy,
         behaviorPolicy = behavioralPolicy,
         gamma = gamma,
-    )
-
-    override fun observe(trajectory: Trajectory<State, Action>, episode: Int) {
-        q = evaluator.estimate(q, trajectory)
-        policy = improvement(q)
-        evaluator.targetPolicy = targetImprovement(q)
-        onQFunctionUpdate(q)
-        onPolicyUpdate(policy)
-        onPolicyUpdate(evaluator.targetPolicy)
+    ),
+    onQFunctionUpdate: EnumerableQFunctionUpdate<State, Action> = { },
+    onPolicyUpdate: PolicyUpdate<State, Action> = { },
+) : TrajectoryQFunctionAlgorithm<State, Action>(
+    initialPolicy = behavioralPolicy,
+    estimator = estimator,
+    onQFunctionUpdate = onQFunctionUpdate,
+    onPolicyUpdate = {
+        when (estimator) {
+            is OffPolicyMonteCarloQFunctionEstimator -> estimator.targetPolicy =
+                it.improve((it as QFunctionPolicy<State, Action>).q)
+        }
+        onPolicyUpdate(it)
     }
-}
+)

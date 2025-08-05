@@ -3,11 +3,13 @@ package io.github.kotlinrl.core.algorithms
 import io.github.kotlinrl.core.*
 
 abstract class QFunctionAlgorithm<State, Action>(
-    initialPolicy: Policy<State, Action>,
-    initialQ: QFunction<State, Action>,
-    onPolicyUpdate: (Policy<State, Action>) -> Unit = { },
-    protected val onQFunctionUpdate: (QFunction<State, Action>) -> Unit = { },
+    initialPolicy: QFunctionPolicy<State, Action>,
+    onPolicyUpdate: PolicyUpdate<State, Action> = { },
+    private val onQFunctionUpdate: EnumerableQFunctionUpdate<State, Action> = { },
 ) : LearningAlgorithm<State, Action>(initialPolicy, onPolicyUpdate) {
-    var q = initialQ
-        protected set
+    var q = initialPolicy.q
+        protected set(value) {
+            field = value
+            onQFunctionUpdate(value)
+        }
 }

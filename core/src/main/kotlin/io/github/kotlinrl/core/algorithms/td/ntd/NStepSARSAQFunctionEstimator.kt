@@ -1,18 +1,20 @@
-package io.github.kotlinrl.core.algorithms.td.nstep
+package io.github.kotlinrl.core.algorithms.td.ntd
 
 import io.github.kotlinrl.core.*
 import kotlin.math.*
 
 class NStepSARSAQFunctionEstimator<State, Action>(
+    initialPolicy: QFunctionPolicy<State, Action>,
     private val alpha: ParameterSchedule,
     private val gamma: Double,
-    private val policyProbabilities: PolicyProbabilities<State, Action>
-) : NStepTDQFunctionEstimator<State, Action> {
+) : TrajectoryQFunctionEstimator<State, Action> {
+
+    var policy = initialPolicy
 
     override fun estimate(
-        q: QFunction<State, Action>,
+        q: EnumerableQFunction<State, Action>,
         trajectory: Trajectory<State, Action>
-    ): QFunction<State, Action> {
+    ): EnumerableQFunction<State, Action> {
 
         val (s0, a0) = trajectory.first().state to trajectory.first().action
 
@@ -23,7 +25,7 @@ class NStepSARSAQFunctionEstimator<State, Action>(
 
         val last = trajectory.last()
         if (!last.done) {
-            val expectedQ = policyProbabilities(last.state).entries.sumOf { (a, prob) ->
+            val expectedQ = policy.probabilities(last.state).entries.sumOf { (a, prob) ->
                 prob * q[last.state, a]
             }
             g += gamma.pow(trajectory.size) * expectedQ
