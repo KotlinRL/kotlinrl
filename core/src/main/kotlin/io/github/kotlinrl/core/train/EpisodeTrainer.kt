@@ -2,6 +2,24 @@ package io.github.kotlinrl.core.train
 
 import io.github.kotlinrl.core.*
 
+/**
+ * Trains a reinforcement learning agent through episodes within a given environment.
+ *
+ * This class facilitates episodic training by orchestrating interactions between an environment,
+ * an agent, and episode callbacks. It supports customizable stopping conditions,
+ * maximum steps per episode, and an optional successful termination criterion.
+ *
+ * Generic parameters:
+ * @param State The type representing the state in the environment.
+ * @param Action The type representing the action taken by the agent.
+ *
+ * @property env The environment in which the agent interacts and learns.
+ * @property agent The learning agent that selects actions and observes transitions during training.
+ * @property successfulTermination Function that evaluates whether an episode has reached a successful outcome.
+ * @property closeOnSuccess Whether the environment should be closed if the training completes successfully.
+ * @property maxStepsPerEpisode The maximum number of steps allowed in a single episode.
+ * @property callbacks List of callbacks to monitor and handle events during each episode.
+ */
 class EpisodeTrainer<State, Action>(
     private val env: Env<State, Action, *, *>,
     private val agent: Agent<State, Action>,
@@ -11,6 +29,20 @@ class EpisodeTrainer<State, Action>(
     private val callbacks: List<EpisodeCallback<State, Action>> = emptyList(),
 ) : Trainer {
 
+    /**
+     * Trains the agent in the given environment using the specified stop condition.
+     *
+     * This method performs a sequence of training episodes during which the agent interacts
+     * with the environment to learn and improve its behavior. The training process continues
+     * until the specified stop condition is met. Each episode is terminated when the agent
+     * reaches a terminal state, exceeds the maximum allowed steps, or encounters an exception.
+     *
+     * @param stopCondition A condition that determines when to stop the training process.
+     *                       It is a functional interface invoked with the current
+     *                       `TrainingResult` at the end of each episode.
+     * @return A `TrainingResult` encapsulating the statistics and outcomes of the episodes
+     *         executed during the training process.
+     */
     override fun train(stopCondition: TrainingStopCondition): TrainingResult {
         val episodeStats = mutableListOf<EpisodeStats<State, Action>>()
         var episode = 1
