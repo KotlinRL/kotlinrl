@@ -3,6 +3,7 @@ rootProject.name = "kotlinrl"
 include(
     "core",   //Core API
     "envs",                 //Environment Implementations
+    "examples",
 //    "algorithms",
 //    "training",
 //    "serialization",

@@ -1,29 +1,30 @@
 package io.github.kotlinrl.core.algorithms.td
 
 import io.github.kotlinrl.core.*
+import io.github.kotlinrl.core.algorithms.td.TDErrors.sarsa
 
 class SARSAQFunctionEstimator<State, Action>(
     private val alpha: ParameterSchedule,
     private val gamma: Double,
-) : TDQFunctionEstimator<State, Action>  {
+    private val tdError: TDError<State, Action> = sarsa()
+) : TransitionQFunctionEstimator<State, Action> {
     private var last: Transition<State, Action>? = null
 
-    override fun estimate(q: QFunction<State, Action>, transition: Transition<State, Action>): QFunction<State, Action> {
+    override fun estimate(
+        Q: EnumerableQFunction<State, Action>,
+        transition: Transition<State, Action>
+    ): EnumerableQFunction<State, Action> {
         val prev = last
         last = transition
 
-        if (prev == null) return q
+        if (prev == null) return Q
 
         val (s, a) = prev
-        val (sPrime, aPrime, r) = transition
-
-        val currentValue = q[s, a]
-        val nextValue = if (transition.done) 0.0 else q[sPrime, aPrime]
-
-        val target = r + gamma * nextValue
-        val updated = currentValue + alpha() * (target - currentValue)
+        val (_, aPrime) = transition
+        val delta = tdError(Q, prev, aPrime, gamma, transition.done)
+        val updatedQ = Q[s, a] + alpha() * (delta - Q[s, a])
         if (transition.done) last = null
 
-        return q.update(s, a, updated)
+        return Q.update(s, a, updatedQ)
     }
 }

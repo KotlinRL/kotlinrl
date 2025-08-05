@@ -31,7 +31,8 @@ data class TrainingResult(
     val totalTruncatedEpisodeCount: Int = totalTruncatedEpisodes.size,
     val totalTruncatedEpisodeRate: Double = totalTruncatedEpisodeCount.toDouble() / totalEpisodes,
 
-    val totalGoalFailureEpisodes: List<Int> = episodeStats.filter { !it.reachedGoal && !it.truncated }.map { it.episode },
+    val totalGoalFailureEpisodes: List<Int> = episodeStats.filter { !it.reachedGoal && !it.truncated }
+        .map { it.episode },
     val totalGoalFailureCount: Int = totalGoalFailureEpisodes.size,
     val totalGoalFailureRate: Double = totalGoalFailureCount.toDouble() / totalEpisodes,
 

@@ -9,10 +9,3 @@ interface QFunction<State, Action> {
 
     fun bestAction(state: State): Action
 }
-
-/*
-    fun save(path: String)
-
-    fun load(path: String)
-
- */

@@ -1,24 +1,25 @@
 package io.github.kotlinrl.core.policy
 
+import io.github.kotlinrl.core.EnumerableQFunction
 import io.github.kotlinrl.core.SoftmaxPolicy
 import kotlin.math.*
 import kotlin.random.*
 
 class SoftmaxPolicy<State, Action>(
-    override val q: QFunction<State, Action>,
+    override val Q: EnumerableQFunction<State, Action>,
+    override val stateActions: StateActions<State, Action>,
     private val temperature: ParameterSchedule,
-    stateActionListProvider: StateActionListProvider<State, Action>,
     rng: Random
-) : StochasticPolicy<State, Action>(stateActionListProvider, rng), PolicyImprovementStrategy<State, Action>, QFunctionPolicy<State, Action> {
+) : StochasticPolicy<State, Action>(rng) {
 
     override fun actionScores(state: State): List<Pair<Action, Double>> {
         val temperature = temperature()
-        val actions = stateActionListProvider(state)
+        val actions = stateActions(state)
         return actions.map { action ->
-            action to exp(q[state, action] / temperature)
+            action to exp(Q[state, action] / temperature)
         }
     }
 
-    override operator fun invoke(q: QFunction<State, Action>): Policy<State, Action> =
-        SoftmaxPolicy(q, temperature, stateActionListProvider, rng)
+    override fun improve(Q: EnumerableQFunction<State, Action>): Policy<State, Action> =
+        SoftmaxPolicy(Q, stateActions, temperature, rng)
 }

@@ -6,7 +6,7 @@ class Tuple(
     val spaces: List<Space<Any>> = emptyList(),
     val seed: Int? = null
 ) : Space<List<Any>> {
-    override val random: Random  = seed?.let { Random(it) } ?: Random.Default
+    override val random: Random = seed?.let { Random(it) } ?: Random.Default
 
     override fun sample(): List<Any> {
         return spaces.map { it.sample() }

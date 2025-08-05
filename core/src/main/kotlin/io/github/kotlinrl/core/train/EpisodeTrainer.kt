@@ -15,7 +15,7 @@ class EpisodeTrainer<State, Action>(
         val episodeStats = mutableListOf<EpisodeStats<State, Action>>()
         var episode = 1
 
-        while(true) {
+        while (true) {
             callbacks.forEach { it.onEpisodeStart(episode) }
 
             val transitions = mutableListOf<Transition<State, Action>>()

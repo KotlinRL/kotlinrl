@@ -3,49 +3,46 @@ package io.github.kotlinrl.core.algorithms.dp
 import io.github.kotlinrl.core.*
 
 class BellmanQFunctionIteration<State, Action>(
-    initialQ: EnumerableQFunction<State, Action>,
+    private val initialQ: EnumerableQFunction<State, Action>,
     private val model: MDPModel<State, Action>,
     private val gamma: Double = 0.99,
     private val theta: Double = 1e-6,
-    private val stateActionListProvider: StateActionListProvider<State, Action>,
-    private val onQFunctionUpdate: (EnumerableQFunction<State, Action>) -> Unit = { },
+    private val stateActions: StateActions<State, Action>,
+    private val onQFunctionUpdate: EnumerableQFunctionUpdate<State, Action> = { },
 ) : DPIteration<State, Action>() {
-
-    private var q = initialQ
 
     override fun plan(): Policy<State, Action> {
         var delta: Double
-        var iterations = 0
+        var Q = initialQ
 
         do {
             delta = 0.0
-            var newQ = q
+            var newQ = Q
 
             for (s in model.allStates()) {
-                val actions = stateActionListProvider(s)
+                val actions = stateActions(s)
                 for (a in actions) {
                     val transitions = model.transitions(s, a)
                     val expectedValue = transitions.sumOf { t ->
                         val maxQNext = if (t.done) 0.0 else {
-                            val nextActions = stateActionListProvider(t.nextState)
-                            nextActions.maxOfOrNull { q[t.nextState, it] } ?: 0.0
+                            val nextActions = stateActions(t.nextState)
+                            nextActions.maxOfOrNull { Q[t.nextState, it] } ?: 0.0
                         }
                         t.probability * (t.reward + gamma * maxQNext)
                     }
 
-                    delta = maxOf(delta, kotlin.math.abs(q[s, a] - expectedValue))
+                    delta = maxOf(delta, kotlin.math.abs(Q[s, a] - expectedValue))
                     newQ = newQ.update(s, a, expectedValue)
                 }
             }
 
-            q = newQ
-            onQFunctionUpdate(q)
-            iterations++
+            Q = newQ
+            onQFunctionUpdate(Q)
         } while (delta > theta)
 
         return Policy { s ->
-            val actions = stateActionListProvider(s)
-            actions.maxByOrNull { a -> q[s, a] } ?: actions.random()
+            val actions = stateActions(s)
+            actions.maxByOrNull { a -> Q[s, a] } ?: actions.random()
         }
     }
 }

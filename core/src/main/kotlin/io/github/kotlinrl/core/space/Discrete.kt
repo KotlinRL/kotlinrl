@@ -7,7 +7,7 @@ class Discrete(
     val start: Int,
     val seed: Int? = null
 ) : Space<Int> {
-    override val random: Random  = seed?.let { Random(it) } ?: Random.Default
+    override val random: Random = seed?.let { Random(it) } ?: Random.Default
 
     override fun sample(): Int =
         start + random.nextInt(n)

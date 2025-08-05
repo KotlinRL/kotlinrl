@@ -6,8 +6,11 @@ class BellmanValueFunctionEstimator<State, Action>(
     private val gamma: Double = 0.99
 ) : DPValueFunctionEstimator<State, Action> {
 
-    override fun estimate(v: EnumerableValueFunction<State>, trajectory: ProbabilisticTrajectory<State, Action>): EnumerableValueFunction<State> {
-        var newV = v
+    override fun estimate(
+        V: EnumerableValueFunction<State>,
+        trajectory: ProbabilisticTrajectory<State, Action>
+    ): EnumerableValueFunction<State> {
+        var updatedV = V
 
         val states = trajectory.map { it.state }.distinct()
         for (s in states) {
@@ -19,13 +22,13 @@ class BellmanValueFunctionEstimator<State, Action>(
                 val p = transition.probability
                 val done = transition.done
 
-                val value = if (done) 0.0 else v[sPrime]
+                val value = if (done) 0.0 else V[sPrime]
                 p * (r + gamma * value)
             }
 
-            newV = newV.update(s, newValue)
+            updatedV = updatedV.update(s, newValue)
         }
 
-        return newV
+        return updatedV
     }
 }
