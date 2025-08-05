@@ -1,4 +1,4 @@
-package io.github.kotlinrl.core.algorithms.td
+package io.github.kotlinrl.core.algorithms.td.classic
 
 import io.github.kotlinrl.core.*
 
@@ -6,14 +6,14 @@ class ExpectedSARSAQFunctionEstimator<State, Action>(
     initialPolicy: QFunctionPolicy<State, Action>,
     private val alpha: ParameterSchedule,
     private val gamma: Double,
-    initialTDError: TDError<State, Action> = TDErrors.expectedSarsa(initialPolicy)
+    initialTD: TDQError<State, Action> = TDQErrors.expectedSarsa(initialPolicy)
 ) : TransitionQFunctionEstimator<State, Action> {
-    private var tdError: TDError<State, Action> = initialTDError
+    private var td: TDQError<State, Action> = initialTD
 
     var policy = initialPolicy
         set(value) {
             field = value
-            tdError = TDErrors.expectedSarsa(field)
+            td = TDQErrors.expectedSarsa(field)
         }
 
     override fun estimate(
@@ -22,7 +22,7 @@ class ExpectedSARSAQFunctionEstimator<State, Action>(
     ): EnumerableQFunction<State, Action> {
         val (s, a) = transition
         val done = transition.done
-        val delta = tdError(Q, transition, null, gamma, done)
+        val delta = td(Q, transition, null, gamma, done)
         val updatedQ = Q[s, a] + alpha() * delta
         return Q.update(s, a, updatedQ)
     }

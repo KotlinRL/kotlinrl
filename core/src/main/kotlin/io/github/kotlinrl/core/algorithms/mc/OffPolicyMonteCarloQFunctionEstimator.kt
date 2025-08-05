@@ -1,7 +1,7 @@
 package io.github.kotlinrl.core.algorithms.mc
 
 import io.github.kotlinrl.core.*
-import io.github.kotlinrl.core.algorithms.TrajectoryQFunctionEstimator
+import io.github.kotlinrl.core.algorithms.base.TrajectoryQFunctionEstimator
 
 class OffPolicyMonteCarloQFunctionEstimator<State, Action>(
     initTargetPolicy: QFunctionPolicy<State, Action>,

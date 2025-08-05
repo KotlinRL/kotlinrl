@@ -1,7 +1,6 @@
 package io.github.kotlinrl.core.algorithms.td.lambda
 
 import io.github.kotlinrl.core.*
-import io.github.kotlinrl.core.algorithms.td.*
 
 abstract class TDLambda<State, Action>(
     initialPolicy: QFunctionPolicy<State, Action>,
@@ -12,13 +11,13 @@ abstract class TDLambda<State, Action>(
     onQFunctionUpdate: EnumerableQFunctionUpdate<State, Action> = {},
     onPolicyUpdate: PolicyUpdate<State, Action> = {},
     onEligibilityTraceUpdate: EligibilityTraceUpdate<State, Action> = { },
-    tdError: TDError<State, Action>,
+    td: TDQError<State, Action>,
     estimator: TransitionQFunctionEstimator<State, Action> = TDLambdaQFunctionEstimator(
         initialPolicy = initialPolicy,
         alpha = alpha,
         lambda = lambda,
         gamma = gamma,
-        tdError = tdError,
+        td = td,
         initialEligibilityTrace = initialEligibilityTrace,
         onEligibilityTraceUpdate = onEligibilityTraceUpdate
     ),

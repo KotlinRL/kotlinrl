@@ -1,4 +1,4 @@
-package io.github.kotlinrl.core.algorithms.td
+package io.github.kotlinrl.core.algorithms.td.classic
 
 import io.github.kotlinrl.core.*
 

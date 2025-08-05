@@ -1,7 +1,6 @@
 package io.github.kotlinrl.core.algorithms.td.lambda
 
 import io.github.kotlinrl.core.*
-import io.github.kotlinrl.core.algorithms.td.TDErrors
 
 class QLambda<State, Action>(
     initialPolicy: QFunctionPolicy<State, Action>,
@@ -13,5 +12,5 @@ class QLambda<State, Action>(
     onPolicyUpdate: PolicyUpdate<State, Action> = {},
     onEligibilityTraceUpdate: EligibilityTraceUpdate<State, Action> = { },
 ) : TDLambda<State, Action>(initialPolicy, alpha, gamma, lambda, initialEligibilityTrace, onQFunctionUpdate, onPolicyUpdate, onEligibilityTraceUpdate,
-    tdError = TDErrors.qLearning()
+    td = TDQErrors.qLearning()
 )

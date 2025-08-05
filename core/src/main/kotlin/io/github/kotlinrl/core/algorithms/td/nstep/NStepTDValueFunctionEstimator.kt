@@ -1,4 +1,4 @@
-package io.github.kotlinrl.core.algorithms.td.ntd
+package io.github.kotlinrl.core.algorithms.td.nstep
 
 import io.github.kotlinrl.core.*
 

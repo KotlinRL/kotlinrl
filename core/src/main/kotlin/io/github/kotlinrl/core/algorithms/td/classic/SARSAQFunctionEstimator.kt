@@ -1,12 +1,11 @@
-package io.github.kotlinrl.core.algorithms.td
+package io.github.kotlinrl.core.algorithms.td.classic
 
 import io.github.kotlinrl.core.*
-import io.github.kotlinrl.core.algorithms.td.TDErrors.sarsa
 
 class SARSAQFunctionEstimator<State, Action>(
     private val alpha: ParameterSchedule,
     private val gamma: Double,
-    private val tdError: TDError<State, Action> = sarsa()
+    private val td: TDQError<State, Action> = TDQErrors.sarsa()
 ) : TransitionQFunctionEstimator<State, Action> {
     private var last: Transition<State, Action>? = null
 
@@ -21,7 +20,7 @@ class SARSAQFunctionEstimator<State, Action>(
 
         val (s, a) = prev
         val (_, aPrime) = transition
-        val delta = tdError(Q, prev, aPrime, gamma, transition.done)
+        val delta = td(Q, prev, aPrime, gamma, transition.done)
         val updatedQ = Q[s, a] + alpha() * (delta - Q[s, a])
         if (transition.done) last = null
 

@@ -1,15 +1,14 @@
 package io.github.kotlinrl.core.algorithms.td.dyna
 
 import io.github.kotlinrl.core.*
-import io.github.kotlinrl.core.algorithms.td.TDError
-import io.github.kotlinrl.core.algorithms.td.TDErrors
+import io.github.kotlinrl.core.algorithms.td.TDQErrors
 
 class DynaQEstimator<State, Action>(
     private val alpha: ParameterSchedule,
     private val gamma: Double,
     private val model: LearnableMDPModel<State, Action>,
     private val planningSteps: Int = 5,
-    private val tdError: TDError<State, Action> = TDErrors.qLearning()
+    private val td: TDQError<State, Action> = TDQErrors.qLearning()
 ) : TransitionQFunctionEstimator<State, Action> {
 
     override fun estimate(
@@ -20,7 +19,7 @@ class DynaQEstimator<State, Action>(
         val done = transition.done
 
         // Real experience Q-learning
-        val delta = tdError(Q, transition, null, gamma, done)
+        val delta = td(Q, transition, null, gamma, done)
         var currentQ = Q.update(s, a, Q[s, a] + alpha() * delta)
 
         // Update model
@@ -31,7 +30,7 @@ class DynaQEstimator<State, Action>(
             val sampleTransition = model.sampleTransition() ?: return@repeat
             val (sPlan, aPlan) = sampleTransition
             val done = sampleTransition.done
-            val deltaPlan = tdError(currentQ, sampleTransition, null, gamma, done)
+            val deltaPlan = td(currentQ, sampleTransition, null, gamma, done)
             currentQ = currentQ.update(sPlan, aPlan, currentQ[sPlan, aPlan] + alpha() * deltaPlan)
         }
         return currentQ

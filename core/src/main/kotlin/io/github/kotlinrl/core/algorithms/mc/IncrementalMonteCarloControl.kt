@@ -2,7 +2,7 @@ package io.github.kotlinrl.core.algorithms.mc
 
 import io.github.kotlinrl.core.*
 import io.github.kotlinrl.core.TrajectoryQFunctionAlgorithm
-import io.github.kotlinrl.core.algorithms.TrajectoryQFunctionEstimator
+import io.github.kotlinrl.core.algorithms.base.TrajectoryQFunctionEstimator
 
 class IncrementalMonteCarloControl<State, Action>(
     initialPolicy: QFunctionPolicy<State, Action>,

@@ -1,7 +1,6 @@
-package io.github.kotlinrl.core.algorithms
+package io.github.kotlinrl.core.algorithms.base
 
 import io.github.kotlinrl.core.EnumerableQFunction
-import io.github.kotlinrl.core.EnumerableQFunctionUpdate
 import io.github.kotlinrl.core.Transition
 import io.github.kotlinrl.core.TransitionObserver
 

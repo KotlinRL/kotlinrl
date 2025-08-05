@@ -1,7 +1,6 @@
 package io.github.kotlinrl.core.algorithms.td.lambda
 
 import io.github.kotlinrl.core.*
-import io.github.kotlinrl.core.algorithms.td.TDError
 import org.jetbrains.kotlinx.multik.api.*
 
 class TDLambdaQFunctionEstimator<State, Action>(
@@ -9,7 +8,7 @@ class TDLambdaQFunctionEstimator<State, Action>(
     private val alpha: ParameterSchedule,
     private val lambda: ParameterSchedule,
     private val gamma: Double,
-    private val tdError: TDError<State, Action>,
+    private val td: TDQError<State, Action>,
     initialEligibilityTrace: EligibilityTrace<State, Action>,
     private val onEligibilityTraceUpdate: EligibilityTraceUpdate<State, Action> = { }
 ) : TransitionQFunctionEstimator<State, Action> {
@@ -29,7 +28,7 @@ class TDLambdaQFunctionEstimator<State, Action>(
         val done = transition.done
         val aPrime = if (!done) policy(sPrime) else null
 
-        val delta = tdError(Q, transition, aPrime ?: a, gamma, done)
+        val delta = td(Q, transition, aPrime ?: a, gamma, done)
         trace = trace.decay(gamma, lambda()).update(s, a)
         var updatedQ = Q
         @Suppress("UNCHECKED_CAST")

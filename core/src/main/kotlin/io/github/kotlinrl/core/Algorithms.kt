@@ -2,23 +2,28 @@ package io.github.kotlinrl.core
 
 import kotlin.random.*
 
-typealias LearningAlgorithm<State, Action> = io.github.kotlinrl.core.algorithms.LearningAlgorithm<State, Action>
-typealias QFunctionAlgorithm<State, Action> = io.github.kotlinrl.core.algorithms.QFunctionAlgorithm<State, Action>
-typealias TransitionQFunctionAlgorithm<State, Action> = io.github.kotlinrl.core.algorithms.TransitionQFunctionAlgorithm<State, Action>
-typealias TransitionQFunctionEstimator<State, Action> = io.github.kotlinrl.core.algorithms.TransitionQFunctionEstimator<State, Action>
-typealias TrajectoryQFunctionAlgorithm<State, Action> = io.github.kotlinrl.core.algorithms.TrajectoryQFunctionAlgorithm<State, Action>
-typealias TrajectoryQFunctionEstimator<State, Action> = io.github.kotlinrl.core.algorithms.TrajectoryQFunctionEstimator<State, Action>
-typealias TrajectoryValueFunctionEstimator<State, Action> = io.github.kotlinrl.core.algorithms.TrajectoryValueFunctionEstimator<State, Action>
+typealias LearningAlgorithm<State, Action> = io.github.kotlinrl.core.algorithms.base.LearningAlgorithm<State, Action>
+typealias QFunctionAlgorithm<State, Action> = io.github.kotlinrl.core.algorithms.base.QFunctionAlgorithm<State, Action>
+typealias TDQError<State, Action> = io.github.kotlinrl.core.algorithms.td.TDQError<State, Action>
+typealias TDVError<State, Action> = io.github.kotlinrl.core.algorithms.td.TDVError<State, Action>
+typealias TDQErrors = io.github.kotlinrl.core.algorithms.td.TDQErrors
+typealias TDVErrors = io.github.kotlinrl.core.algorithms.td.TDVErrors
+typealias TransitionQFunctionAlgorithm<State, Action> = io.github.kotlinrl.core.algorithms.base.TransitionQFunctionAlgorithm<State, Action>
+typealias TransitionQFunctionEstimator<State, Action> = io.github.kotlinrl.core.algorithms.base.TransitionQFunctionEstimator<State, Action>
+typealias TrajectoryQFunctionAlgorithm<State, Action> = io.github.kotlinrl.core.algorithms.base.TrajectoryQFunctionAlgorithm<State, Action>
+typealias TrajectoryQFunctionEstimator<State, Action> = io.github.kotlinrl.core.algorithms.base.TrajectoryQFunctionEstimator<State, Action>
+typealias TrajectoryValueFunctionEstimator<State, Action> = io.github.kotlinrl.core.algorithms.base.TrajectoryValueFunctionEstimator<State, Action>
+typealias TransitionValueFunctionEstimator<State, Action> = io.github.kotlinrl.core.algorithms.base.TransitionValueFunctionEstimator<State, Action>
 typealias BellmanValueFunctionIteration<State, Action> = io.github.kotlinrl.core.algorithms.dp.BellmanValueFunctionIteration<State, Action>
 typealias BellmanQFunctionIteration<State, Action> = io.github.kotlinrl.core.algorithms.dp.BellmanQFunctionIteration<State, Action>
 typealias BellmanPolicyIteration<State, Action> = io.github.kotlinrl.core.algorithms.dp.BellmanPolicyIteration<State, Action>
 typealias OnPolicyMonteCarloControl<State, Action> = io.github.kotlinrl.core.algorithms.mc.OnPolicyMonteCarloControl<State, Action>
 typealias IncrementalMonteCarloControl<State, Action> = io.github.kotlinrl.core.algorithms.mc.IncrementalMonteCarloControl<State, Action>
 typealias OffPolicyMonteCarloControl<State, Action> = io.github.kotlinrl.core.algorithms.mc.OffPolicyMonteCarloControl<State, Action>
-typealias ExpectedSARSA<State, Action> = io.github.kotlinrl.core.algorithms.td.ExpectedSARSA<State, Action>
-typealias QLearning<State, Action> = io.github.kotlinrl.core.algorithms.td.QLearning<State, Action>
-typealias SARSA<State, Action> = io.github.kotlinrl.core.algorithms.td.SARSA<State, Action>
-typealias NStepSARSA<State, Action> = io.github.kotlinrl.core.algorithms.td.ntd.NStepSARSA<State, Action>
+typealias ExpectedSARSA<State, Action> = io.github.kotlinrl.core.algorithms.td.classic.ExpectedSARSA<State, Action>
+typealias QLearning<State, Action> = io.github.kotlinrl.core.algorithms.td.classic.QLearning<State, Action>
+typealias SARSA<State, Action> = io.github.kotlinrl.core.algorithms.td.classic.SARSA<State, Action>
+typealias NStepSARSA<State, Action> = io.github.kotlinrl.core.algorithms.td.nstep.NStepSARSA<State, Action>
 typealias DPIteration<State, Action> = io.github.kotlinrl.core.algorithms.dp.DPIteration<State, Action>
 typealias DPValueFunctionEstimator<State, Action> = io.github.kotlinrl.core.algorithms.dp.DPValueFunctionEstimator<State, Action>
 typealias EnumerableQFunctionUpdate<State, Action> = (EnumerableQFunction<State, Action>) -> Unit
