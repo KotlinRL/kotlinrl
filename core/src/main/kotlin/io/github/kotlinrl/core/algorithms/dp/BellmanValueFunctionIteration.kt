@@ -8,8 +8,8 @@ class BellmanValueFunctionIteration<State, Action>(
     private var model: MDPModel<State, Action>,
     private var gamma: Double = 0.99,
     private val theta: Double = 1e-6,
-    private val stateActionListProvider: StateActionListProvider<State, Action>,
-    private val onValueFunctionUpdate: (EnumerableValueFunction<State>) -> Unit = { },
+    private val stateActions: StateActions<State, Action>,
+    private val onValueFunctionUpdate: EnumerableValueFunctionUpdate<State> = { },
 ) : DPIteration<State, Action>() {
 
     override fun plan(): Policy<State, Action> {
@@ -22,7 +22,7 @@ class BellmanValueFunctionIteration<State, Action>(
             var newV = v
 
             for (s in v.allStates()) {
-                val actions = stateActionListProvider(s)
+                val actions = stateActions(s)
                 if (actions.isEmpty()) continue
 
                 val bestActionValue = actions.maxOf { a -> expectedReturn(s, a, v) }
@@ -37,7 +37,7 @@ class BellmanValueFunctionIteration<State, Action>(
         } while (delta > theta)
 
         return Policy { s ->
-            val actions = stateActionListProvider(s)
+            val actions = stateActions(s)
             actions.maxByOrNull { a -> expectedReturn(s, a, v) } ?: actions.random()
         }
     }

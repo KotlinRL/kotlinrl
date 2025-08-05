@@ -4,7 +4,7 @@ import io.github.kotlinrl.core.*
 
 interface DPQFunctionEstimator<State, Action> {
     fun estimate(
-        q: QFunction<State, Action>,
+        q: EnumerableQFunction<State, Action>,
         trajectory: ProbabilisticTrajectory<State, Action>
-    ): QFunction<State, Action>
+    ): EnumerableQFunction<State, Action>
 }

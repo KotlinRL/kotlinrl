@@ -36,9 +36,6 @@ class QTableDN(
         return rawStates.map { mk.ndarray(it).asDNArray() }
     }
 
-    override fun allActions(state: NDArray<Int, DN>): List<Int> =
-        (0 until shape.last()).toList()
-
     private fun qValues(state: NDArray<Int, DN>): NDArray<Double, D1> {
         val axes = IntArray(state.shape[0]) { it }
         return table.view(state.toIntArray(), axes).asDNArray().asD1Array()
@@ -64,6 +61,7 @@ class QTableDN(
         mk.writeCsvSafely(path, table)
     }
 
+    @Suppress("DuplicatedCode")
     fun load(path: String) {
         val dn = mk.readCsvSafely(path)
         val reshaped = when (shape.size) {

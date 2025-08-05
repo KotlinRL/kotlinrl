@@ -4,7 +4,8 @@ import io.github.kotlinrl.core.*
 
 class EmpiricalMDPModel<State, Action>(
     private val env: ModelBasedEnv<State, Action, *, *>,
-    private val allStates: List<State>,
+    private val allStates: List<State> = emptyList(),
+    private val allActions: List<Action> = emptyList(),
     private val numSamples: Int = 100
 ) : MDPModel<State, Action> {
 
@@ -30,5 +31,18 @@ class EmpiricalMDPModel<State, Action>(
         }
     }
 
+    override fun expectedReward(state: State, action: Action): Double {
+        var totalReward = 0.0
+
+        repeat(numSamples) {
+            val (_, reward, _, _) = env.simulateStep(state, action)
+            totalReward += reward
+        }
+
+        return totalReward / numSamples
+    }
+
     override fun allStates(): List<State> = allStates
+
+    override fun allActions(): List<Action> = allActions
 }

@@ -1,4 +1,4 @@
-package io.github.kotlinrl.core.algorithms
+package io.github.kotlinrl.core
 
 import org.jetbrains.kotlinx.multik.api.*
 import org.jetbrains.kotlinx.multik.ndarray.data.*
@@ -46,4 +46,10 @@ internal fun <State> stateKey(s: State): Comparable<*> =
         is NDArray<*, *> -> ComparableIntList((s as NDArray<Int, DN>).toList())
         is Comparable<*> -> s
         else -> error("State $s must be Comparable or mappable to a comparable key.")
+    }
+
+internal fun <Action> actionKey(a: Action): Comparable<*> =
+    when (a) {
+        is Comparable<*> -> a
+        else -> error("Action $a must be Comparable or mappable to a comparable key.")
     }

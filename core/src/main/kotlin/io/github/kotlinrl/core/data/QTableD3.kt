@@ -2,6 +2,7 @@ package io.github.kotlinrl.core.data
 
 import io.github.kotlinrl.core.*
 import org.jetbrains.kotlinx.multik.ndarray.data.*
+import org.jetbrains.kotlinx.multik.ndarray.operations.toIntArray
 
 class QTableD3(
     vararg val shape: Int,
@@ -14,7 +15,7 @@ class QTableD3(
         require(shape.size == 4) { "QTableD3 shape requires exactly 4 arguments" }
     }
 
-    private val base = QTableDN(shape = shape, deterministic, tolerance, defaultQValue)
+    internal val base = QTableDN(shape = shape, deterministic, tolerance, defaultQValue)
 
     override fun get(state: NDArray<Int, D2>, action: Int): Double = base[state.asDNArray(), action]
 
@@ -22,19 +23,11 @@ class QTableD3(
         state: NDArray<Int, D2>,
         action: Int,
         value: Double
-    ): EnumerableQFunction<NDArray<Int, D2>, Int> {
-        val updatedBase = base.update(state.asDNArray(), action, value) as QTableDN
-        val new =
-            QTableD3(shape = shape, deterministic = deterministic, tolerance = tolerance, defaultQValue = defaultQValue)
-        updatedBase.table.data.copyInto(new.base.table.data)
-        return new
-    }
+    ): EnumerableQFunction<NDArray<Int, D2>, Int> =
+        copy().also { it.base.table[state.toIntArray() + action] = value }
 
     override fun allStates(): List<NDArray<Int, D2>> =
         base.allStates().map { it.asD2Array() }
-
-    override fun allActions(state: NDArray<Int, D2>): List<Int> =
-        base.allActions(state.asDNArray())
 
     override fun maxValue(state: NDArray<Int, D2>): Double =
         base.maxValue(state.asDNArray())
@@ -42,15 +35,49 @@ class QTableD3(
     override fun bestAction(state: NDArray<Int, D2>): Int =
         base.bestAction(state.asDNArray())
 
-    fun copy(): QTableD3 {
-        val new = QTableD3(shape = shape, deterministic, tolerance, defaultQValue)
-        base.copy().also { it.table.data.copyInto(new.base.table.data) }
-        return new
-    }
+    fun copy(): QTableD3 =
+        QTableD3(
+            shape = shape,
+            deterministic = deterministic,
+            tolerance = tolerance,
+            defaultQValue = defaultQValue
+        ).also {
+            base.table.data.copyInto(it.base.table.data)
+        }
 
     fun save(path: String) = base.save(path)
 
     fun load(path: String) = base.load(path)
 
     fun print() = base.print()
+
+    fun asQTableD4(vararg shape: Int): QTableD4 =
+        QTableD4(
+            shape = shape,
+            deterministic = deterministic,
+            tolerance = tolerance,
+            defaultQValue = defaultQValue
+        ).also {
+            base.table.data.copyInto(it.base.table.data)
+        }
+
+    fun asQTableD5(vararg shape: Int): QTableD5 =
+        QTableD5(
+            shape = shape,
+            deterministic = deterministic,
+            tolerance = tolerance,
+            defaultQValue = defaultQValue
+        ).also {
+            base.table.data.copyInto(it.base.table.data)
+        }
+
+    fun asQTableDN(vararg shape: Int): QTableDN =
+        QTableDN(
+            shape = shape,
+            deterministic = deterministic,
+            tolerance = tolerance,
+            defaultQValue = defaultQValue
+        ).also {
+            base.table.data.copyInto(it.table.data)
+        }
 }

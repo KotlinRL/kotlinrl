@@ -3,9 +3,8 @@ package io.github.kotlinrl.core.policy
 import kotlin.random.*
 
 abstract class StochasticPolicy<State, Action>(
-    protected val stateActionListProvider: StateActionListProvider<State, Action>,
     protected val rng: Random
-) : ProbabilityFunction<State, Action>, Policy<State, Action> {
+) : QFunctionPolicy<State, Action> {
 
     abstract fun actionScores(state: State): List<Pair<Action, Double>>
 
@@ -14,7 +13,7 @@ abstract class StochasticPolicy<State, Action>(
         return calculateAndSample(scores, actions)
     }
 
-    override fun invoke(state: State, action: Action): Double {
+    override fun probability(state: State, action: Action): Double {
         val actionScoreList = actionScores(state)
         val actions = actionScoreList.map { it.first }
         val scores = actionScoreList.map { it.second }

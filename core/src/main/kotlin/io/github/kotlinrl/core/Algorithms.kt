@@ -4,6 +4,10 @@ import kotlin.random.*
 
 typealias LearningAlgorithm<State, Action> = io.github.kotlinrl.core.algorithms.LearningAlgorithm<State, Action>
 typealias QFunctionAlgorithm<State, Action> = io.github.kotlinrl.core.algorithms.QFunctionAlgorithm<State, Action>
+typealias TransitionQFunctionAlgorithm<State, Action> = io.github.kotlinrl.core.algorithms.TransitionQFunctionAlgorithm<State, Action>
+typealias TransitionQFunctionEstimator<State, Action> = io.github.kotlinrl.core.algorithms.TransitionQFunctionEstimator<State, Action>
+typealias TrajectoryQFunctionAlgorithm<State, Action> = io.github.kotlinrl.core.algorithms.TrajectoryQFunctionAlgorithm<State, Action>
+typealias TrajectoryQFunctionEstimator<State, Action> = io.github.kotlinrl.core.algorithms.TrajectoryQFunctionEstimator<State, Action>
 typealias BellmanValueFunctionIteration<State, Action> = io.github.kotlinrl.core.algorithms.dp.BellmanValueFunctionIteration<State, Action>
 typealias BellmanQFunctionIteration<State, Action> = io.github.kotlinrl.core.algorithms.dp.BellmanQFunctionIteration<State, Action>
 typealias BellmanPolicyIteration<State, Action> = io.github.kotlinrl.core.algorithms.dp.BellmanPolicyIteration<State, Action>
@@ -13,16 +17,12 @@ typealias OffPolicyMonteCarloControl<State, Action> = io.github.kotlinrl.core.al
 typealias ExpectedSARSA<State, Action> = io.github.kotlinrl.core.algorithms.td.ExpectedSARSA<State, Action>
 typealias QLearning<State, Action> = io.github.kotlinrl.core.algorithms.td.QLearning<State, Action>
 typealias SARSA<State, Action> = io.github.kotlinrl.core.algorithms.td.SARSA<State, Action>
-typealias NStepSARSA<State, Action> = io.github.kotlinrl.core.algorithms.td.nstep.NStepSARSA<State, Action>
-typealias TabularTDAlgorithm<State, Action> = io.github.kotlinrl.core.algorithms.td.TabularTDAlgorithm<State, Action>
+typealias NStepSARSA<State, Action> = io.github.kotlinrl.core.algorithms.td.ntd.NStepSARSA<State, Action>
 typealias DPIteration<State, Action> = io.github.kotlinrl.core.algorithms.dp.DPIteration<State, Action>
-typealias MCAlgorithm<State, Action> = io.github.kotlinrl.core.algorithms.mc.MonteCarloAlgorithm<State, Action>
-typealias ProbabilisticTransition<State, Action> = io.github.kotlinrl.core.model.ProbabilisticTransition<State, Action>
-typealias ProbabilisticTrajectory<State, Action> = List<ProbabilisticTransition<State, Action>>
-typealias EmpiricalMDPModel<State, Action> = io.github.kotlinrl.core.model.EmpiricalMDPModel<State, Action>
-typealias MDPModel<State, Action> = io.github.kotlinrl.core.model.MDPModel<State, Action>
 typealias DPValueFunctionEstimator<State, Action> = io.github.kotlinrl.core.algorithms.dp.DPValueFunctionEstimator<State, Action>
-typealias DPQFunctionEstimator<State, Action> = io.github.kotlinrl.core.algorithms.dp.DPQFunctionEstimator<State, Action>
+typealias EnumerableQFunctionUpdate<State, Action> = (EnumerableQFunction<State, Action>) -> Unit
+typealias EnumerableValueFunctionUpdate<State> = (EnumerableValueFunction<State>) -> Unit
+
 
 fun <State, Action> bellmanValueFunctionIteration(
     initialV: EnumerableValueFunction<State>,
@@ -30,14 +30,19 @@ fun <State, Action> bellmanValueFunctionIteration(
     numSamples: Int = 100,
     gamma: Double = 0.99,
     theta: Double = 1e-6,
-    stateActionListProvider: StateActionListProvider<State, Action>,
-    onValueFunctionUpdate: (EnumerableValueFunction<State>) -> Unit = { }
+    stateActions: StateActions<State, Action>,
+    onValueFunctionUpdate: EnumerableValueFunctionUpdate<State> = { },
 ): DPIteration<State, Action> = BellmanValueFunctionIteration(
     initialV = initialV,
-    model = EmpiricalMDPModel(env, initialV.allStates(), numSamples),
+    model = EmpiricalMDPModel(
+        env = env,
+        allStates = initialV.allStates(),
+        allActions = initialV.allStates().flatMap { stateActions(it) }.toList(),
+        numSamples = numSamples
+    ),
     gamma = gamma,
     theta = theta,
-    stateActionListProvider = stateActionListProvider,
+    stateActions = stateActions,
     onValueFunctionUpdate = onValueFunctionUpdate
 )
 
@@ -47,14 +52,19 @@ fun <State, Action> bellmanQFunctionIteration(
     numSamples: Int = 100,
     gamma: Double = 0.99,
     theta: Double = 1e-6,
-    stateActionListProvider: StateActionListProvider<State, Action>,
-    onQFunctionUpdate: (EnumerableQFunction<State, Action>) -> Unit = { }
+    stateActions: StateActions<State, Action>,
+    onQFunctionUpdate: EnumerableQFunctionUpdate<State, Action> = { },
 ): DPIteration<State, Action> = BellmanQFunctionIteration(
     initialQ = initialQ,
-    model = EmpiricalMDPModel(env, initialQ.allStates(), numSamples),
+    model = EmpiricalMDPModel(
+        env = env,
+        allStates = initialQ.allStates(),
+        allActions = initialQ.allStates().flatMap { stateActions(it) }.toList(),
+        numSamples = numSamples
+    ),
     gamma = gamma,
     theta = theta,
-    stateActionListProvider = stateActionListProvider,
+    stateActions = stateActions,
     onQFunctionUpdate = onQFunctionUpdate
 )
 
@@ -65,31 +75,33 @@ fun <State, Action> bellmanPolicyIteration(
     numSamples: Int = 100,
     gamma: Double = 0.99,
     theta: Double = 1e-6,
-    stateActionListProvider: StateActionListProvider<State, Action>,
-    onValueFunctionUpdate: (ValueFunction<State>) -> Unit = { },
-    onPolicyUpdate: (Policy<State, Action>) -> Unit = { }
+    stateActions: StateActions<State, Action>,
+    onValueFunctionUpdate: EnumerableValueFunctionUpdate<State> = { },
+    onPolicyUpdate: PolicyUpdate<State, Action> = { }
 ): DPIteration<State, Action> = BellmanPolicyIteration(
     initialPolicy = initialPolicy,
     initialV = initialV,
-    model = EmpiricalMDPModel(env, initialV.allStates(), numSamples),
+    model = EmpiricalMDPModel(
+        env = env,
+        allStates = initialV.allStates(),
+        allActions = initialV.allStates().flatMap { stateActions(it) }.toList(),
+        numSamples = numSamples
+    ),
     gamma = gamma,
     theta = theta,
-    stateActionListProvider = stateActionListProvider,
+    stateActions = stateActions,
     onValueFunctionUpdate = onValueFunctionUpdate,
     onPolicyUpdate = onPolicyUpdate
 )
 
 fun <State, Action> onPolicyMonteCarloControl(
-    initialPolicy: Policy<State, Action>,
-    initialQ: QFunction<State, Action>,
+    initialPolicy: QFunctionPolicy<State, Action>,
     gamma: Double,
-//    stateActionKeyFunction: StateActionKeyFunction<State, Action> = ::defaultStateActionKeyFunction,
     firstVisitOnly: Boolean = true,
-    onQFunctionUpdate: (QFunction<State, Action>) -> Unit = { },
-    onPolicyUpdate: (Policy<State, Action>) -> Unit = { }
-): MCAlgorithm<State, Action> = OnPolicyMonteCarloControl(
+    onQFunctionUpdate: EnumerableQFunctionUpdate<State, Action> = { },
+    onPolicyUpdate: PolicyUpdate<State, Action> = { }
+): TrajectoryQFunctionAlgorithm<State, Action> = OnPolicyMonteCarloControl(
     initialPolicy = initialPolicy,
-    initialQ = initialQ,
     gamma = gamma,
     firstVisitOnly = firstVisitOnly,
     onQFunctionUpdate = onQFunctionUpdate,
@@ -97,16 +109,14 @@ fun <State, Action> onPolicyMonteCarloControl(
 )
 
 fun <State, Action> incrementalMonteCarloControl(
-    initialPolicy: Policy<State, Action>,
-    initialQ: QFunction<State, Action>,
+    initialPolicy: QFunctionPolicy<State, Action>,
     gamma: Double = 0.99,
     alpha: ParameterSchedule = constantParameterSchedule(0.05),
     firstVisitOnly: Boolean = true,
-    onQFunctionUpdate: (QFunction<State, Action>) -> Unit = { },
-    onPolicyUpdate: (Policy<State, Action>) -> Unit = { }
-): MCAlgorithm<State, Action> = IncrementalMonteCarloControl(
+    onQFunctionUpdate: EnumerableQFunctionUpdate<State, Action> = { },
+    onPolicyUpdate: PolicyUpdate<State, Action> = { }
+): TrajectoryQFunctionAlgorithm<State, Action> = IncrementalMonteCarloControl(
     initialPolicy = initialPolicy,
-    initialQ = initialQ,
     gamma = gamma,
     alpha = alpha,
     firstVisitOnly = firstVisitOnly,
@@ -115,29 +125,27 @@ fun <State, Action> incrementalMonteCarloControl(
 )
 
 fun <State, Action> offPolicyMonteCarloControl(
-    initialPolicy: StochasticPolicy<State, Action>,
-    initialQ: QFunction<State, Action>,
+    behavioralPolicy: QFunctionPolicy<State, Action>,
+    targetPolicy: QFunctionPolicy<State, Action>,
     gamma: Double = 0.99,
-    targetPolicy: Policy<State, Action>,
-    onQFunctionUpdate: (QFunction<State, Action>) -> Unit = { },
-    onPolicyUpdate: (Policy<State, Action>) -> Unit = { },
-): MCAlgorithm<State, Action> = OffPolicyMonteCarloControl(
-    initialPolicy = initialPolicy,
-    initialQ = initialQ,
-    gamma = gamma,
+    onQFunctionUpdate: EnumerableQFunctionUpdate<State, Action> = { },
+    onPolicyUpdate: PolicyUpdate<State, Action> = { },
+): TrajectoryQFunctionAlgorithm<State, Action> = OffPolicyMonteCarloControl(
+    behavioralPolicy = behavioralPolicy,
     targetPolicy = targetPolicy,
+    gamma = gamma,
     onQFunctionUpdate = onQFunctionUpdate,
     onPolicyUpdate = onPolicyUpdate,
 )
 
 data class OffPolicyControls<State, Action>(
-    val behavioralPolicy: StochasticPolicy<State, Action>,
+    val behavioralPolicy: QFunctionPolicy<State, Action>,
     val targetPolicy: QFunctionPolicy<State, Action>
 )
 
 fun <State, Action> epsilonGreedySoftOffPolicyControls(
-    q: QFunction<State, Action>,
-    stateActionListProvider: StateActionListProvider<State, Action>,
+    q: EnumerableQFunction<State, Action>,
+    stateActions: StateActions<State, Action>,
     targetEpsilon: ParameterSchedule,
     behaviorEpsilon: ParameterSchedule,
     rng: Random = Random.Default
@@ -145,14 +153,14 @@ fun <State, Action> epsilonGreedySoftOffPolicyControls(
 
     val targetPolicy = epsilonGreedyPolicy(
         q = q,
+        stateActions = stateActions,
         epsilon = targetEpsilon,
-        stateActionListProvider = stateActionListProvider,
         rng = rng
     )
     val behavioralPolicy = epsilonSoftPolicy(
         q = q,
+        stateActions = stateActions,
         epsilon = behaviorEpsilon,
-        stateActionListProvider = stateActionListProvider,
         rng = rng
     )
     return OffPolicyControls(
@@ -162,15 +170,13 @@ fun <State, Action> epsilonGreedySoftOffPolicyControls(
 }
 
 fun <State, Action> qLearning(
-    initialPolicy: Policy<State, Action>,
-    initialQ: QFunction<State, Action>,
-    onQFunctionUpdate: (QFunction<State, Action>) -> Unit = { },
-    onPolicyUpdate: (Policy<State, Action>) -> Unit = { },
+    initialPolicy: QFunctionPolicy<State, Action>,
     alpha: ParameterSchedule,
-    gamma: Double
-): TabularTDAlgorithm<State, Action> = QLearning(
+    gamma: Double,
+    onQFunctionUpdate: EnumerableQFunctionUpdate<State, Action> = { },
+    onPolicyUpdate: PolicyUpdate<State, Action> = { }
+): TransitionQFunctionAlgorithm<State, Action> = QLearning(
     initialPolicy = initialPolicy,
-    initialQ = initialQ,
     alpha = alpha,
     gamma = gamma,
     onQFunctionUpdate = onQFunctionUpdate,
@@ -178,15 +184,13 @@ fun <State, Action> qLearning(
 )
 
 fun <State, Action> sarsa(
-    initialPolicy: Policy<State, Action>,
-    initialQ: QFunction<State, Action>,
-    onQFunctionUpdate: (QFunction<State, Action>) -> Unit = { },
-    onPolicyUpdate: (Policy<State, Action>) -> Unit = { },
+    initialPolicy: QFunctionPolicy<State, Action>,
     alpha: ParameterSchedule,
-    gamma: Double
-): TabularTDAlgorithm<State, Action> = SARSA(
+    gamma: Double,
+    onQFunctionUpdate: EnumerableQFunctionUpdate<State, Action> = { },
+    onPolicyUpdate: PolicyUpdate<State, Action> = { }
+): TransitionQFunctionAlgorithm<State, Action> = SARSA(
     initialPolicy = initialPolicy,
-    initialQ = initialQ,
     alpha = alpha,
     gamma = gamma,
     onQFunctionUpdate = onQFunctionUpdate,
@@ -194,39 +198,31 @@ fun <State, Action> sarsa(
 )
 
 fun <State, Action> expectedSarsa(
-    initialPolicy: StochasticPolicy<State, Action>,
-    initialQ: QFunction<State, Action>,
-    onQFunctionUpdate: (QFunction<State, Action>) -> Unit = { },
-    onPolicyUpdate: (Policy<State, Action>) -> Unit = { },
+    initialPolicy: QFunctionPolicy<State, Action>,
     alpha: ParameterSchedule,
     gamma: Double,
-    stateActionListProvider: StateActionListProvider<State, Action>
-): TabularTDAlgorithm<State, Action> = ExpectedSARSA(
+    onQFunctionUpdate: EnumerableQFunctionUpdate<State, Action> = { },
+    onPolicyUpdate: PolicyUpdate<State, Action> = { },
+): TransitionQFunctionAlgorithm<State, Action> = ExpectedSARSA(
     initialPolicy = initialPolicy,
-    initialQ = initialQ,
     alpha = alpha,
     gamma = gamma,
-    stateActionListProvider = stateActionListProvider,
     onQFunctionUpdate = onQFunctionUpdate,
     onPolicyUpdate = onPolicyUpdate,
 )
 
 fun <State, Action> nStepSarsa(
-    initialPolicy: StochasticPolicy<State, Action>,
-    initialQ: QFunction<State, Action>,
-    onQFunctionUpdate: (QFunction<State, Action>) -> Unit = { },
-    onPolicyUpdate: (Policy<State, Action>) -> Unit = { },
+    initialPolicy: QFunctionPolicy<State, Action>,
     alpha: ParameterSchedule,
     gamma: Double,
     n: Int,
-    stateActionListProvider: StateActionListProvider<State, Action>
-): TabularTDAlgorithm<State, Action> = NStepSARSA(
+    onQFunctionUpdate: EnumerableQFunctionUpdate<State, Action> = { },
+    onPolicyUpdate: PolicyUpdate<State, Action> = { },
+): TrajectoryQFunctionAlgorithm<State, Action> = NStepSARSA(
     initialPolicy = initialPolicy,
-    initialQ = initialQ,
     alpha = alpha,
     gamma = gamma,
     n = n,
-    stateActionListProvider = stateActionListProvider,
     onQFunctionUpdate = onQFunctionUpdate,
     onPolicyUpdate = onPolicyUpdate,
 )

@@ -6,11 +6,14 @@ class DPValueFunctionPrediction<State, Action>(
     initialV: EnumerableValueFunction<State>,
     private val model: MDPModel<State, Action>,
     private val estimator: DPValueFunctionEstimator<State, Action>,
-    private val onValueFunctionUpdate: (EnumerableValueFunction<State>) -> Unit = { },
+    private val onValueFunctionUpdate: EnumerableValueFunctionUpdate<State> = { },
 ) {
 
     var valueFunction: EnumerableValueFunction<State> = initialV
-        private set
+        private set(value) {
+            field = value
+            onValueFunctionUpdate(value)
+        }
 
     fun evaluate(policy: Policy<State, Action>): EnumerableValueFunction<State> {
         val transitions = model.allStates().flatMap { s ->
@@ -18,7 +21,6 @@ class DPValueFunctionPrediction<State, Action>(
         }
 
         valueFunction = estimator.estimate(valueFunction, transitions)
-        onValueFunctionUpdate(valueFunction)
         return valueFunction
     }
 }

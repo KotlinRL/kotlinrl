@@ -3,13 +3,13 @@ package io.github.kotlinrl.core.policy
 import kotlin.random.*
 
 class EpsilonGreedyPolicy<State, Action>(
-    override val q: QFunction<State, Action>,
-    private val stateActionListProvider: StateActionListProvider<State, Action>,
+    override val q: EnumerableQFunction<State, Action>,
+    override val stateActions: StateActions<State, Action>,
     private val epsilon: ParameterSchedule,
     private val rng: Random = Random.Default
-) : QFunctionPolicy<State, Action>, PolicyImprovementStrategy<State, Action> {
-    private val randomPolicy = RandomPolicy(stateActionListProvider, rng)
-    private val greedyPolicy = GreedyPolicy(q)
+) : QFunctionPolicy<State, Action> {
+    private val randomPolicy = RandomPolicy(stateActions, rng)
+    private val greedyPolicy = GreedyPolicy(q, stateActions)
 
     override fun invoke(state: State): Action =
         if (rng.nextDouble() < epsilon()) {
@@ -18,10 +18,10 @@ class EpsilonGreedyPolicy<State, Action>(
             greedyPolicy(state)
         }
 
-    override operator fun invoke(q: QFunction<State, Action>): Policy<State, Action> =
+    override fun improve(q: EnumerableQFunction<State, Action>): Policy<State, Action> =
         EpsilonGreedyPolicy(
             q = q,
-            stateActionListProvider = stateActionListProvider,
+            stateActions = stateActions,
             epsilon = epsilon,
             rng = rng
         )

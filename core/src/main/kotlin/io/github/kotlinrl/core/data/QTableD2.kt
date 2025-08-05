@@ -2,7 +2,7 @@ package io.github.kotlinrl.core.data
 
 import io.github.kotlinrl.core.*
 import org.jetbrains.kotlinx.multik.ndarray.data.*
-import org.jetbrains.kotlinx.multik.ndarray.operations.toIntArray
+import org.jetbrains.kotlinx.multik.ndarray.operations.*
 
 class QTableD2(
     vararg val shape: Int,
@@ -29,9 +29,6 @@ class QTableD2(
     override fun allStates(): List<NDArray<Int, D1>> =
         base.allStates().map { it.asD1Array() }
 
-    override fun allActions(state: NDArray<Int, D1>): List<Int> =
-        base.allActions(state.asDNArray())
-
     override fun maxValue(state: NDArray<Int, D1>): Double =
         base.maxValue(state.asDNArray())
 
@@ -53,4 +50,44 @@ class QTableD2(
     fun load(path: String) = base.load(path)
 
     fun print() = base.print()
+
+    fun asQTableD3(vararg shape: Int): QTableD3 =
+        QTableD3(
+            shape = shape,
+            deterministic = deterministic,
+            tolerance = tolerance,
+            defaultQValue = defaultQValue
+        ).also {
+            base.table.data.copyInto(it.base.table.data)
+        }
+
+    fun asQTableD4(vararg shape: Int): QTableD4 =
+        QTableD4(
+            shape = shape,
+            deterministic = deterministic,
+            tolerance = tolerance,
+            defaultQValue = defaultQValue
+        ).also {
+            base.table.data.copyInto(it.base.table.data)
+        }
+
+    fun asQTableD5(vararg shape: Int): QTableD5 =
+        QTableD5(
+            shape = shape,
+            deterministic = deterministic,
+            tolerance = tolerance,
+            defaultQValue = defaultQValue
+        ).also {
+            base.table.data.copyInto(it.base.table.data)
+        }
+
+    fun asQTableDN(vararg shape: Int): QTableDN =
+        QTableDN(
+            shape = shape,
+            deterministic = deterministic,
+            tolerance = tolerance,
+            defaultQValue = defaultQValue
+        ).also {
+            base.table.data.copyInto(it.table.data)
+        }
 }

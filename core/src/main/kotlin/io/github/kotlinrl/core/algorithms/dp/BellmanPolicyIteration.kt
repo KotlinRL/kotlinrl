@@ -9,9 +9,9 @@ class BellmanPolicyIteration<State, Action>(
     private val model: MDPModel<State, Action>,
     private val gamma: Double = 0.99,
     private val theta: Double = 1e-6,
-    private val stateActionListProvider: StateActionListProvider<State, Action>,
-    private val onValueFunctionUpdate: (EnumerableValueFunction<State>) -> Unit = { },
-    private val onPolicyUpdate: (Policy<State, Action>) -> Unit = { }
+    private val stateActions: StateActions<State, Action>,
+    private val onValueFunctionUpdate: EnumerableValueFunctionUpdate<State> = { },
+    private val onPolicyUpdate: PolicyUpdate<State, Action> = { }
 ) : DPIteration<State, Action>() {
 
     private val estimator = BellmanValueFunctionEstimator<State, Action>(gamma)
@@ -44,7 +44,7 @@ class BellmanPolicyIteration<State, Action>(
 
             stable = true
             val newPolicy = Policy<State, Action> { s ->
-                val actions = stateActionListProvider(s)
+                val actions = stateActions(s)
                 val best = actions.maxByOrNull { a ->
                     model.transitions(s, a).sumOf { t ->
                         t.probability * (t.reward + gamma * if (t.done) 0.0 else v[t.nextState])

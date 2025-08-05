@@ -7,8 +7,8 @@ class BellmanQFunctionIteration<State, Action>(
     private val model: MDPModel<State, Action>,
     private val gamma: Double = 0.99,
     private val theta: Double = 1e-6,
-    private val stateActionListProvider: StateActionListProvider<State, Action>,
-    private val onQFunctionUpdate: (EnumerableQFunction<State, Action>) -> Unit = { },
+    private val stateActions: StateActions<State, Action>,
+    private val onQFunctionUpdate: EnumerableQFunctionUpdate<State, Action> = { },
 ) : DPIteration<State, Action>() {
 
     private var q = initialQ
@@ -22,12 +22,12 @@ class BellmanQFunctionIteration<State, Action>(
             var newQ = q
 
             for (s in model.allStates()) {
-                val actions = stateActionListProvider(s)
+                val actions = stateActions(s)
                 for (a in actions) {
                     val transitions = model.transitions(s, a)
                     val expectedValue = transitions.sumOf { t ->
                         val maxQNext = if (t.done) 0.0 else {
-                            val nextActions = stateActionListProvider(t.nextState)
+                            val nextActions = stateActions(t.nextState)
                             nextActions.maxOfOrNull { q[t.nextState, it] } ?: 0.0
                         }
                         t.probability * (t.reward + gamma * maxQNext)
@@ -44,7 +44,7 @@ class BellmanQFunctionIteration<State, Action>(
         } while (delta > theta)
 
         return Policy { s ->
-            val actions = stateActionListProvider(s)
+            val actions = stateActions(s)
             actions.maxByOrNull { a -> q[s, a] } ?: actions.random()
         }
     }
