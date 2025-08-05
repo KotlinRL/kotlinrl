@@ -4,7 +4,7 @@ import io.github.kotlinrl.core.*
 
 object TDVErrors {
     // On-policy TD(0) for V
-    fun <State, Action> tdZero(): TDVError<State, Action> =
+    fun <State> tdZero(): TDVError<State> =
         TDVError { V, t, gamma ->
             val (s, _, r, sPrime) = t
             val boot = if (t.done) 0.0 else V[sPrime]
@@ -12,8 +12,9 @@ object TDVErrors {
         }
 
     // Off-policy TD(0) for V with per-step importance weight rho
-    fun <State, Action> tdZeroWeighted(rho: (Transition<State, Action>) -> Double)
-            : TDVError<State, Action> =
+    fun <State> tdZeroWeighted(
+        rho: (Transition<State, *>) -> Double = { 1.0 }
+    ): TDVError<State> =
         TDVError { V, t, gamma ->
             val (s, _, r, sPrime) = t
             val boot = if (t.done) 0.0 else V[sPrime]

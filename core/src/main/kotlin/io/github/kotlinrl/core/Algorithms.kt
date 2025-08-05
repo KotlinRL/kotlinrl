@@ -5,7 +5,7 @@ import kotlin.random.*
 typealias LearningAlgorithm<State, Action> = io.github.kotlinrl.core.algorithms.base.LearningAlgorithm<State, Action>
 typealias QFunctionAlgorithm<State, Action> = io.github.kotlinrl.core.algorithms.base.QFunctionAlgorithm<State, Action>
 typealias TDQError<State, Action> = io.github.kotlinrl.core.algorithms.td.TDQError<State, Action>
-typealias TDVError<State, Action> = io.github.kotlinrl.core.algorithms.td.TDVError<State, Action>
+typealias TDVError<State> = io.github.kotlinrl.core.algorithms.td.TDVError<State>
 typealias TDQErrors = io.github.kotlinrl.core.algorithms.td.TDQErrors
 typealias TDVErrors = io.github.kotlinrl.core.algorithms.td.TDVErrors
 typealias TransitionQFunctionAlgorithm<State, Action> = io.github.kotlinrl.core.algorithms.base.TransitionQFunctionAlgorithm<State, Action>
