@@ -8,10 +8,10 @@ class BellmanQFunctionEstimator<State, Action>(
 ) : DPQFunctionEstimator<State, Action> {
 
     override fun estimate(
-        q: EnumerableQFunction<State, Action>,
+        Q: EnumerableQFunction<State, Action>,
         trajectory: ProbabilisticTrajectory<State, Action>
     ): EnumerableQFunction<State, Action> {
-        var updatedQ = q
+        var updatedQ = Q
 
         val grouped = trajectory.groupBy { it.state to it.action }
 
@@ -21,7 +21,7 @@ class BellmanQFunctionEstimator<State, Action>(
             val expectedValue = transitions.sumOf { t ->
                 val futureActions = stateActions(t.nextState)
                 val maxQ = if (t.done || futureActions.isEmpty()) 0.0
-                else futureActions.maxOf { aPrime -> q[t.nextState, aPrime] }
+                else futureActions.maxOf { aPrime -> Q[t.nextState, aPrime] }
 
                 t.probability * (t.reward + gamma * maxQ)
             }

@@ -12,19 +12,19 @@ class TDZeroQFunctionEstimator<State, Action>(
     val policy = initialPolicy
 
     override fun estimate(
-        q: EnumerableQFunction<State, Action>,
+        Q: EnumerableQFunction<State, Action>,
         transition: Transition<State, Action>
     ): EnumerableQFunction<State, Action> {
         val (s, a, r, sPrime) = transition
         val done = transition.done
 
-        val current = q[s, a]
+        val current = Q[s, a]
         val nextValue = if (done) 0.0 else {
             val actionProbs = policy.probabilities(sPrime)
-            actionProbs.entries.sumOf { (aPrime, prob) -> prob * q[sPrime, aPrime] }
+            actionProbs.entries.sumOf { (aPrime, prob) -> prob * Q[sPrime, aPrime] }
         }
 
         val updated = current + alpha * (r + gamma * nextValue - current)
-        return q.update(s, a, updated)
+        return Q.update(s, a, updated)
     }
 }

@@ -20,7 +20,7 @@ class OffPolicyMonteCarloControl<State, Action>(
     onPolicyUpdate = {
         when (estimator) {
             is OffPolicyMonteCarloQFunctionEstimator -> estimator.targetPolicy =
-                it.improve((it as QFunctionPolicy<State, Action>).q)
+                it.improve((it as QFunctionPolicy<State, Action>).Q)
         }
         onPolicyUpdate(it)
     }

@@ -17,13 +17,13 @@ class ExpectedSARSAQFunctionEstimator<State, Action>(
         }
 
     override fun estimate(
-        q: EnumerableQFunction<State, Action>,
+        Q: EnumerableQFunction<State, Action>,
         transition: Transition<State, Action>
     ): EnumerableQFunction<State, Action> {
         val (s, a) = transition
         val done = transition.done
-        val delta = tdError(q, transition, null, gamma, done)
-        val updatedQ = q[s, a] + alpha() * delta
-        return q.update(s, a, updatedQ)
+        val delta = tdError(Q, transition, null, gamma, done)
+        val updatedQ = Q[s, a] + alpha() * delta
+        return Q.update(s, a, updatedQ)
     }
 }

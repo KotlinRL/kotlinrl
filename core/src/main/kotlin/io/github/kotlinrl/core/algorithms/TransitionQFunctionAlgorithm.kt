@@ -9,11 +9,11 @@ abstract class TransitionQFunctionAlgorithm<State, Action>(
     onQFunctionUpdate: EnumerableQFunctionUpdate<State, Action> = { }
 ) : QFunctionAlgorithm<State, Action>(initialPolicy, onPolicyUpdate, onQFunctionUpdate) {
 
-    protected val prediction = TransitionQFunctionPrediction(q, estimator, onQFunctionUpdate)
+    protected val prediction = TransitionQFunctionPrediction(Q, estimator, onQFunctionUpdate)
 
     override fun observe(transition: Transition<State, Action>) {
         prediction(transition)
-        q = prediction.q
-        policy = policy.improve(q)
+        Q = prediction.Q
+        policy = policy.improve(Q)
     }
 }

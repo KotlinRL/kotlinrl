@@ -11,7 +11,7 @@ class BellmanQFunctionIteration<State, Action>(
     private val onQFunctionUpdate: EnumerableQFunctionUpdate<State, Action> = { },
 ) : DPIteration<State, Action>() {
 
-    private var q = initialQ
+    private var Q = initialQ
 
     override fun plan(): Policy<State, Action> {
         var delta: Double
@@ -19,7 +19,7 @@ class BellmanQFunctionIteration<State, Action>(
 
         do {
             delta = 0.0
-            var newQ = q
+            var newQ = Q
 
             for (s in model.allStates()) {
                 val actions = stateActions(s)
@@ -28,24 +28,24 @@ class BellmanQFunctionIteration<State, Action>(
                     val expectedValue = transitions.sumOf { t ->
                         val maxQNext = if (t.done) 0.0 else {
                             val nextActions = stateActions(t.nextState)
-                            nextActions.maxOfOrNull { q[t.nextState, it] } ?: 0.0
+                            nextActions.maxOfOrNull { Q[t.nextState, it] } ?: 0.0
                         }
                         t.probability * (t.reward + gamma * maxQNext)
                     }
 
-                    delta = maxOf(delta, kotlin.math.abs(q[s, a] - expectedValue))
+                    delta = maxOf(delta, kotlin.math.abs(Q[s, a] - expectedValue))
                     newQ = newQ.update(s, a, expectedValue)
                 }
             }
 
-            q = newQ
-            onQFunctionUpdate(q)
+            Q = newQ
+            onQFunctionUpdate(Q)
             iterations++
         } while (delta > theta)
 
         return Policy { s ->
             val actions = stateActions(s)
-            actions.maxByOrNull { a -> q[s, a] } ?: actions.random()
+            actions.maxByOrNull { a -> Q[s, a] } ?: actions.random()
         }
     }
 }

@@ -4,7 +4,7 @@ import io.github.kotlinrl.core.*
 
 fun interface TDError<State, Action> {
     operator fun invoke(
-        q: QFunction<State, Action>,
+        Q: QFunction<State, Action>,
         t: Transition<State, Action>,
         aPrime: Action?,
         gamma: Double,

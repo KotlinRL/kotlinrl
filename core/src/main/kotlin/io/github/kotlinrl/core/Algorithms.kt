@@ -144,7 +144,7 @@ data class OffPolicyControls<State, Action>(
 )
 
 fun <State, Action> epsilonGreedySoftOffPolicyControls(
-    q: EnumerableQFunction<State, Action>,
+    Q: EnumerableQFunction<State, Action>,
     stateActions: StateActions<State, Action>,
     targetEpsilon: ParameterSchedule,
     behaviorEpsilon: ParameterSchedule,
@@ -152,13 +152,13 @@ fun <State, Action> epsilonGreedySoftOffPolicyControls(
 ): OffPolicyControls<State, Action> {
 
     val targetPolicy = epsilonGreedyPolicy(
-        q = q,
+        Q = Q,
         stateActions = stateActions,
         epsilon = targetEpsilon,
         rng = rng
     )
     val behavioralPolicy = epsilonSoftPolicy(
-        q = q,
+        Q = Q,
         stateActions = stateActions,
         epsilon = behaviorEpsilon,
         rng = rng

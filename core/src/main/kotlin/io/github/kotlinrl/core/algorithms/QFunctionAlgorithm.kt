@@ -7,7 +7,7 @@ abstract class QFunctionAlgorithm<State, Action>(
     onPolicyUpdate: PolicyUpdate<State, Action> = { },
     private val onQFunctionUpdate: EnumerableQFunctionUpdate<State, Action> = { },
 ) : LearningAlgorithm<State, Action>(initialPolicy, onPolicyUpdate) {
-    var q = initialPolicy.q
+    var Q = initialPolicy.Q
         protected set(value) {
             field = value
             onQFunctionUpdate(value)

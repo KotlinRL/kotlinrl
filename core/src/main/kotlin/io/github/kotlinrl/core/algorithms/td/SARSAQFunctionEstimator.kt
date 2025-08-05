@@ -11,20 +11,20 @@ class SARSAQFunctionEstimator<State, Action>(
     private var last: Transition<State, Action>? = null
 
     override fun estimate(
-        q: EnumerableQFunction<State, Action>,
+        Q: EnumerableQFunction<State, Action>,
         transition: Transition<State, Action>
     ): EnumerableQFunction<State, Action> {
         val prev = last
         last = transition
 
-        if (prev == null) return q
+        if (prev == null) return Q
 
         val (s, a) = prev
         val (_, aPrime) = transition
-        val delta = tdError(q, prev, aPrime, gamma, transition.done)
-        val updatedQ = q[s, a] + alpha() * (delta - q[s, a])
+        val delta = tdError(Q, prev, aPrime, gamma, transition.done)
+        val updatedQ = Q[s, a] + alpha() * (delta - Q[s, a])
         if (transition.done) last = null
 
-        return q.update(s, a, updatedQ)
+        return Q.update(s, a, updatedQ)
     }
 }

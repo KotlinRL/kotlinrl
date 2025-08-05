@@ -13,15 +13,15 @@ class DynaQEstimator<State, Action>(
 ) : TransitionQFunctionEstimator<State, Action> {
 
     override fun estimate(
-        q: EnumerableQFunction<State, Action>,
+        Q: EnumerableQFunction<State, Action>,
         transition: Transition<State, Action>
     ): EnumerableQFunction<State, Action> {
         val (s, a) = transition
         val done = transition.done
 
         // Real experience Q-learning
-        val delta = tdError(q, transition, null, gamma, done)
-        var currentQ = q.update(s, a, q[s, a] + alpha() * delta)
+        val delta = tdError(Q, transition, null, gamma, done)
+        var currentQ = Q.update(s, a, Q[s, a] + alpha() * delta)
 
         // Update model
         model.update(transition)

@@ -13,12 +13,12 @@ class OffPolicyMonteCarloQFunctionEstimator<State, Action>(
     var targetPolicy: Policy<State, Action> = initTargetPolicy
 
     override fun estimate(
-        q: EnumerableQFunction<State, Action>,
+        Q: EnumerableQFunction<State, Action>,
         trajectory: Trajectory<State, Action>
     ): EnumerableQFunction<State, Action> {
         var G = 0.0
         var W = 1.0
-        var currentQ = q
+        var currentQ = Q
 
         for ((s, a, r) in trajectory.asReversed()) {
             G = r + gamma * G

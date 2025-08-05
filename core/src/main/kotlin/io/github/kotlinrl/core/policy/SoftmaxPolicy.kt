@@ -6,7 +6,7 @@ import kotlin.math.*
 import kotlin.random.*
 
 class SoftmaxPolicy<State, Action>(
-    override val q: EnumerableQFunction<State, Action>,
+    override val Q: EnumerableQFunction<State, Action>,
     override val stateActions: StateActions<State, Action>,
     private val temperature: ParameterSchedule,
     rng: Random
@@ -16,10 +16,10 @@ class SoftmaxPolicy<State, Action>(
         val temperature = temperature()
         val actions = stateActions(state)
         return actions.map { action ->
-            action to exp(q[state, action] / temperature)
+            action to exp(Q[state, action] / temperature)
         }
     }
 
-    override fun improve(q: EnumerableQFunction<State, Action>): Policy<State, Action> =
-        SoftmaxPolicy(q, stateActions, temperature, rng)
+    override fun improve(Q: EnumerableQFunction<State, Action>): Policy<State, Action> =
+        SoftmaxPolicy(Q, stateActions, temperature, rng)
 }

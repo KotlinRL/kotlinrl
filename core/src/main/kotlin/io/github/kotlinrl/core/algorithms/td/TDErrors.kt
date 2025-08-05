@@ -4,28 +4,28 @@ import io.github.kotlinrl.core.*
 
 object TDErrors {
     fun <State, Action> qLearning(): TDError<State, Action> =
-    TDError { q, t, _, gamma, done ->
+    TDError { Q, t, _, gamma, done ->
         val (s, a, r, sPrime) = t
-        val nextQ = if (t.done) 0.0 else q.maxValue(sPrime)
-        r + gamma * nextQ - q[s, a]
+        val nextQ = if (t.done) 0.0 else Q.maxValue(sPrime)
+        r + gamma * nextQ - Q[s, a]
     }
 
     fun <State, Action> sarsa(): TDError<State, Action> =
-        TDError { q, t, aPrime, gamma, done ->
+        TDError { Q, t, aPrime, gamma, done ->
             val (s, a, r, sPrime) = t
-            val nextQ = if (t.done) 0.0 else q[sPrime, aPrime!!]
-            r + gamma * nextQ - q[s, a]
+            val nextQ = if (t.done) 0.0 else Q[sPrime, aPrime!!]
+            r + gamma * nextQ - Q[s, a]
         }
 
     fun <State, Action> expectedSarsa(policy: QFunctionPolicy<State, Action>): TDError<State, Action> =
         TDError { _, t, _, gamma, done ->
             val (s, a, r, sPrime) = t
-            val q = policy.q
+            val Q = policy.Q
             val expectedQ = if (!t.done) {
                 policy.probabilities(sPrime).entries.sumOf { (aPrime, prob) ->
-                    prob * q[sPrime, aPrime]
+                    prob * Q[sPrime, aPrime]
                 }
             } else 0.0
-            r + gamma * expectedQ - q[s, a]
+            r + gamma * expectedQ - Q[s, a]
         }
 }

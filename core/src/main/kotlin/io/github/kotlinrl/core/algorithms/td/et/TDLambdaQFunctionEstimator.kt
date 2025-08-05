@@ -22,16 +22,16 @@ class TDLambdaQFunctionEstimator<State, Action>(
         }
 
     override fun estimate(
-        q: EnumerableQFunction<State, Action>,
+        Q: EnumerableQFunction<State, Action>,
         transition: Transition<State, Action>
     ): EnumerableQFunction<State, Action> {
         val (s, a, _, sPrime) = transition
         val done = transition.done
         val aPrime = if (!done) policy(sPrime) else null
 
-        val delta = tdError(q, transition, aPrime ?: a, gamma, done)
+        val delta = tdError(Q, transition, aPrime ?: a, gamma, done)
         trace = trace.decay(gamma, lambda()).update(s, a)
-        var updatedQ = q
+        var updatedQ = Q
         @Suppress("UNCHECKED_CAST")
         trace.values().forEach { (key, traceValue) ->
             val state = when(key.state) {

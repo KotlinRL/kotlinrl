@@ -27,50 +27,50 @@ fun <State, Action> randomPolicy(
 ): Policy<State, Action> = RandomPolicy(stateActions, rng)
 
 fun <State, Action> greedyPolicy(
-    q: EnumerableQFunction<State, Action>,
+    Q: EnumerableQFunction<State, Action>,
     stateActions: StateActions<State, Action>,
-    ): QFunctionPolicy<State, Action> = GreedyPolicy(q, stateActions)
+): QFunctionPolicy<State, Action> = GreedyPolicy(Q, stateActions)
 
 fun <State, Action> epsilonGreedyPolicy(
-    q: EnumerableQFunction<State, Action>,
+    Q: EnumerableQFunction<State, Action>,
     stateActions: StateActions<State, Action>,
     epsilon: ParameterSchedule,
     rng: Random = Random.Default
 ): QFunctionPolicy<State, Action> = EpsilonGreedyPolicy(
-    q = q,
+    Q = Q,
     stateActions = stateActions,
     epsilon = epsilon,
-    rng = rng)
+    rng = rng
+)
 
 fun <State, Action> softMaxPolicy(
-    q: EnumerableQFunction<State, Action>,
+    Q: EnumerableQFunction<State, Action>,
     stateActions: StateActions<State, Action>,
     temperature: ParameterSchedule,
     rng: Random = Random.Default
 ): SoftmaxPolicy<State, Action> = SoftmaxPolicy(
-    q = q,
+    Q = Q,
     stateActions = stateActions,
     temperature = temperature,
     rng = rng
 )
 
 fun <State, Action> epsilonSoftPolicy(
-    q: EnumerableQFunction<State, Action>,
+    Q: EnumerableQFunction<State, Action>,
     stateActions: StateActions<State, Action>,
     epsilon: ParameterSchedule,
     rng: Random = Random.Default
 ): EpsilonSoftPolicy<State, Action> = EpsilonSoftPolicy(
-    q = q,
+    Q = Q,
     stateActions = stateActions,
     epsilon = epsilon,
     rng = rng
 )
 
 fun <State, Action> uniformRandomPolicy(
-    q: EnumerableQFunction<State, Action>,
+    Q: EnumerableQFunction<State, Action>,
     stateActions: StateActions<State, Action>,
-
-    ): StochasticPolicy<State, Action> = UniformStochasticPolicy(q, stateActions)
+): StochasticPolicy<State, Action> = UniformStochasticPolicy(Q, stateActions)
 
 fun constantParameterSchedule(value: Double) = ParameterSchedule { value }
 

@@ -44,15 +44,15 @@ class QTableDN(
     override fun maxValue(state: NDArray<Int, DN>): Double = qValues(state).max() ?: 0.0
 
     override fun bestAction(state: NDArray<Int, DN>): Int {
-        val q = qValues(state)
+        val Q = qValues(state)
         return if (deterministic) {
-            q.argMax()
+            Q.argMax()
         } else {
-            val max = q.max() ?: 0.0
-            val candidates = q.indices.filter { abs(q[it] - max) < tolerance }
+            val max = Q.max() ?: 0.0
+            val candidates = Q.indices.filter { abs(Q[it] - max) < tolerance }
             when {
                 candidates.isNotEmpty() -> if (candidates.size > 1) candidates.random() else candidates.first()
-                else -> q.indices.random()
+                else -> Q.indices.random()
             }
         }
     }

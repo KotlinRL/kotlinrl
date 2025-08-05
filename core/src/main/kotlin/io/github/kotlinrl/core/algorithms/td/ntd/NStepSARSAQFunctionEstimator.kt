@@ -12,7 +12,7 @@ class NStepSARSAQFunctionEstimator<State, Action>(
     var policy = initialPolicy
 
     override fun estimate(
-        q: EnumerableQFunction<State, Action>,
+        Q: EnumerableQFunction<State, Action>,
         trajectory: Trajectory<State, Action>
     ): EnumerableQFunction<State, Action> {
 
@@ -26,13 +26,13 @@ class NStepSARSAQFunctionEstimator<State, Action>(
         val last = trajectory.last()
         if (!last.done) {
             val expectedQ = policy.probabilities(last.state).entries.sumOf { (a, prob) ->
-                prob * q[last.state, a]
+                prob * Q[last.state, a]
             }
             g += gamma.pow(trajectory.size) * expectedQ
         }
 
-        val currentQ = q[s0, a0]
+        val currentQ = Q[s0, a0]
         val updated = currentQ + alpha() * (g - currentQ)
-        return q.update(s0, a0, updated)
+        return Q.update(s0, a0, updated)
     }
 }

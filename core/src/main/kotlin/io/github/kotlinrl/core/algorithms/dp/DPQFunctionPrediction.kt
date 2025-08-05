@@ -8,7 +8,7 @@ class DPQFunctionPrediction<State, Action>(
     private val model: MDPModel<State, Action>,
     private val onQFunctionUpdate: (EnumerableQFunction<State, Action>) -> Unit = {}
 ) {
-    var q: EnumerableQFunction<State, Action> = initialQ
+    var Q: EnumerableQFunction<State, Action> = initialQ
         private set(value) {
             field = value
             onQFunctionUpdate(value)
@@ -19,7 +19,7 @@ class DPQFunctionPrediction<State, Action>(
             model.transitions(s, policy(s))
         }
 
-        q = estimator.estimate(q, trajectory)
-        return q
+        Q = estimator.estimate(Q, trajectory)
+        return Q
     }
 }

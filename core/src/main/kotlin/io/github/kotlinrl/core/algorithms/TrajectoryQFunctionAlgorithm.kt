@@ -9,11 +9,11 @@ abstract class TrajectoryQFunctionAlgorithm<State, Action>(
     onQFunctionUpdate: EnumerableQFunctionUpdate<State, Action> = { }
 ) : QFunctionAlgorithm<State, Action>(initialPolicy, onPolicyUpdate, onQFunctionUpdate) {
 
-    protected val prediction = TrajectoryQFunctionPrediction(q, estimator)
+    protected val prediction = TrajectoryQFunctionPrediction(Q, estimator)
 
     override fun observe(trajectory: Trajectory<State, Action>, episode: Int) {
         prediction(trajectory, episode)
-        q = prediction.q
-        policy = policy.improve(q)
+        Q = prediction.Q
+        policy = policy.improve(Q)
     }
 }

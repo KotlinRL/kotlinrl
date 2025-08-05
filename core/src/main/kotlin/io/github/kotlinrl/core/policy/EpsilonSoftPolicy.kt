@@ -3,7 +3,7 @@ package io.github.kotlinrl.core.policy
 import kotlin.random.*
 
 class EpsilonSoftPolicy<State, Action>(
-    override val q: EnumerableQFunction<State, Action>,
+    override val Q: EnumerableQFunction<State, Action>,
     override val stateActions: StateActions<State, Action>,
     private val epsilon: ParameterSchedule,
     rng: Random
@@ -11,7 +11,7 @@ class EpsilonSoftPolicy<State, Action>(
 
     override fun actionScores(state: State): List<Pair<Action, Double>> {
         val actions = stateActions(state)
-        val greedyAction = q.bestAction(state)
+        val greedyAction = Q.bestAction(state)
         val n = actions.size
         val epsilon = epsilon()
 
@@ -25,9 +25,9 @@ class EpsilonSoftPolicy<State, Action>(
         }
     }
 
-    override fun improve(q: EnumerableQFunction<State, Action>): Policy<State, Action> =
+    override fun improve(Q: EnumerableQFunction<State, Action>): Policy<State, Action> =
         EpsilonSoftPolicy(
-            q = q,
+            Q = Q,
             epsilon = epsilon,
             rng = rng,
             stateActions = stateActions

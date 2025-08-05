@@ -3,7 +3,7 @@ package io.github.kotlinrl.core.policy
 import kotlin.random.*
 
 class UniformStochasticPolicy<State, Action>(
-    override val q: EnumerableQFunction<State, Action>,
+    override val Q: EnumerableQFunction<State, Action>,
     override val stateActions: StateActions<State, Action>,
     rng: Random = Random.Default
 ) : StochasticPolicy<State, Action>(rng) {
@@ -13,8 +13,8 @@ class UniformStochasticPolicy<State, Action>(
         return randomPolicy(state)
     }
 
-    override fun improve(q: EnumerableQFunction<State, Action>): Policy<State, Action> =
-        UniformStochasticPolicy(q, stateActions, rng)
+    override fun improve(Q: EnumerableQFunction<State, Action>): Policy<State, Action> =
+        UniformStochasticPolicy(Q, stateActions, rng)
 
     override fun actionScores(state: State): List<Pair<Action, Double>> {
         val actions = stateActions(state)

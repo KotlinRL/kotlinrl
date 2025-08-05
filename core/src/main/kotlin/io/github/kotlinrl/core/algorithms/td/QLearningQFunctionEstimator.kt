@@ -9,12 +9,12 @@ class QLearningQFunctionEstimator<State, Action>(
     private val tdError: TDError<State, Action> = qLearning()
 ) : TransitionQFunctionEstimator<State, Action> {
     override fun estimate(
-        q: EnumerableQFunction<State, Action>,
+        Q: EnumerableQFunction<State, Action>,
         transition: Transition<State, Action>
     ): EnumerableQFunction<State, Action> {
         val (s, a) = transition
-        val delta = tdError(q, transition, null, gamma, transition.done)
-        val updatedQ = q[s, a] + alpha() * (delta - q[s, a])
-        return q.update(s, a, updatedQ)
+        val delta = tdError(Q, transition, null, gamma, transition.done)
+        val updatedQ = Q[s, a] + alpha() * (delta - Q[s, a])
+        return Q.update(s, a, updatedQ)
     }
 }

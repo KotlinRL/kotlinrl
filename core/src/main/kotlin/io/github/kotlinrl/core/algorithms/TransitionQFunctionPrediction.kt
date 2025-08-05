@@ -10,11 +10,11 @@ class TransitionQFunctionPrediction<State, Action>(
     private val onQFunctionUpdate: (EnumerableQFunction<State, Action>) -> Unit = { }
 ) : TransitionObserver<State, Action> {
 
-    var q = initialQ
+    var Q = initialQ
         private set
 
     override fun invoke(transition: Transition<State, Action>) {
-        q = estimator.estimate(q, transition)
-        onQFunctionUpdate(q)
+        Q = estimator.estimate(Q, transition)
+        onQFunctionUpdate(Q)
     }
 }
