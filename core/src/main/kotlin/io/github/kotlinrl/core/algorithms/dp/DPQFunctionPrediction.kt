@@ -6,15 +6,11 @@ class DPQFunctionPrediction<State, Action>(
     initialQ: EnumerableQFunction<State, Action>,
     private val estimator: DPQFunctionEstimator<State, Action>,
     private val model: MDPModel<State, Action>,
-    private val onQFunctionUpdate: (EnumerableQFunction<State, Action>) -> Unit = {}
 ) {
     var Q: EnumerableQFunction<State, Action> = initialQ
-        private set(value) {
-            field = value
-            onQFunctionUpdate(value)
-        }
+        private set
 
-    fun evaluate(policy: Policy<State, Action>): EnumerableQFunction<State, Action> {
+    operator fun invoke(policy: Policy<State, Action>): EnumerableQFunction<State, Action> {
         val trajectory = model.allStates().flatMap { s ->
             model.transitions(s, policy(s))
         }

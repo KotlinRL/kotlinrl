@@ -8,6 +8,7 @@ typealias TransitionQFunctionAlgorithm<State, Action> = io.github.kotlinrl.core.
 typealias TransitionQFunctionEstimator<State, Action> = io.github.kotlinrl.core.algorithms.TransitionQFunctionEstimator<State, Action>
 typealias TrajectoryQFunctionAlgorithm<State, Action> = io.github.kotlinrl.core.algorithms.TrajectoryQFunctionAlgorithm<State, Action>
 typealias TrajectoryQFunctionEstimator<State, Action> = io.github.kotlinrl.core.algorithms.TrajectoryQFunctionEstimator<State, Action>
+typealias TrajectoryValueFunctionEstimator<State, Action> = io.github.kotlinrl.core.algorithms.TrajectoryValueFunctionEstimator<State, Action>
 typealias BellmanValueFunctionIteration<State, Action> = io.github.kotlinrl.core.algorithms.dp.BellmanValueFunctionIteration<State, Action>
 typealias BellmanQFunctionIteration<State, Action> = io.github.kotlinrl.core.algorithms.dp.BellmanQFunctionIteration<State, Action>
 typealias BellmanPolicyIteration<State, Action> = io.github.kotlinrl.core.algorithms.dp.BellmanPolicyIteration<State, Action>

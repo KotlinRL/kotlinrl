@@ -12,7 +12,7 @@ class TrajectoryQFunctionPrediction<State, Action>(
     var Q = initialQ
         private set
 
-    override fun invoke(trajectory: Trajectory<State, Action>, episode: Int) {
+    override operator fun invoke(trajectory: Trajectory<State, Action>, episode: Int) {
         Q = estimator.estimate(Q, trajectory)
     }
 }

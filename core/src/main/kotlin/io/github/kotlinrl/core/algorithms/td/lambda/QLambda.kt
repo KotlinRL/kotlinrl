@@ -1,4 +1,4 @@
-package io.github.kotlinrl.core.algorithms.td.et
+package io.github.kotlinrl.core.algorithms.td.lambda
 
 import io.github.kotlinrl.core.*
 import io.github.kotlinrl.core.algorithms.td.TDErrors

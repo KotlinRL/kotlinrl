@@ -3,7 +3,7 @@ package io.github.kotlinrl.core.algorithms.dp
 import io.github.kotlinrl.core.*
 
 class BellmanQFunctionIteration<State, Action>(
-    initialQ: EnumerableQFunction<State, Action>,
+    private val initialQ: EnumerableQFunction<State, Action>,
     private val model: MDPModel<State, Action>,
     private val gamma: Double = 0.99,
     private val theta: Double = 1e-6,
@@ -11,11 +11,9 @@ class BellmanQFunctionIteration<State, Action>(
     private val onQFunctionUpdate: EnumerableQFunctionUpdate<State, Action> = { },
 ) : DPIteration<State, Action>() {
 
-    private var Q = initialQ
-
     override fun plan(): Policy<State, Action> {
         var delta: Double
-        var iterations = 0
+        var Q = initialQ
 
         do {
             delta = 0.0
@@ -40,7 +38,6 @@ class BellmanQFunctionIteration<State, Action>(
 
             Q = newQ
             onQFunctionUpdate(Q)
-            iterations++
         } while (delta > theta)
 
         return Policy { s ->

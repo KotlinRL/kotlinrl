@@ -6,14 +6,14 @@ class OffPolicyMonteCarloValueFunctionEstimator<State, Action>(
     private val gamma: Double,
     private val behaviorPolicy: StochasticPolicy<State, Action>,
     private var targetPolicy: Policy<State, Action>,
-) : MonteCarloValueFunctionEstimator<State, Action> {
+) : TrajectoryValueFunctionEstimator<State, Action> {
 
     private val C: MutableMap<Comparable<*>, Double> = mutableMapOf()
 
-    override fun estimate(v: ValueFunction<State>, trajectory: Trajectory<State, Action>): ValueFunction<State> {
+    override fun estimate(V: EnumerableValueFunction<State>, trajectory: Trajectory<State, Action>): EnumerableValueFunction<State> {
         var G = 0.0
         var W = 1.0
-        var newV = v
+        var newV = V
 
         for ((s, a, r) in trajectory.asReversed()) {
             G = r + gamma * G

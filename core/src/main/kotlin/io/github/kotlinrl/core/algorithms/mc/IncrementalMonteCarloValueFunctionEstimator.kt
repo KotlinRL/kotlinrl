@@ -6,12 +6,12 @@ class IncrementalMonteCarloValueFunctionEstimator<State, Action>(
     private val gamma: Double,
     private val alpha: ParameterSchedule = ParameterSchedule { 0.05 },
     private val firstVisitOnly: Boolean = true,
-) : MonteCarloValueFunctionEstimator<State, Action> {
+) : TrajectoryValueFunctionEstimator<State, Action> {
 
-    override fun estimate(v: ValueFunction<State>, trajectory: Trajectory<State, Action>): ValueFunction<State> {
+    override fun estimate(V: EnumerableValueFunction<State>, trajectory: Trajectory<State, Action>): EnumerableValueFunction<State> {
         val visited = mutableSetOf<Comparable<*>>()
         var G = 0.0
-        var newV = v
+        var newV = V
 
         for ((s, _, r) in trajectory.asReversed()) {
             G = r + gamma * G

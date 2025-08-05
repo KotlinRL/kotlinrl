@@ -14,37 +14,35 @@ class BellmanValueFunctionIteration<State, Action>(
 
     override fun plan(): Policy<State, Action> {
         var delta: Double
-        var v = initialV
-        var iterations = 0
+        var V = initialV
 
         do {
             delta = 0.0
-            var newV = v
+            var newV = V
 
-            for (s in v.allStates()) {
+            for (s in model.allStates()) {
                 val actions = stateActions(s)
                 if (actions.isEmpty()) continue
 
-                val bestActionValue = actions.maxOf { a -> expectedReturn(s, a, v) }
-                delta = maxOf(delta, abs(bestActionValue - v[s]))
+                val bestActionValue = actions.maxOf { a -> expectedReturn(s, a, V) }
+                delta = maxOf(delta, abs(bestActionValue - V[s]))
                 newV = newV.update(s, bestActionValue)
             }
 
-            v = newV
-            iterations++
-            onValueFunctionUpdate(v)
+            V = newV
+            onValueFunctionUpdate(V)
 
         } while (delta > theta)
 
         return Policy { s ->
             val actions = stateActions(s)
-            actions.maxByOrNull { a -> expectedReturn(s, a, v) } ?: actions.random()
+            actions.maxByOrNull { a -> expectedReturn(s, a, V) } ?: actions.random()
         }
     }
 
-    private fun expectedReturn(s: State, a: Action, v: EnumerableValueFunction<State>): Double {
+    private fun expectedReturn(s: State, a: Action, V: EnumerableValueFunction<State>): Double {
         return model.transitions(s, a).sumOf { t ->
-            t.probability * (t.reward + gamma * if (t.done) 0.0 else v[t.nextState])
+            t.probability * (t.reward + gamma * if (t.done) 0.0 else V[t.nextState])
         }
     }
 }

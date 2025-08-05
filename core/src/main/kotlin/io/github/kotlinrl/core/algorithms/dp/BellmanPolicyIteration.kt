@@ -18,13 +18,10 @@ class BellmanPolicyIteration<State, Action>(
 
     override fun plan(): Policy<State, Action> {
         var policy = initialPolicy
-        var v = initialV
+        var V = initialV
         var stable: Boolean
-        var iterations = 0
 
         do {
-            iterations++
-
             var delta: Double
             do {
                 delta = 0.0
@@ -32,14 +29,14 @@ class BellmanPolicyIteration<State, Action>(
                     model.transitions(s, policy(s))
                 }
 
-                val updatedV = estimator.estimate(v, transitions)
+                val updatedV = estimator.estimate(V, transitions)
 
                 for (s in updatedV.allStates()) {
-                    delta = maxOf(delta, abs(updatedV[s] - v[s]))
+                    delta = maxOf(delta, abs(updatedV[s] - V[s]))
                 }
 
-                v = updatedV
-                onValueFunctionUpdate(v)
+                V = updatedV
+                onValueFunctionUpdate(V)
             } while (delta > theta)
 
             stable = true
@@ -47,7 +44,7 @@ class BellmanPolicyIteration<State, Action>(
                 val actions = stateActions(s)
                 val best = actions.maxByOrNull { a ->
                     model.transitions(s, a).sumOf { t ->
-                        t.probability * (t.reward + gamma * if (t.done) 0.0 else v[t.nextState])
+                        t.probability * (t.reward + gamma * if (t.done) 0.0 else V[t.nextState])
                     }
                 }
                 best ?: actions.random()

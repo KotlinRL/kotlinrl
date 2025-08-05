@@ -5,7 +5,7 @@ import io.github.kotlinrl.core.policy.EnumerableValueFunction
 
 interface DPValueFunctionEstimator<State, Action> {
     fun estimate(
-        v: EnumerableValueFunction<State>,
+        V: EnumerableValueFunction<State>,
         trajectory: ProbabilisticTrajectory<State, Action>
     ): EnumerableValueFunction<State>
 }

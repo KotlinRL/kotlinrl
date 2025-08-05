@@ -5,15 +5,15 @@ import io.github.kotlinrl.core.*
 class OnPolicyMonteCarloValueFunctionEstimator<State, Action>(
     private val gamma: Double,
     private val firstVisitOnly: Boolean = true,
-) : MonteCarloValueFunctionEstimator<State, Action> {
+) : TrajectoryValueFunctionEstimator<State, Action> {
 
     private val returnsCount: MutableMap<Comparable<*>, Int> = mutableMapOf()
     private val returnsSum: MutableMap<Comparable<*>, Double> = mutableMapOf()
 
-    override fun estimate(v: ValueFunction<State>, trajectory: Trajectory<State, Action>): ValueFunction<State> {
+    override fun estimate(V: EnumerableValueFunction<State>, trajectory: Trajectory<State, Action>): EnumerableValueFunction<State> {
         val visited = mutableSetOf<Comparable<*>>()
         var G = 0.0
-        var newV = v
+        var updatedV = V
 
         for ((s, _, r) in trajectory.asReversed()) {
             G = r + gamma * G
@@ -29,9 +29,9 @@ class OnPolicyMonteCarloValueFunctionEstimator<State, Action>(
             returnsSum[key] = sum
 
             val averageReturn = sum / count
-            newV = newV.update(s, averageReturn)
+            updatedV = updatedV.update(s, averageReturn)
         }
 
-        return newV
+        return updatedV
     }
 }
