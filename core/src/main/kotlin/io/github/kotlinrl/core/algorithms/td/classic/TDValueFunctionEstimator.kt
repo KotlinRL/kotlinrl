@@ -14,7 +14,7 @@ class TDValueFunctionEstimator<State, Action>(
     ): EnumerableValueFunction<State> {
         val (s, _, _) = transition
         val delta = td(V, transition, gamma)
-        val updated = V[s] + alpha() * delta
-        return V.update(s, updated)
+        if (delta == 0.0) return V
+        return V.update(s, V[s] + alpha() * delta)
     }
 }

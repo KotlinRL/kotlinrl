@@ -13,7 +13,7 @@ class NStepTDValueFunctionEstimator<State, Action>(
 
         val s0 = trajectory.first().state
         val delta = td(V, trajectory, gamma)
-        val updated = V[s0] + alpha() * delta
-        return V.update(s0, updated)
+        if (delta == 0.0) return V
+        return V.update(s0, V[s0] + alpha() * delta)
     }
 }

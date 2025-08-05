@@ -22,7 +22,7 @@ class NStepTDQFunctionEstimator<State, Action>(
         val a0 = trajectory.first().action
 
         val delta = td(Q, trajectory, policy, tailAction, gamma)
-        val updated = Q[s0, a0] + alpha() * delta
-        return Q.update(s0, a0, updated)
+        if (delta == 0.0) return Q
+        return Q.update(s0, a0, Q[s0, a0] + alpha() * delta)
     }
 }

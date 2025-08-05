@@ -13,7 +13,7 @@ class QLearningQFunctionEstimator<State, Action>(
     ): EnumerableQFunction<State, Action> {
         val (s, a) = transition
         val delta = td(Q, transition, null, gamma, transition.done)
-        val updatedQ = Q[s, a] + alpha() * (delta - Q[s, a])
-        return Q.update(s, a, updatedQ)
+        if (delta == 0.0) return Q
+        return Q.update(s, a, Q[s, a] + alpha() * (delta - Q[s, a]))
     }
 }

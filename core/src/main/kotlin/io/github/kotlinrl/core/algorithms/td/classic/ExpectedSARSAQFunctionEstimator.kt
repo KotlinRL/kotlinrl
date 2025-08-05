@@ -23,7 +23,7 @@ class ExpectedSARSAQFunctionEstimator<State, Action>(
         val (s, a) = transition
         val done = transition.done
         val delta = td(Q, transition, null, gamma, done)
-        val updatedQ = Q[s, a] + alpha() * delta
-        return Q.update(s, a, updatedQ)
+        if (delta == 0.0) return Q
+        return Q.update(s, a, Q[s, a] + alpha() * delta)
     }
 }

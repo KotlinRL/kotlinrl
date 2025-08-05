@@ -21,9 +21,9 @@ class SARSAQFunctionEstimator<State, Action>(
         val (s, a) = prev
         val (_, aPrime) = transition
         val delta = td(Q, prev, aPrime, gamma, transition.done)
-        val updatedQ = Q[s, a] + alpha() * (delta - Q[s, a])
+        if (delta == 0.0) return Q
         if (transition.done) last = null
 
-        return Q.update(s, a, updatedQ)
+        return Q.update(s, a, Q[s, a] + alpha() * (delta - Q[s, a]))
     }
 }
