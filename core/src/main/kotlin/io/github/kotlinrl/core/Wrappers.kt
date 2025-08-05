@@ -21,275 +21,223 @@ import java.awt.*
 import java.awt.image.*
 import java.io.*
 
+/**
+ * A type alias for the `ClipAction` class, simplifying its usage and reference in the codebase.
+ *
+ * Represents a wrapper for modifying actions within an environment by constraining them to lie
+ * within the predefined bounds of the environment's action space. The alias preserves the generic
+ * signature of the class, supporting a broad range of environments with varying state types,
+ * numeric types, dimensions, and observation space configurations.
+ *
+ * @param State The type representing the state of the environment.
+ * @param Num The numeric type used for the actions and observations within the environment.
+ * @param D The dimension type for the environment's action and observation spaces.
+ * @param ObservationSpace The type representing the observation space of the environment.
+ */
 typealias ClipAction<State, Num, D, ObservationSpace> = io.github.kotlinrl.core.wrapper.ClipAction<State, Num, D, ObservationSpace>
+/**
+ * A type alias for `io.github.kotlinrl.core.wrapper.FilterAction`, simplifying the reference
+ * to the wrapper that filters visible actions in a reinforcement learning environment.
+ *
+ * `FilterAction` restricts the agent to a subset of the environment's action space, allowing
+ * a more focused interaction by providing only the selected keys while still maintaining
+ * the underlying environment's complete action set.
+ *
+ * @param State The type representing the environment's state structure.
+ * @param ObservationSpace The type representing the observation space of the environment.
+ */
 typealias FilterAction<State, ObservationSpace> = io.github.kotlinrl.core.wrapper.FilterAction<State, ObservationSpace>
+/**
+ * Typealias for the `FilterObservation` wrapper in the KotlinRL library.
+ *
+ * This alias represents a wrapper that filters observations from an environment by retaining
+ * only a specified subset of keys. It is useful for scenarios where the entire observation data
+ * is not relevant to the agent's decision-making process, allowing for reduced dimensionality
+ * and complexity of the observation space.
+ *
+ * @param Action The type representing actions that can be performed in the environment.
+ * @param ActionSpace The type of the environment's action space, specifying valid actions.
+ */
 typealias FilterObservation<Action, ActionSpace> = io.github.kotlinrl.core.wrapper.FilterObservation<Action, ActionSpace>
+/**
+ * A type alias for the `FlattenObservation` class, which wraps an existing environment to provide
+ * a flattened one-dimensional array (NDArray) representation of its observations.
+ *
+ * This type alias simplifies references to the `FlattenObservation` class by reducing the verbosity of its
+ * generic parameter specification.
+ *
+ * @param Num The numeric type for the elements of the flattened observation (e.g., Double, Float, Int, Long).
+ * @param WrappedState The original, untransformed state type of the underlying wrapped environment.
+ * @param Action The type of actions supported by the environment.
+ * @param WrappedObservationSpace The original observation space type of the wrapped environment.
+ * @param ActionSpace The action space type defining the allowable actions in the environment.
+ */
 typealias FlattenObservation<Num, WrappedState, Action, WrappedObservationSpace, ActionSpace> = io.github.kotlinrl.core.wrapper.FlattenObservation<Num, WrappedState, Action, WrappedObservationSpace, ActionSpace>
+/**
+ * Typealias for `io.github.kotlinrl.core.wrapper.Monitor`.
+ *
+ * Represents a wrapper for environments to monitor and log episode statistics, including rewards and lengths,
+ * during reinforcement learning tasks. This alias allows for simpler references to the Monitor class.
+ *
+ * @param State The type representing the state of the environment.
+ * @param Action The type representing actions that can be performed within the environment.
+ * @param ObservationSpace The type of space defining the structure of valid observations in the environment.
+ * @param ActionSpace The type of space defining the structure of valid actions in the environment.
+ */
 typealias Monitor<State, Action, ObservationSpace, ActionSpace> = io.github.kotlinrl.core.wrapper.Monitor<State, Action, ObservationSpace, ActionSpace>
+/**
+ * Typealias for `io.github.kotlinrl.core.wrapper.NormalizeReward`.
+ *
+ * Represents an environment wrapper that normalizes rewards based on the running mean and standard deviation
+ * of observed rewards. This normalization helps stabilize reward distribution, which is beneficial for
+ * training reinforcement learning algorithms. The normalization process avoids division by zero by including an
+ * epsilon parameter as a safeguard.
+ *
+ * @param State The type representing the state of the environment.
+ * @param Action The type representing the actions available in the environment.
+ * @param ObservationSpace The type of space describing the observation space for the environment's state.
+ * @param ActionSpace The type of space describing the possible actions in the environment.
+ */
 typealias NormalizeReward<State, Action, ObservationSpace, ActionSpace> = io.github.kotlinrl.core.wrapper.NormalizeReward<State, Action, ObservationSpace, ActionSpace>
+/**
+ * A type alias for `io.github.kotlinrl.core.wrapper.NormalizeState`, which represents a wrapper
+ * that normalizes state observations in an environment. It is particularly useful when states
+ * need to be scaled or standardized for consistent processing by agents.
+ *
+ * By using this alias, the full qualifier can be avoided while retaining a clear reference to
+ * the `NormalizeState` class.
+ *
+ * @param Num The numeric type of the observations, extending `Number`.
+ * @param D The dimensionality of the `NDArray`.
+ * @param Action The type of actions executable in the environment.
+ * @param ObservationSpace The structure or constraints defining the valid observation space.
+ * @param ActionSpace The structure or constraints defining the valid actions in the environment.
+ */
 typealias NormalizeState<Num, D, Action, ObservationSpace, ActionSpace> = io.github.kotlinrl.core.wrapper.NormalizeState<Num, D, Action, ObservationSpace, ActionSpace>
+/**
+ * A type alias for `io.github.kotlinrl.core.wrapper.OrderEnforcing`.
+ *
+ * Represents a wrapper for enforcing the correct order of operations within an environment.
+ * This utility ensures that `reset` is called before any `step` operations, adding a layer of
+ * control to prevent invalid operation sequences. It throws an exception if `step` is called
+ * before resetting the environment or after an episode ends (terminated or truncated).
+ *
+ * @param State The type representing the environment's state.
+ * @param Action The type representing actions that can be performed in the environment.
+ * @param ObservationSpace The structured space or constraints defining observations.
+ * @param ActionSpace The structured space or constraints defining valid actions.
+ */
 typealias OrderEnforcing<State, Action, ObservationSpace, ActionSpace> = io.github.kotlinrl.core.wrapper.OrderEnforcing<State, Action, ObservationSpace, ActionSpace>
+/**
+ * A type alias for `io.github.kotlinrl.core.wrapper.RecordEpisodeStatistics`.
+ *
+ * This alias simplifies the reference to the `RecordEpisodeStatistics` wrapper, which tracks
+ * cumulative episode statistics such as total reward and episode length. The statistics are
+ * included in the `info` map upon completion of an episode. It is utilized in reinforcement
+ * learning environments for monitoring and analysis of episode-level performance.
+ *
+ * @param State The type representing the environment's state.
+ * @param Action The type representing the actions that can be performed in the environment.
+ * @param ObservationSpace The type representing the observation space structure of the environment.
+ * @param ActionSpace The type representing the action space structure of the environment.
+ */
 typealias RecordEpisodeStatistics<State, Action, ObservationSpace, ActionSpace> = io.github.kotlinrl.core.wrapper.RecordEpisodeStatistics<State, Action, ObservationSpace, ActionSpace>
+/**
+ * Typealias for the `RecordVideo` class in the `io.github.kotlinrl.core.wrapper` package.
+ *
+ * `RecordVideo` is a wrapper for environments that enables video recording of episodes. This class
+ * captures frames rendered by the environment and saves them as video files. It is useful for
+ * visualizing agent behavior over the course of multiple episodes.
+ *
+ * @param State The type representing the environment's state.
+ * @param Action The type representing actions performed in the environment.
+ * @param ObservationSpace The space type representing the observation space of the environment.
+ * @param ActionSpace The space type representing the action space of the environment.
+ */
 typealias RecordVideo<State, Action, ObservationSpace, ActionSpace> = io.github.kotlinrl.core.wrapper.RecordVideo<State, Action, ObservationSpace, ActionSpace>
+/**
+ * Type alias for the `RescaleAction` wrapper.
+ *
+ * Represents an environment wrapper that rescales the action space of a given environment.
+ * The rescaling adjusts the action range provided by an agent to align with the acceptable
+ * action range required by the underlying environment. This is particularly useful in cases
+ * where agents operate within normalized action ranges but need to interact with environments
+ * that have different action space bounds.
+ *
+ * @param State The type representing the state of the environment.
+ * @param Action The type representing actions performed within the environment.
+ * @param ObservationSpace The type extending `Space<State>`, representing the observation space of the environment.
+ * @param ActionSpace The type extending `Space<Action>`, representing the action space of the environment.
+ */
 typealias RescaleAction<State, Action, ObservationSpace, ActionSpace> = io.github.kotlinrl.core.wrapper.RescaleAction<State, Action, ObservationSpace, ActionSpace>
+/**
+ * Type alias for `io.github.kotlinrl.core.wrapper.RunningStats`, which represents a utility
+ * for maintaining running statistics like mean and standard deviation in a numerically stable manner.
+ *
+ * The `RunningStats` class is used to track statistics incrementally, and it adjusts
+ * its internal state through updates for new data points. It ensures efficiency and stability
+ * for dynamically computed statistical measures.
+ */
 typealias RunningStats = io.github.kotlinrl.core.wrapper.RunningStats
+/**
+ * A type alias for the `TimeLimit` wrapper class.
+ *
+ * This alias simplifies access to the `TimeLimit` wrapper, which is responsible for
+ * enforcing a time limit on episodes in an environment. The wrapper terminates an episode
+ * after a predefined maximum number of steps, even if the underlying environment itself
+ * has not naturally ended. It is commonly used in reinforcement learning to restrict
+ * episode length and avoid indefinite agent-environment interactions.
+ *
+ * @param State The type representing the state of the environment.
+ * @param Action The type representing actions executable in the environment.
+ * @param ObservationSpace The type of space defining the structure of observation states.
+ * @param ActionSpace The type of space defining the structure of allowable actions.
+ */
 typealias TimeLimit<State, Action, ObservationSpace, ActionSpace> = io.github.kotlinrl.core.wrapper.TimeLimit<State, Action, ObservationSpace, ActionSpace>
+/**
+ * A type alias for the `TransformReward` class in the `io.github.kotlinrl.core.wrapper` package.
+ *
+ * Represents a customizable wrapper for an environment where the reward values are
+ * transformed using a user-defined function. This allows for dynamic modification
+ * of reward structures without altering the original environment.
+ *
+ * @param State The type representing the states of the environment.
+ * @param Action The type representing the possible actions in the environment.
+ * @param ObservationSpace The type defining the observation space of the environment.
+ * @param ActionSpace The type defining the action space of the environment.
+ */
 typealias TransformReward<State, Action, ObservationSpace, ActionSpace> = io.github.kotlinrl.core.wrapper.TransformReward<State, Action, ObservationSpace, ActionSpace>
+/**
+ * A type alias representing the `TransformState` wrapper class.
+ *
+ * This alias simplifies the reference to the `TransformState` class, which wraps an
+ * existing environment and applies a transformation to its states. The transformed
+ * states are exposed to the user while maintaining the original action and observation
+ * spaces of the environment.
+ *
+ * @param State The type of the transformed state.
+ * @param Action The type of actions supported by the environment.
+ * @param ObservationSpace The observation space type for the transformed states.
+ * @param ActionSpace The action space type of the environment.
+ * @param WrappedState The raw state type of the underlying environment.
+ * @param WrappedObservationSpace The observation space type for the raw states.
+ */
 typealias TransformState<State, Action, ObservationSpace, ActionSpace, WrappedState, WrappedObservationSpace> = io.github.kotlinrl.core.wrapper.TransformState<State, Action, ObservationSpace, ActionSpace, WrappedState, WrappedObservationSpace>
-
-fun displayVideo(
-    folder: String,
-    episode: Int
-): Any? {
-    return displayVideo(File(folder, episodeFolderName(episode)))
-}
-
-fun displayVideo(file: String): Any {
-    return displayVideo(File(file))
-}
-
-fun displayVideo(file: File): Any {
-    // Try notebook HTML
-    return if (System.getenv("JPY_PARENT_PID") != null) {
-        val cwd = File(".").absoluteFile.normalize()
-        val absPath = file.absoluteFile
-        val relPath = absPath.relativeToOrNull(cwd)?.path ?: file.name
-
-        HTML(
-            """<video style="max-width: 100%; height: auto;" controls>
-          <source src="${relPath}" type="video/mp4">
-          Your browser does not support the video tag.
-        </video>"""
-        )
-    } else {
-        try {
-            if (!JavaFXState.launched) {
-                JavaFXState.launched = true
-                Thread {
-                    Application.launch(FramePlayer::class.java)
-                }.start()
-                Thread.sleep(500)
-            }
-            Platform.runLater {
-                FramePlayer.play(file)
-            }
-        } catch (e: Throwable) {
-            // Fallback
-            if (Desktop.isDesktopSupported()) {
-                Desktop.getDesktop().open(file)
-            } else {
-                println("MP4 saved to: ${file.absolutePath}")
-                println("Please open it with your video player.")
-            }
-        }
-        ""
-    }
-}
-
-fun RenderFrame.toBufferedImage(): BufferedImage = renderFrameToBufferedImage(this)
-
-private object JavaFXState {
-    @Volatile
-    var launched = false
-}
-
-class FramePlayer : Application() {
-    override fun start(stage: Stage) {
-
-    }
-
-    companion object {
-        fun formatFrameName(index: Int, frames: List<File>): String {
-            return frames.getOrNull(index)?.name ?: "frame_%04d.png".format(index)
-        }
-
-        fun loadFrameFiles(folder: File): List<File> {
-            return folder.listFiles { f -> f.name.endsWith(".png") }
-                ?.sortedBy { it.name.removePrefix("frame_").removeSuffix(".png").toIntOrNull() ?: Int.MAX_VALUE }
-                ?: emptyList()
-        }
-
-        fun play(folder: File, initialFps: Int = 30) {
-            val frameFiles = loadFrameFiles(folder)
-            val frames = frameFiles.map { Image(it.toURI().toString()) }
-            if (frames.isEmpty()) throw IllegalArgumentException("No frames found in $folder")
-
-            val width = frames.first().width
-            val height = frames.first().height
-            val imageView = ImageView(frames.first()).apply {
-                fitWidth = width
-                fitHeight = height
-                isPreserveRatio = true
-            }
-
-            val playIcon = "M8 5v14l11-7z"
-            val pauseIcon = "M6 19h4V5H6v14zm8-14v14h4V5h-4z"
-            val stepLeftButton = svgButton("M15 18V6l-6 6 6 6z")
-            val stepRightButton = svgButton("M9 6v12l6-6-6-6z")
-            val playPauseButton = svgButton(playIcon)
-            val rewindButton = svgButton("M13 6v12l-8.5-6L13 6zm9 0v12l-8.5-6L22 6z")
-            val forwardButton = svgButton("M4 6v12l8.5-6L4 6zm9 0v12l8.5-6L13 6z")
-            val timeLabel = Label(formatFrameName(0, frameFiles)).apply {
-                style = "-fx-text-fill: white; -fx-font-weight: bold;"
-            }
-            val timeSlider = Slider(0.0, frames.size - 1.0, 0.0)
-            val fpsSlider = Slider(6.0, 60.0, initialFps.toDouble()).apply {
-                majorTickUnit = 15.0
-                minorTickCount = 0
-                isSnapToTicks = true
-                isShowTickMarks = true
-                isShowTickLabels = true
-                prefWidth = 100.0
-            }
-            val fpsLabel = Label("${initialFps} fps")
-
-            var currentFrame = 0
-            var isPlaying = false
-
-            val timeline = Timeline().apply {
-                cycleCount = Timeline.INDEFINITE
-            }
-
-            fun updateTimelineRate(fps: Double) {
-                timeline.stop()
-                timeline.keyFrames.clear()
-                timeline.keyFrames.add(
-                    KeyFrame(Duration.millis(1000.0 / fps), EventHandler {
-                        if (isPlaying) {
-                            if (currentFrame < frames.size - 1) {
-                                currentFrame++
-                                imageView.image = frames[currentFrame]
-                                timeSlider.value = currentFrame.toDouble()
-                                timeLabel.text = formatFrameName(currentFrame, frameFiles)
-                            } else {
-                                isPlaying = false
-                                (playPauseButton.graphic as SVGPath).content = playIcon
-                            }
-                        }
-                    })
-                )
-                timeline.play()
-            }
-
-            fpsSlider.valueProperty().addListener { _, _, newVal ->
-                updateTimelineRate(newVal.toDouble())
-                fpsLabel.text = "${newVal.toInt()} fps"
-            }
-
-            updateTimelineRate(initialFps.toDouble())
-
-            timeSlider.valueChangingProperty().addListener { _, _, changing ->
-                if (!changing) {
-                    currentFrame = timeSlider.value.toInt().coerceIn(0, frames.size - 1)
-                    imageView.image = frames[currentFrame]
-                    timeLabel.text = formatFrameName(currentFrame, frameFiles)
-                }
-            }
-
-            playPauseButton.setOnAction {
-                isPlaying = !isPlaying
-                (playPauseButton.graphic as SVGPath).content = if (isPlaying) pauseIcon else playIcon
-            }
-
-            val availableFps = listOf(6.0, 15.0, 30.0, 45.0, 60.0)
-            rewindButton.setOnAction {
-                fpsSlider.value = availableFps.filter { it < fpsSlider.value }.maxOrNull() ?: 15.0
-            }
-
-            forwardButton.setOnAction {
-                fpsSlider.value = availableFps.filter { it > fpsSlider.value }.minOrNull() ?: 60.0
-            }
-
-            stepLeftButton.setOnAction {
-                isPlaying = false
-                (playPauseButton.graphic as SVGPath).content = playIcon
-                currentFrame = (currentFrame - 1).coerceAtLeast(0)
-                imageView.image = frames[currentFrame]
-                timeSlider.value = currentFrame.toDouble()
-                timeLabel.text = formatFrameName(currentFrame, frameFiles)
-            }
-
-            stepRightButton.setOnAction {
-                isPlaying = false
-                (playPauseButton.graphic as SVGPath).content = playIcon
-                currentFrame = (currentFrame + 1).coerceAtMost(frames.size - 1)
-                imageView.image = frames[currentFrame]
-                timeSlider.value = currentFrame.toDouble()
-                timeLabel.text = formatFrameName(currentFrame, frameFiles)
-            }
-
-            val buttonRow =
-                HBox(10.0, stepLeftButton, rewindButton, playPauseButton, forwardButton, stepRightButton).apply {
-                    alignment = Pos.CENTER
-                }
-
-            val labelRow = HBox(timeLabel).apply {
-                alignment = Pos.CENTER
-            }
-
-            val controlRow = VBox(5.0, buttonRow, labelRow).apply {
-                alignment = Pos.CENTER
-                padding = Insets(10.0)
-                style = "-fx-background-color: rgba(0,0,0,0.6); -fx-background-radius: 10;"
-                isVisible = false
-            }
-
-            val sliderRow = HBox(10.0, fpsSlider, fpsLabel, timeSlider).apply {
-                alignment = Pos.TOP_CENTER
-                padding = Insets(10.0)
-                style = "-fx-background-color: rgba(0,0,0,0.3); -fx-background-radius: 10; -fx-background-radius: 10;"
-                isVisible = false
-            }
-
-            val root = StackPane(imageView, VBox(controlRow, sliderRow).apply {
-                alignment = Pos.BOTTOM_CENTER
-                padding = Insets(20.0)
-            })
-
-            fun hideControlsIfNotHovering() {
-                PauseTransition(Duration.millis(150.0)).apply {
-                    setOnFinished {
-                        if (!controlRow.isHover && !sliderRow.isHover && !root.isHover) {
-                            controlRow.isVisible = false
-                            sliderRow.isVisible = false
-                        }
-                    }
-                    play()
-                }
-            }
-
-            fun showControls() {
-                controlRow.isVisible = true
-                sliderRow.isVisible = true
-            }
-
-            root.setOnMouseMoved { showControls() }
-            root.setOnMouseExited { hideControlsIfNotHovering() }
-
-            controlRow.setOnMouseExited { hideControlsIfNotHovering() }
-            sliderRow.setOnMouseExited { hideControlsIfNotHovering() }
-
-            val scene = Scene(root, width, height)
-            val finalStage = Stage()
-            finalStage.title = folder.name
-            finalStage.scene = scene
-            finalStage.show()
-        }
-
-        fun svgButton(svgPath: String, size: Double = 24.0, fill: String = "white"): Button {
-            val icon = SVGPath().apply {
-                content = svgPath
-                style = "-fx-fill: $fill;"
-                scaleX = size / 24
-                scaleY = size / 24
-            }
-            return Button("", icon).apply {
-                style = """
-                    -fx-background-color: transparent;
-                    -fx-padding: 6;
-                    -fx-cursor: hand;
-                """.trimIndent()
-            }
-        }
-    }
-}
+/**
+ * Type alias for the `TransformAction` class.
+ *
+ * Represents a wrapper that modifies the action space and the behavior of the `step` function
+ * by applying a transformation to actions before they are executed in a wrapped environment.
+ * It enables mapping abstract actions to the specific actions understood by the wrapped environment.
+ *
+ * This transformation maintains the observation space and other properties of the wrapped environment
+ * while introducing customization in the action execution process.
+ *
+ * @param State The type representing the state in the environment.
+ * @param Action The type representing the abstract action to be transformed.
+ * @param ObservationSpace The type representing the observation space of the environment.
+ * @param ActionSpace The type representing the space of abstract actions in the transformed environment.
+ * @param WrappedAction The type of action used by the wrapped environment after transformation.
+ * @param WrappedActionSpace The type representing the space of actions specific to the wrapped environment.
+ */
+typealias TransformAction<State, Action, ObservationSpace, ActionSpace, WrappedAction, WrappedActionSpace> = io.github.kotlinrl.core.wrapper.TransformAction<State, Action, ObservationSpace, ActionSpace, WrappedAction, WrappedActionSpace>
