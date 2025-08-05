@@ -1,6 +1,7 @@
 package io.github.kotlinrl.core.algorithms.td.et
 
 import io.github.kotlinrl.core.*
+import io.github.kotlinrl.core.algorithms.td.TDErrors
 
 class SARSALambda<State, Action>(
     initialPolicy: QFunctionPolicy<State, Action>,
@@ -11,4 +12,6 @@ class SARSALambda<State, Action>(
     onQFunctionUpdate: EnumerableQFunctionUpdate<State, Action> = {},
     onPolicyUpdate: PolicyUpdate<State, Action> = {},
     onEligibilityTraceUpdate: EligibilityTraceUpdate<State, Action> = { },
-) : TDLambda<State, Action>(initialPolicy, alpha, gamma, lambda, initialEligibilityTrace, onQFunctionUpdate, onPolicyUpdate, onEligibilityTraceUpdate)
+) : TDLambda<State, Action>(initialPolicy, alpha, gamma, lambda, initialEligibilityTrace, onQFunctionUpdate, onPolicyUpdate, onEligibilityTraceUpdate,
+    tdError = TDErrors.sarsa()
+)

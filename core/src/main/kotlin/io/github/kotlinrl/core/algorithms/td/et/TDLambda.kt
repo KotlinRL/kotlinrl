@@ -12,7 +12,7 @@ abstract class TDLambda<State, Action>(
     onQFunctionUpdate: EnumerableQFunctionUpdate<State, Action> = {},
     onPolicyUpdate: PolicyUpdate<State, Action> = {},
     onEligibilityTraceUpdate: EligibilityTraceUpdate<State, Action> = { },
-    tdError: TDError<State, Action> = TDErrors.sarsa(),
+    tdError: TDError<State, Action>,
     estimator: TransitionQFunctionEstimator<State, Action> = TDLambdaQFunctionEstimator(
         initialPolicy = initialPolicy,
         alpha = alpha,
