@@ -47,7 +47,7 @@ class OnPolicyMonteCarloQFunctionEstimator<State, Action>(
 
         for ((s, a, r) in trajectory.asReversed()) {
             G = r + gamma * G
-            val key = stateActionKey(s, a)
+            val key = StateActionKey(s, a)
 
             if (firstVisitOnly && key in visited) continue
             visited.add(key)

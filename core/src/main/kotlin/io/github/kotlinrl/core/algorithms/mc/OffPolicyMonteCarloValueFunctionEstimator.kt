@@ -52,7 +52,7 @@ class OffPolicyMonteCarloValueFunctionEstimator<State, Action>(
 
         for ((s, a, r) in trajectory.asReversed()) {
             G = r + gamma * G
-            val key = stateKey(s)
+            val key = s.toComparable()
 
             val c = C.getOrDefault(key, 0.0) + W
             C[key] = c

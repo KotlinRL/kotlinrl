@@ -36,7 +36,7 @@ class IncrementalMonteCarloValueFunctionEstimator<State, Action>(
 
         for ((s, _, r) in trajectory.asReversed()) {
             G = r + gamma * G
-            val key = stateKey(s)
+            val key = s.toComparable()
 
             if (firstVisitOnly && key in visited) continue
             visited.add(key)

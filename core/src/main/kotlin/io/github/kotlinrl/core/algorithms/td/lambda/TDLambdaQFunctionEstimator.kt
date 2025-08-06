@@ -86,13 +86,8 @@ class TDLambdaQFunctionEstimator<State, Action>(
         val delta = td(Q, transition, aPrime ?: a, gamma, done)
         trace = trace.decay(gamma, lambda()).update(s, a)
         var updatedQ = Q
-        @Suppress("UNCHECKED_CAST")
         trace.values().forEach { (key, traceValue) ->
-            val state = when(key.state) {
-                is ComparableIntList -> mk.ndarray(key.state.data).asDNArray()
-                else -> key.state
-            } as State
-            val action = key.action as Action
+            val (state, action) = key
             val newQ = updatedQ[state, action] + alpha() * delta * traceValue
             updatedQ = updatedQ.update(state, action, newQ)
         }
