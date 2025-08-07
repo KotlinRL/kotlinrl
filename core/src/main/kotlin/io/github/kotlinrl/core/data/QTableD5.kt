@@ -5,20 +5,20 @@ import org.jetbrains.kotlinx.multik.ndarray.data.*
 import org.jetbrains.kotlinx.multik.ndarray.operations.*
 
 /**
- * Represents a specialized Q-table for environments with exactly 5 state dimensions and 1 action dimension,
- * making it compatible with 6-dimensional Q-value arrays. This class serves as a wrapper over `QTableDN`
- * for specific use cases where only 5 state dimensions are relevant.
+ * Represents a multi-dimensional Q-table implementation for reinforcement learning tasks with six dimensions.
  *
- * @constructor
- * Initializes the `QTableD5` with the given parameters.
+ * This class provides functionality to represent, update, and manipulate Q-values associated with
+ * state-action pairs and supports features like determining the best action, computing maximum Q-values, and
+ * exporting/importing the table data. It extends the `EnumerableQFunction` interface, allowing the representation
+ * of enumerable state spaces and providing efficient state-action value updates.
  *
- * @param shape the shape of the Q-table, requiring exactly 6 integers — 5 for state dimensions and 1 for actions.
- * @param deterministic a flag indicating whether the Q-function should behave deterministically (e.g., always return
- *    the action with the highest Q-value) when determining the best action.
- * @param tolerance the numerical tolerance for identifying Q-value equality in non-deterministic cases.
- * @param defaultQValue the default value assigned to all Q-values during initialization.
+ * @constructor Initializes a QTableD5 object with the specified dimensions, deterministic behavior, tolerance, and
+ * default Q-value for uninitialized entries.
  *
- * @throws IllegalArgumentException if the provided `shape` does not contain exactly 6 dimensions.
+ * @param shape The dimensions of the Q-table as a vararg of integers. Must have exactly 6 entries.
+ * @param deterministic A boolean flag indicating whether updates are deterministic. Defaults to true.
+ * @param tolerance A double value specifying the tolerance for numerical comparisons. Defaults to 1e-6.
+ * @param defaultQValue The default Q-value assigned to all state-action pairs during initialization. Defaults to 0.0.
  */
 class QTableD5(
     vararg val shape: Int,
@@ -32,6 +32,17 @@ class QTableD5(
     }
 
     internal val base = QTableDN(shape = shape, deterministic, tolerance, defaultQValue)
+
+    @Suppress("DuplicatedCode")
+    override fun toV(): EnumerableValueFunction<NDArray<Int, D4>> {
+        val Q = (if (deterministic) this else copy(true))
+        val shape = Q.shape.dropLast(1).toIntArray()
+        var V = VTableD5(shape = shape)
+        for (state in allStates()) {
+            V = V.update(state, Q.maxValue(state)) as VTableD5
+        }
+        return V
+    }
 
     /**
      * Retrieves the Q-value for a given state and action.
@@ -88,12 +99,14 @@ class QTableD5(
         base.bestAction(state.asDNArray())
 
     /**
-     * Creates a copy of the current QTableD5 instance, including its configuration and data.
+     * Creates a copy of the current QTableD5 instance, optionally overriding the `deterministic` flag.
      *
-     * @return A new QTableD5 instance with the same shape, deterministic setting, tolerance, default Q-values,
-     *         and data content as the original instance.
+     * @param deterministic A Boolean value indicating whether the copied instance should use
+     *                      deterministic updates. Defaults to the current instance's `deterministic` value.
+     * @return A new QTableD5 instance with the same properties as the current instance but with the updated
+     *         deterministic configuration if specified.
      */
-    fun copy(): QTableD5 =
+    fun copy(deterministic: Boolean = this.deterministic): QTableD5 =
         QTableD5(
             shape = shape,
             deterministic = deterministic,

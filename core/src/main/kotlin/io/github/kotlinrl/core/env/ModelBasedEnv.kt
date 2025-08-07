@@ -17,6 +17,17 @@ interface ModelBasedEnv<State, Action, ObservationSpace : Space<State>, ActionSp
     : Env<State, Action, ObservationSpace, ActionSpace> {
 
     /**
+     * Retrieves a list of all possible states in the environment.
+     *
+     * This method provides a complete enumeration of the states that the environment
+     * can encounter or transition into. It is useful for analyzing or simulating
+     * the behavior of the environment in a model-based context.
+     *
+     * @return A list containing all possible states of the environment.
+     */
+    fun allStates(): List<State>
+
+    /**
      * Simulates the outcome of performing a specific action in a given state without altering
      * the environment's actual state. This function executes a hypothetical step within
      * the environment to predict the resulting state, reward, and termination status.

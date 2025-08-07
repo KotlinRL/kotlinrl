@@ -31,6 +31,27 @@ class QTableD2(
     internal val base = QTableDN(shape = shape, deterministic, tolerance, defaultQValue)
 
     /**
+     * Converts the current Q-table into a value function representation.
+     *
+     * This method calculates the value function by iterating through all states in the Q-table
+     * and selecting the maximum Q-value for each state, resulting in a value function that
+     * represents the expected rewards for each state under the optimal policy.
+     *
+     * @return A value function represented as an `EnumerableValueFunction` containing the maximum values
+     *         for each state derived from the Q-table.
+     */
+    @Suppress("DuplicatedCode")
+    override fun toV(): EnumerableValueFunction<NDArray<Int, D1>> {
+        val Q = (if (deterministic) this else copy(true))
+        val shape = Q.shape.dropLast(1).toIntArray()
+        var V = VTableD2(shape = shape)
+        for (state in allStates()) {
+            V = V.update(state, Q.maxValue(state)) as VTableD2
+        }
+        return V
+    }
+
+    /**
      * Retrieves the Q-value for a given state-action pair from the Q-table.
      *
      * @param state The state represented as an `NDArray` of integers with one dimension (D1).
@@ -81,15 +102,13 @@ class QTableD2(
         base.bestAction(state.asDNArray())
 
     /**
-     * Creates a deep copy of the current `QTableD2` instance.
+     * Creates a copy of the current `QTableD2` instance, with an optional override for its determinism property.
      *
-     * This includes copying all structural properties such as shape, deterministic settings, tolerance,
-     * default Q-value, and the underlying data array. The new instance is independent of the original
-     * and does not share references to mutable objects.
-     *
-     * @return A new `QTableD2` instance that is a deep copy of the current object.
+     * @param deterministic A boolean value indicating whether the resulting copy should use deterministic behavior.
+     *                       If not provided, it defaults to the current instance's `deterministic` property.
+     * @return A new instance of `QTableD2`, with properties copied from the current instance.
      */
-    fun copy(): QTableD2 =
+    fun copy(deterministic: Boolean = this.deterministic): QTableD2 =
         QTableD2(
             shape = shape,
             deterministic = deterministic,

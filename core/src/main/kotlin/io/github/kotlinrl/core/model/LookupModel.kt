@@ -20,14 +20,14 @@ import org.jetbrains.kotlinx.multik.api.*
  */
 class LookupModel<State, Action>(
     private val actions: List<Action>
-) :LearnableMDPModel<State, Action>, ExpandableMDPModel<State, Action> {
+) : LearnableMDPModel<State, Action>, ExpandableMDPModel<State, Action> {
 
     private val stateSet = mutableSetOf<Comparable<*>>()
     private val terminalSet = mutableSetOf<Comparable<*>>()
-    private val transitionCounts = mutableMapOf<StateActionKey<*, *>, MutableMap<Comparable<*>, Int>>()
-    private val rewardSums = mutableMapOf<StateActionKey<*, *>, Double>()
-    private val visitCounts = mutableMapOf<StateActionKey<*, *>, Int>()
-    private val predecessorsMap = mutableMapOf<Comparable<*>, MutableSet<StateActionKey<*, *>>>()
+    private val transitionCounts = mutableMapOf<StateActionKey<State, Action>, MutableMap<Comparable<*>, Int>>()
+    private val rewardSums = mutableMapOf<StateActionKey<State, Action>, Double>()
+    private val visitCounts = mutableMapOf<StateActionKey<State, Action>, Int>()
+    private val predecessorsMap = mutableMapOf<Comparable<*>, MutableSet<StateActionKey<State, Action>>>()
 
     /**
      * Retrieves a list of all states in the model. If an element in the internal state set is of type `ComparableIntList`,
@@ -35,13 +35,7 @@ class LookupModel<State, Action>(
      *
      * @return A list of states, each represented as either their original type or transformed to an NDArray if applicable.
      */
-    override fun allStates(): List<State> = stateSet.map {
-        @Suppress("UNCHECKED_CAST")
-        when(it) {
-            is ComparableIntList -> mk.ndarray(it.data).asDNArray()
-            else -> it
-        } as State
-    }.toList()
+    override fun allStates(): List<State> = stateSet.map { it.fromComparable() }.toList()
 
     /**
      * Retrieves a list of all actions available in the model.
@@ -61,21 +55,17 @@ class LookupModel<State, Action>(
      * @return A probabilistic trajectory containing transitions with associated probabilities, rewards, and resulting states.
      */
     override fun transitions(state: State, action: Action): ProbabilisticTrajectory<State, Action> {
-        val key = stateActionKey(state, action)
+        val key = StateActionKey(state, action)
         val total = visitCounts[key] ?: return emptyList()
         val outcomes = transitionCounts[key] ?: return emptyList()
         val avgReward = expectedReward(state, action)
 
         return outcomes.map { (nextStateKey, count) ->
-            @Suppress("UNCHECKED_CAST")
             ProbabilisticTransition(
                 state = state,
                 action = action,
                 reward = avgReward,
-                nextState = when(nextStateKey) {
-                    is ComparableIntList -> mk.ndarray(nextStateKey.data).asDNArray()
-                    else -> nextStateKey
-                } as State,
+                nextState = nextStateKey.fromComparable(),
                 probability = count.toDouble() / total,
                 done = false // Optional: could allow tracking terminal transitions
             )
@@ -93,7 +83,7 @@ class LookupModel<State, Action>(
      * or 1.0 as a divisor if there are no recorded visit counts.
      */
     override fun expectedReward(state: State, action: Action): Double {
-        val key = stateActionKey(state, action)
+        val key = StateActionKey(state, action)
         val sum = rewardSums[key] ?: return 0.0
         val count = visitCounts[key] ?: return 1.0
         return sum / count
@@ -110,9 +100,9 @@ class LookupModel<State, Action>(
      */
     override fun update(transition: Transition<State, Action>) {
         val (state, action, reward, nextState) = transition
-        val stateActionKey = stateActionKey(state, action)
-        val stateKey = stateKey(state)
-        val nextStateKey = stateKey(nextState)
+        val stateActionKey = StateActionKey(state, action)
+        val stateKey = state.toComparable()
+        val nextStateKey = nextState.toComparable()
         stateSet.add(stateKey)
         stateSet.add(nextStateKey)
         if (transition.done) terminalSet.add(nextStateKey)
@@ -145,11 +135,7 @@ class LookupModel<State, Action>(
     override fun sampleTransition(): Transition<State, Action>? {
         val keys = visitCounts.keys.shuffled()
         for (key in keys) {
-            val state = when(key.state) {
-                is ComparableIntList -> mk.ndarray(key.state.data).asDNArray()
-                else -> key.state
-            } as State
-            val action = key.action as Action
+            val (state, action) = key
             val outcomes = transitionCounts[key] ?: continue
             val nextState = outcomes.entries.randomOrNull()?.key ?: continue
             val avgReward = expectedReward(state, action)
@@ -157,10 +143,7 @@ class LookupModel<State, Action>(
                 state = state,
                 action = action,
                 reward = avgReward,
-                nextState = when(nextState) {
-                    is ComparableIntList -> mk.ndarray(nextState.data).asDNArray()
-                    else -> nextState
-                } as State,
+                nextState = nextState.fromComparable(),
                 terminated = false,
                 truncated = false
             )
@@ -175,10 +158,9 @@ class LookupModel<State, Action>(
      * @param action The action to check for the given state in the model.
      * @return True if the state-action pair has been recorded in the model, false otherwise.
      */
-    override fun isKnown(state: State, action: Action): Boolean {
-        val key = stateActionKey(state, action)
-        return visitCounts.containsKey(key)
-    }
+    override fun isKnown(state: State, action: Action): Boolean =
+        visitCounts.containsKey(StateActionKey<State, Action>(state, action))
+
 
     /**
      * Retrieves the set of predecessors for a given state. Predecessors are represented as
@@ -188,8 +170,8 @@ class LookupModel<State, Action>(
      * @return A set of state-action keys representing the predecessors of the given state.
      *         Returns an empty set if no predecessors are found for the given state.
      */
-    override fun predecessors(state: State): Set<StateActionKey<*, *>> =
-        predecessorsMap[stateKey(state)] ?: emptySet()
+    override fun predecessors(state: State): Set<StateActionKey<State, Action>> =
+        predecessorsMap[state.toComparable()] ?: emptySet()
 
     /**
      * Retrieves the visit count for a specific state-action pair.
@@ -202,7 +184,7 @@ class LookupModel<State, Action>(
      * If the pair is not found, returns 0 by default.
      */
     override fun visitCount(state: State, action: Action): Int {
-        return visitCounts.getOrDefault(stateActionKey(state, action), 0)
+        return visitCounts.getOrDefault(StateActionKey(state, action), 0)
     }
 
     /**
@@ -212,5 +194,5 @@ class LookupModel<State, Action>(
      * @param state The state to be checked for terminality.
      * @return True if the given state is a terminal state, false otherwise.
      */
-    override fun isTerminal(state: State): Boolean = terminalSet.contains(stateKey(state))
+    override fun isTerminal(state: State): Boolean = terminalSet.contains(state.toComparable())
 }

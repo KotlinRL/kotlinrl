@@ -3,84 +3,48 @@ package io.github.kotlinrl.core.algorithms.base
 import io.github.kotlinrl.core.*
 
 /**
- * Represents an abstract base class for reinforcement learning algorithms. This class defines a contract
- * for algorithms that learn and adapt policies based on observed states, actions, and transitions within
- * a given environment.
+ * Represents a contract for reinforcement learning algorithms.
  *
- * @param State the type representing the environment's state.
+ * This interface defines the essential operations required for a learning algorithm,
+ * including the ability to determine actions based on states, update the algorithm
+ * using individual transitions, and update it using complete trajectories. Implementations
+ * of this interface are expected to provide the logic for policy adaptation and learning
+ * from interactions with an environment.
+ *
+ * @param State the type representing the state of the environment.
  * @param Action the type representing the actions that can be taken within the environment.
- * @param initialPolicy the initial policy to be used by the algorithm.
- * @param onPolicyUpdate a callback function invoked upon policy updates.
  */
-abstract class LearningAlgorithm<State, Action>(
-    initialPolicy: Policy<State, Action>,
-    protected val onPolicyUpdate: PolicyUpdate<State, Action> = { }
-) {
-
-    var policy: Policy<State, Action> = initialPolicy
-        protected set(value) {
-            field = value
-            onPolicyUpdate(value)
-        }
-
+interface LearningAlgorithm<State, Action> {
     /**
-     * Invokes the underlying policy with the provided state to determine the corresponding action.
+     * Determines the action to be taken based on the provided state using the current policy.
      *
      * @param state the current state of the environment.
-     * @return the action determined by the policy for the given state.
+     * @return the action to be performed for the given state.
      */
-    operator fun invoke(state: State): Action = policy(state)
+    operator fun invoke(state: State): Action
 
     /**
-     * Updates the algorithm's state or model based on the provided transition.
+     * Updates the learning algorithm using the specified transition.
      *
-     * This method processes the observed transition, which encapsulates a state,
-     * an action taken in that state, a reward received for that action, and the
-     * resulting new state. Implementations of this method may involve updating
-     * internal representations, such as policies or value functions, to reflect the
-     * information contained within the transition.
+     * This method processes the given state-action-reward-state transition to adapt
+     * the algorithm's policy and Q-function, facilitating learning and optimization
+     * based on the observed interaction with the environment.
      *
-     * @param transition the observed transition consisting of the initial state,
-     * the action taken, the obtained reward, and the resulting state.
+     * @param transition the transition consisting of the current state,
+     *        the action taken, the resulting reward, and the next state observed.
      */
-    fun update(transition: Transition<State, Action>) = observe(transition)
+    fun update(transition: Transition<State, Action>)
 
     /**
-     * Updates the underlying model or policy based on the observed trajectory and episode information.
+     * Updates the learning algorithm using the provided trajectory and episode information.
      *
-     * This method delegates the update process to the `observe` function, allowing implementations
-     * to handle trajectories and episode details appropriately. The update typically involves
-     * processing reward signals, adjusting policies, or modifying internal representations.
+     * This method processes the sequence of state-action-reward transitions for an entire episode,
+     * enabling the algorithm to adapt its policy and Q-function based on the observations within
+     * the trajectory. The episode information may assist in applying specific strategies or adjustments
+     * tied to the progression of learning.
      *
-     * @param trajectory The sequence of transitions observed during an episode, containing
-     * states, actions, and rewards.
-     * @param episode The index or identifier of the episode associated with the trajectory.
+     * @param trajectory the sequence of state-action-reward transitions recorded during an episode.
+     * @param episode the number or index representing the specific episode associated with the trajectory.
      */
-    fun update(trajectory: Trajectory<State, Action>, episode: Int) = observe(trajectory, episode)
-
-    /**
-     * Observes and processes a single transition within the learning algorithm.
-     *
-     * This method is designed to handle an individual transition, which includes the
-     * current state, an action performed, the reward received, and the resulting new state.
-     * Subclasses can override this function to implement specific handling or updating logic
-     * based on the observed transition.
-     *
-     * @param transition the transition containing the initial state, action taken,
-     * reward received, and the resulting state after the action.
-     */
-    protected open fun observe(transition: Transition<State, Action>) {}
-
-    /**
-     * Observes and processes a trajectory within the learning algorithm.
-     *
-     * This method is designed to process a sequence of transitions associated with a specific episode.
-     * Subclasses can override this function to implement behavior that updates the state or model
-     * of the algorithm based on the observed trajectory and episode details.
-     *
-     * @param trajectory The sequence of transitions observed during an episode. Each transition encapsulates
-     * states, actions, and rewards encountered over the episode.
-     * @param episode The index or identifier of the episode associated with the provided trajectory.
-     */
-    protected open fun observe(trajectory: Trajectory<State, Action>, episode: Int) {}
+    fun update(trajectory: Trajectory<State, Action>, episode: Int)
 }

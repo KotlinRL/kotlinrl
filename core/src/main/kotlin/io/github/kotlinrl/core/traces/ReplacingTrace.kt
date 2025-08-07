@@ -15,7 +15,7 @@ import io.github.kotlinrl.core.*
  * @param Action The type representing actions in the environment.
  */
 class ReplacingTrace<State, Action> : EligibilityTrace<State, Action> {
-    private val traces = mutableMapOf<StateActionKey<*, *>, Double>()
+    private val traces = mutableMapOf<StateActionKey<State, Action>, Double>()
 
     /**
      * Updates the eligibility trace for the given state-action pair by setting its trace value to 1.0.
@@ -27,7 +27,7 @@ class ReplacingTrace<State, Action> : EligibilityTrace<State, Action> {
      * @return The updated eligibility trace with the trace value for the specified state-action pair set to 1.0.
      */
     override fun update(state: State, action: Action): EligibilityTrace<State, Action> {
-        val key = stateActionKey(state, action)
+        val key = StateActionKey(state, action)
         traces[key] = 1.0
         return this
     }
@@ -46,12 +46,13 @@ class ReplacingTrace<State, Action> : EligibilityTrace<State, Action> {
     }
 
     /**
-     * Returns a map representation of the eligibility trace, where each key is a state-action pair
-     * and its corresponding value is the current trace value for that pair.
+     * Returns a map of state-action keys to their corresponding trace values.
+     * This method provides the current state of the eligibility trace,
+     * where keys represent state-action pairs, and values represent their eligibility trace values.
      *
-     * @return A map of state-action keys to their respective trace values.
+     * @return A map containing state-action keys and their respective trace values.
      */
-    override fun values(): Map<StateActionKey<*, *>, Double> = traces.toMap()
+    override fun values(): Map<StateActionKey<State, Action>, Double> = traces.toMap()
 
 
     /**

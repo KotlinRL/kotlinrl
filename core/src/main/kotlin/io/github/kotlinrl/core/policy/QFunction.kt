@@ -1,15 +1,13 @@
 package io.github.kotlinrl.core.policy
 
 /**
- * Represents a Q-function, a fundamental concept in reinforcement learning used to estimate the
- * quality of state-action pairs. The "quality" corresponds to the expected cumulative reward
- * when starting from a specific state and taking a particular action.
- *
- * This interface defines the contract for a generic Q-function, allowing implementation and
- * manipulation of state-action value estimations.
+ * Represents a Q-function in reinforcement learning, mapping state-action pairs to scalar values
+ * representing the estimated utility or quality of those pairs. Q-functions are used to evaluate
+ * and improve policies by quantifying the expected cumulative reward of taking specific actions
+ * in specific states.
  *
  * @param State the type representing the state in the environment.
- * @param Action the type representing the actions that can be performed in the environment.
+ * @param Action the type representing the actions available to the agent in the environment.
  */
 interface QFunction<State, Action> {
     /**
@@ -46,4 +44,14 @@ interface QFunction<State, Action> {
      * @return the action that maximizes the Q-value for the given state.
      */
     fun bestAction(state: State): Action
+
+    /**
+     * Converts the Q-function into a value function by deriving the maximum Q-value for each state.
+     *
+     * The resulting value function represents the estimated value of each state, calculated as the maximum
+     * Q-value over all possible actions for that state within the context of the Q-function.
+     *
+     * @return a value function mapping states to their maximum Q-values, representing the optimal value of each state.
+     */
+    fun toV(): ValueFunction<State>
 }

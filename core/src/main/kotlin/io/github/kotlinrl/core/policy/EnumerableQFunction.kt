@@ -32,5 +32,5 @@ interface EnumerableQFunction<State, Action> : QFunction<State, Action> {
         state: State,
         action: Action,
         value: Double
-    ): EnumerableQFunction<State, Action>;
+    ): EnumerableQFunction<State, Action>
 }

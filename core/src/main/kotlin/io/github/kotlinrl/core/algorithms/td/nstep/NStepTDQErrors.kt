@@ -3,32 +3,30 @@ package io.github.kotlinrl.core.algorithms.td.nstep
 import kotlin.math.*
 
 /**
- * Provides implementations of n-step temporal difference (TD) errors used in reinforcement
- * learning algorithms such as Expected SARSA, SARSA, and Q-learning. These TD error functions
- * calculate the discrepancy between the current Q-values and the target Q-values derived from
- * n-step transitions in an agent's trajectory.
+ * Object containing implementations of n-step Temporal Difference (TD) error computation methods for
+ * reinforcement learning. These methods, including variations of n-step Expected SARSA, SARSA, and Q-learning,
+ * calculate the TD error used for updating Q-functions.
  *
- * The implementations support on-policy and off-policy learning, leveraging the action-value
- * function (Q-function), sampled trajectories, and optional policy information or tail actions.
- * They account for both immediate rewards and expected future rewards by incorporating the
- * discount factor.
+ * The n-step TD methods use sequences of state-action transitions and potentially a policy
+ * to compute the discrepancy between predicted Q-values and the observed trajectory rewards. Different
+ * algorithms bootstrap future reward estimations in unique ways:
+ * - Expected SARSA incorporates action probabilities from the policy.
+ * - SARSA uses the actual action taken.
+ * - Q-learning uses the highest-valued action (off-policy update).
  */
 object NStepTDQErrors {
     /**
-     * Computes the n-step Expected SARSA Temporal Difference (TD) error for a Q-function.
+     * Computes the n-step Expected SARSA temporal difference (TD) error for a given trajectory.
+     * This method calculates the TD error as the difference between the expected cumulative reward
+     * over a trajectory of `n` steps and the Q-value of the starting state-action pair.
+     * It incorporates bootstrapping if the trajectory is incomplete by estimating the value of the
+     * final state using the given policy and Q-function.
      *
-     * The function calculates the TD error using trajectories of transitions and incorporates the expected
-     * value of future rewards based on the given policy. Expected SARSA is used to update action-value
-     * estimates by combining stochastic policies with discounted future rewards.
+     * The method assumes that the policy provides probabilities of selecting actions and uses these
+     * to compute the expected return in incomplete trajectories.
      *
-     * The TD error is calculated as:
-     *  - The sum of discounted rewards up to the n-th step
-     *  - Plus the bootstrapped expected Q-value at the n-th step (if the episode is not done)
-     *  - Minus the current Q-value of the initial state and action in the trajectory.
-     *
-     * @param State The type representing the environment's state space.
-     * @param Action The type representing the actions available in the environment.
-     * @return An implementation of NStepTDQError<State, Action> that computes the n-step Expected SARSA TD error.
+     * @return the n-step TD error calculation as an instance of `NStepTDQError<State, Action>`,
+     *         which evaluates the error for updating the Q-function.
      */
     @Suppress("DuplicatedCode")
     fun <State, Action> nStepExpectedSARSA(): NStepTDQError<State, Action> =
@@ -51,27 +49,13 @@ object NStepTDQErrors {
         }
 
     /**
-     * Implements the n-step SARSA algorithm to compute the temporal difference (TD) error
-     * for state-action pairs in reinforcement learning.
+     * Computes the n-step Temporal Difference (TD) error using the SARSA (State-Action-Reward-State-Action) algorithm.
+     * This method calculates the TD error by summing up the discounted rewards over an n-step transition trajectory
+     * and bootstrapping with the action-value of the final state-action pair in the trajectory, if applicable.
+     * It is an on-policy method, meaning the update is performed using the action actually taken at each step.
      *
-     * This function calculates the n-step TD error using an on-policy approach, incorporating
-     * the actual action taken at time t+n to bootstrap the future value estimation. The
-     * computation builds on the rewards accumulated over the trajectory and the Q-value of
-     * the subsequent state-action pair if the trajectory has not ended.
-     *
-     * The algorithm computes:
-     * - G (Return) as the sum of discounted rewards over the trajectory.
-     * - Optionally, includes the discounted Q-value for the tail action if the trajectory is
-     *   incomplete.
-     * - Subtracts the current Q-value estimate from the calculated return G to produce the TD error.
-     *
-     * The function is utilized in policy evaluation and improvement procedures within
-     * reinforcement learning systems.
-     *
-     * @param State The type representing the state of the environment.
-     * @param Action The type representing the actions possible within the environment.
-     * @return An `NStepTDQError<State, Action>` instance encapsulating the logic for
-     *         calculating the n-step temporal difference error for SARSA updates.
+     * @return an instance of NStepTDQError that, when invoked, computes the n-step SARSA error for a given trajectory
+     * based on the provided Q-function, trajectory, discount factor, and optional tail action.
      */
     // n-step SARSA (on-policy): bootstrap with the action actually taken at time t+n
     @Suppress("DuplicatedCode")
@@ -95,20 +79,18 @@ object NStepTDQErrors {
         }
 
     /**
-     * Implements the n-step Q-learning algorithm for temporal difference (TD) reinforcement learning.
+     * Constructs the n-step Q-learning temporal difference (TD) error computation strategy.
      *
-     * This method computes the n-step TD error for a Q-function by bootstrapping with the maximum
-     * Q-value of the state reached after n steps, incorporating rewards from the trajectory and
-     * applying a discount factor to future rewards. It is an off-policy approach that updates
-     * the Q-function by comparing the estimated value with the observed value derived from the
-     * trajectory and the maximum future Q-value.
+     * This method implements the off-policy n-step Q-learning algorithm by using the maximum
+     * Q-value over actions at the n-th step for bootstrapping. It calculates the TD error by
+     * comparing the observed cumulative reward and the predicted value from the Q-function.
      *
-     * The returned function (of type `NStepTDQError`) defines the logic for error calculation,
-     * given a Q-function, a trajectory of transitions, and relevant parameters like the discount factor.
-     * It balances exploration and exploitation by using the maximum action-value for future states.
+     * The computation considers:
+     * - The cumulative discounted reward over the trajectory of n steps.
+     * - The maximum estimated Q-value for the state at the end of the trajectory for bootstrapping, if the final state is non-terminal.
+     * - The TD error as the difference between this target value and the Q-value of the initial state-action pair.
      *
-     * @return A function that calculates the n-step TD error for Q-learning based on a trajectory
-     *         of state-action transitions and the associated rewards.
+     * @return A strategy function of type `NStepTDQError` that calculates the TD error for the n-step Q-learning algorithm.
      */
     // n-step Q-learning (off-policy): bootstrap with max_a Q(S_{t+n}, a)
     @Suppress("DuplicatedCode")

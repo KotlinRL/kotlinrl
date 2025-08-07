@@ -3,39 +3,39 @@ package io.github.kotlinrl.core.algorithms.td.dyna
 import io.github.kotlinrl.core.*
 
 /**
- * Implements the Dyna-Q reinforcement learning algorithm, combining real experience
- * with simulated planning to improve the learning process. The algorithm updates
- * the Q-function using both direct experiences and simulated experiences generated
- * from a learnable MDP model.
+ * Implements the Dyna-Q reinforcement learning algorithm, which combines model-based planning
+ * with direct reinforcement learning. The algorithm uses an environment model to simulate
+ * additional transitions and integrates these simulated experiences with real-world transitions
+ * to update both the policy and the Q-function efficiently.
  *
- * The Dyna-Q algorithm works by observing environment transitions, updating a model
- * of the environment, and using the model to simulate additional transitions (planning
- * steps) to further refine the Q-function. This dual approach of real and simulated
- * sample updates accelerates learning compared to pure Q-learning.
+ * This algorithm leverages a learned environment model to perform additional "planning steps"
+ * in addition to the direct Q-learning updates, accelerating convergence and improving
+ * performance in domains where an accurate model can be learned. The number of planning steps,
+ * step size, and discount factor are configurable.
  *
- * @param State the type representing the state of the environment.
- * @param Action the type representing the possible actions in the environment.
- * @param initialPolicy the initial Q-function-based policy used by the algorithm.
- * This policy determines the agent's behavior before Q-function improvement.
- * @param alpha the step size schedule for updating Q-values, influencing the learning rate.
- * @param gamma the discount factor, determining the significance of future rewards.
- * @param model the environment model capable of learning and simulating
- * state-action transitions. It is essential for planning.
- * @param planningSteps the number of simulated transitions to generate per step
- * for planning. Defaults to 5.
- * @param estimator the Q-function estimator used for transition-based updates.
- * Defaults to a DynaQEstimator.
- * @param onQFunctionUpdate a callback function invoked whenever the Q-function
- * is updated.
- * @param onPolicyUpdate a callback function invoked whenever the policy is updated.
+ * The model captures the relationship between states, actions, rewards, and next states
+ * and updates itself through observed transitions. These capabilities make Dyna-Q suitable
+ * for environments with both deterministic and stochastic dynamics.
+ *
+ * @param State the type representing states in the environment.
+ * @param Action the type representing actions that can be taken in the environment.
+ * @param initialPolicy the initial decision-making policy used by the agent.
+ * @param alpha a schedule controlling the learning rate of Q-function updates.
+ * @param gamma the discount factor, which determines the weight of future rewards.
+ * @param model a learnable model of the environment that supports planning by simulating state-action transitions.
+ * @param planningSteps the number of simulated planning steps performed for every real-world transition. Defaults to 5.
+ * @param estimateQ the function responsible for calculating updates to the Q-function
+ * by combining real and simulated experiences. Defaults to the Dyna-Q estimator (`DynaQEstimateQ_fromTransition`).
+ * @param onQFunctionUpdate a callback invoked whenever the Q-function is updated.
+ * @param onPolicyUpdate a callback invoked whenever the policy is updated.
  */
 class DynaQ<State, Action>(
-    initialPolicy: QFunctionPolicy<State, Action>,
+    initialPolicy: Policy<State, Action>,
     alpha: ParameterSchedule,
     gamma: Double,
     model: LearnableMDPModel<State, Action>,
     planningSteps: Int = 5,
-    estimator: TransitionQFunctionEstimator<State, Action> = DynaQEstimator(alpha, gamma, model, planningSteps),
-    onQFunctionUpdate: EnumerableQFunctionUpdate<State, Action> = { },
+    estimateQ: EstimateQ_fromTransition<State, Action> = DynaQEstimateQ_fromTransition(alpha, gamma, model, planningSteps),
+    onQFunctionUpdate: QFunctionUpdate<State, Action> = { },
     onPolicyUpdate: PolicyUpdate<State, Action> = { },
-) : TransitionQFunctionAlgorithm<State, Action>(initialPolicy, estimator, onPolicyUpdate,onQFunctionUpdate)
+) : TransitionLearningAlgorithm<State, Action>(initialPolicy, estimateQ, onPolicyUpdate,onQFunctionUpdate)

@@ -3,68 +3,57 @@ package io.github.kotlinrl.core.algorithms.td.nstep
 import io.github.kotlinrl.core.*
 
 /**
- * Abstract base class for n-step Temporal Difference (TD) reinforcement learning algorithms.
+ * Implements n-step temporal-difference (TD) learning for reinforcement learning scenarios.
+ * This algorithm uses a sequence of state-action-reward transitions to update the Q-function
+ * and policy based on the agent's interactions with the environment over a fixed number of steps.
  *
- * This class extends the `TrajectoryQFunctionAlgorithm` to provide a framework for implementing
- * n-step TD learning algorithms. The primary feature of n-step TD is its reliance on trajectories of
- * n transitions to update the Q-function using a bootstrap approach. It leverages a sliding window
- * to maintain transitions and uses this information to derive Q-function updates.
- *
- * The parameter `n` specifies the number of steps in the n-step update, and the associated Q-function
- * estimator is used to apply the algorithm's specific update rules.
- *
- * This class also handles terminating episodes by ensuring that the remaining transitions in the
- * trajectory window are processed correctly using the given estimator.
- *
- * Subclasses of `NStepTD` implement concrete n-step update logic, such as SARSA, based on this abstract class.
- *
- * @param State the type representing the environment's state.
- * @param Action the type representing the actions that can be taken within the environment.
- * @param initialPolicy the initial Q-function policy used by the algorithm. This policy determines the
- *                      agent's behavior and is iteratively improved.
- * @param n the number of steps used for the n-step temporal difference update. Determines the size of
- *          the trajectory window.
- * @param estimator the trajectory-based Q-function estimator responsible for computing the Q-function
- *                  updates using n-step TD logic.
- * @param onQFunctionUpdate a callback invoked after every Q-function update. Can be used for tracking
- *                          updates or combining additional behaviors with the core update.
- * @param onPolicyUpdate a callback invoked after every policy update. Can be used to respond to policy improvements.
+ * @param State the type representing the states within the environment.
+ * @param Action the type representing the actions an agent can perform within the environment.
+ * @param initialPolicy the policy defining the agent's initial action-selection strategy.
+ * @param n the number of steps to consider for the n-step TD learning update.
+ * @param estimateQ a functional interface used to estimate the Q-function from a trajectory.
+ * @param onQFunctionUpdate a callback triggered when the Q-function is updated. Default is a no-op.
+ * @param onPolicyUpdate a callback triggered when the policy is updated. Default is a no-op.
  */
 abstract class NStepTD<State, Action>(
-    initialPolicy: QFunctionPolicy<State, Action>,
+    initialPolicy: Policy<State, Action>,
     private val n: Int,
-    private val estimator: TrajectoryQFunctionEstimator<State, Action>,
-    onQFunctionUpdate: EnumerableQFunctionUpdate<State, Action> = {},
+    private val estimateQ: EstimateQ_fromTrajectory<State, Action>,
+    onQFunctionUpdate: QFunctionUpdate<State, Action> = {},
     onPolicyUpdate: PolicyUpdate<State, Action> = {},
-) : TrajectoryQFunctionAlgorithm<State, Action>(initialPolicy, estimator, onPolicyUpdate, onQFunctionUpdate) {
+) : TrajectoryLearningAlgorithm<State, Action>(initialPolicy, estimateQ, onPolicyUpdate, onQFunctionUpdate) {
 
     private val window = ArrayDeque<Transition<State, Action>>()
     private var episode = 0
     private var tailAction: Action? = null
         set(value) {
             field = value
-            when(estimator) {
-                is NStepTDQFunctionEstimator -> estimator.tailAction = value
+            when(estimateQ) {
+                is NStepEstimateQ_fromTrajectory -> estimateQ.tailAction = value
             }
         }
 
     /**
-     * Observes a given trajectory and updates the current episode number.
+     * Observes an entire trajectory and sets the current episode number.
      *
-     * @param trajectory The trajectory containing states, actions, and rewards to be observed.
-     * @param episode The episode number related to the observed trajectory.
+     * @param trajectory The trajectory consisting of sequential state-action transitions
+     *                   experienced by an agent in the environment.
+     * @param episode The current episode number during which the trajectory occurred.
      */
     override fun observe(trajectory: Trajectory<State, Action>, episode: Int) {
         this.episode = episode
     }
 
     /**
-     * Observes a single state-action transition and updates the window used for
-     * n-step temporal-difference learning. Processes the transition based on its
-     * completion status and the current size of the window.
+     * Observes a single state-action transition and processes it for temporal-difference learning.
      *
-     * @param transition The state-action transition to be observed, which contains
-     * the current state, action, reward, next state, and completion status.
+     * The method updates the internal window of transitions and determines whether to perform
+     * n-step updates based on the current state of the window. If the transition marks the end
+     * of an episode ('done'), it processes the remaining transitions in the window. Otherwise,
+     * the sliding window is maintained up to the specified size (`n`).
+     *
+     * @param transition A state-action transition consisting of the current state, action,
+     *                   next state, reward, and a flag indicating whether the episode has ended.
      */
     override fun observe(transition: Transition<State, Action>) {
         window.addLast(transition)
@@ -82,13 +71,16 @@ abstract class NStepTD<State, Action>(
     }
 
     /**
-     * Processes an n-step window and performs required updates for temporal-difference learning.
+     * Handles the processing of an n-step temporal difference update by managing the sliding
+     * window of transitions, extracting the action associated with the n-th step, and invoking
+     * the `observe` method for further processing.
      *
-     * This method utilizes the `n` parameter to determine the action to be taken from the window,
-     * updates the value of `tailAction`, modifies the window by removing the oldest state-action pair,
-     * and calls the parent class's `observe` method with the updated window and current episode information.
+     * The method removes the first transition from the window and uses the next `n` transitions
+     * to invoke the parent class's `observe` method. If a valid tail action exists at the `n-th`
+     * step, it is stored for processing incomplete trajectories.
      *
-     * @param n The number of steps to process in the temporal-difference learning update.
+     * @param n the number of steps to consider for temporal difference updates. Represents the
+     *          length of the trajectory segment used to compute the update.
      */
     protected fun step(n: Int) {
         tailAction = window.elementAtOrNull(n)?.action

@@ -30,6 +30,23 @@ class QTableD3(
     internal val base = QTableDN(shape = shape, deterministic, tolerance, defaultQValue)
 
     /**
+     * Converts the current QTableD3 instance into an EnumerableValueFunction representing the value function.
+     * This method calculates the maximum Q-value for each state and updates the resulting value function accordingly.
+     *
+     * @return An EnumerableValueFunction instance that maps states to their respective maximum Q-values.
+     */
+    @Suppress("DuplicatedCode")
+    override fun toV(): EnumerableValueFunction<NDArray<Int, D2>> {
+        val Q = (if (deterministic) this else copy(true))
+        val shape = Q.shape.dropLast(1).toIntArray()
+        var V = VTableD3(shape = shape)
+        for (state in allStates()) {
+            V = V.update(state, Q.maxValue(state)) as VTableD3
+        }
+        return V
+    }
+
+    /**
      * Retrieves the Q-value corresponding to the given state and action.
      *
      * @param state The state represented as a 2-dimensional NDArray of integers.
@@ -80,11 +97,14 @@ class QTableD3(
         base.bestAction(state.asDNArray())
 
     /**
-     * Creates a deep copy of the current QTableD3 instance, including all associated properties and data.
+     * Creates a copy of the current QTableD3 instance with an optionally updated deterministic property.
      *
-     * @return A new QTableD3 instance that is an identical copy of the original.
+     * @param deterministic An optional Boolean value to set the deterministic property of the copied instance.
+     *                       Defaults to the deterministic property of the current instance.
+     * @return A new QTableD3 instance with the same configuration and data as the original, except for
+     *         the deterministic property if overridden.
      */
-    fun copy(): QTableD3 =
+    fun copy(deterministic: Boolean = this.deterministic): QTableD3 =
         QTableD3(
             shape = shape,
             deterministic = deterministic,

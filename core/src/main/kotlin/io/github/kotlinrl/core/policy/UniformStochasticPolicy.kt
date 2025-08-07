@@ -3,23 +3,25 @@ package io.github.kotlinrl.core.policy
 import kotlin.random.*
 
 /**
- * A stochastic policy that selects actions uniformly at random from the set of available actions
- * for a given state. This policy is based on a random uniform distribution and uses the available
- * action space to ensure each action is chosen with equal probability.
+ * A uniform stochastic policy for reinforcement learning, which selects actions uniformly at random
+ * from the set of possible actions for a given state.
  *
- * @param State the type representing the state in the environment.
- * @param Action the type representing the actions that can be performed in the environment.
- * @param Q the Q-function associated with this policy, which is not directly used in decision-making
- *          but required for compatibility and improvement methods.
- * @param stateActions a function providing the set of available actions for each state.
- * @param rng an optional random number generator for stochastic action sampling.
+ * This policy leverages a random policy internally and is designed to facilitate exploration in
+ * reinforcement learning environments by ensuring an equal probability distribution across all
+ * feasible actions for a state.
+ *
+ * @param State the type representing the states in the environment.
+ * @param Action the type representing the actions available to the agent.
+ * @param Q the Q-function used for evaluating state-action pairs.
+ * @param stateActions a functional interface providing the set of feasible actions for a given state.
+ * @param rng the random number generator used to introduce stochasticity in action selection.
  */
 class UniformStochasticPolicy<State, Action>(
-    override val Q: EnumerableQFunction<State, Action>,
+    override val Q: QFunction<State, Action>,
     override val stateActions: StateActions<State, Action>,
     rng: Random = Random.Default
 ) : StochasticPolicy<State, Action>(rng) {
-    private val randomPolicy = RandomPolicy(stateActions, rng)
+    private val randomPolicy = RandomPolicy(Q, stateActions, rng)
 
     /**
      * Invokes the policy to select an action based on the given state using a random policy.
@@ -32,16 +34,16 @@ class UniformStochasticPolicy<State, Action>(
     }
 
     /**
-     * Creates and returns an improved version of the policy based on the given Q-function.
+     * Creates an improved policy based on the provided Q-function. The improved policy uses a uniform
+     * stochastic strategy to optimize decision-making, ensuring that actions are selected stochastically
+     * based on the given state's available actions and the Q-function-defined quality values.
      *
-     * The improvement entails constructing a new `UniformStochasticPolicy` that continues to select
-     * actions uniformly at random but now utilizes the updated Q-function to maintain compatibility
-     * with the reinforcement learning framework.
-     *
-     * @param Q the Q-function representing the expected cumulative reward for each state-action pair.
-     * @return the improved policy, represented as a `UniformStochasticPolicy` based on the provided Q-function.
+     * @param Q the Q-function mapping state-action pairs to their estimated utility or quality values.
+     *          It is used to evaluate the expected reward for each state-action combination.
+     * @return a new policy instance, based on a uniform stochastic strategy, that optimizes action selection
+     *         by leveraging the provided Q-function and supported state-action configurations.
      */
-    override fun improve(Q: EnumerableQFunction<State, Action>): Policy<State, Action> =
+    override fun improve(Q: QFunction<State, Action>): Policy<State, Action> =
         UniformStochasticPolicy(Q, stateActions, rng)
 
     /**

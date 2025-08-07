@@ -3,29 +3,29 @@ package io.github.kotlinrl.core.algorithms.td.nstep
 import io.github.kotlinrl.core.*
 
 /**
- * Represents a function for computing the n-step Temporal Difference (TD) value error
- * for a given value function in reinforcement learning.
+ * Represents a functional interface for calculating the n-step Temporal Difference (TD) value error.
  *
- * The n-step TD value error is a core component in reinforcement learning algorithms
- * like n-step TD methods. It calculates the error between the value function's predictions
- * and the observed rewards over a trajectory, with a discount applied. This error serves
- * as the foundation for updating the value function to improve its predictions over time.
+ * This interface is designed to compute the discrepancy between the estimated value of a state
+ * and the observed return over n steps in a reinforcement learning context. It utilizes a user-defined
+ * value function, an observed trajectory, and a discount factor to determine the error.
  *
- * n-Step approaches balance bias and variance by incorporating information from multiple
- * steps of a trajectory, rather than just the immediate step, enabling more stable learning
- * in some environments.
+ * The n-step TD value error is a critical component in reinforcement learning algorithms,
+ * enabling updates to value functions based on multi-step lookahead with discounted rewards.
  *
- * @param State The type representing the environment's state space.
+ * @param State The type representing the states within the environment.
  */
 fun interface NStepTDVError<State> {
     /**
-     * Computes the n-step Temporal Difference (TD) value error for a given value function
-     * using the observed trajectory and a specified discount factor.
+     * Calculates the n-step Temporal Difference (TD) value error.
      *
-     * @param V the value function used to estimate state values.
-     * @param t the trajectory containing the sequence of states, actions, and rewards observed.
-     * @param gamma the discount factor applied to future rewards, in the range [0, 1].
-     * @return the computed n-step TD value error.
+     * This method computes the discrepancy between the observed n-step return in a trajectory
+     * and the estimated value of a state. It incorporates a value function, a trajectory, and
+     * a discount factor to calculate the TD error in reinforcement learning scenarios.
+     *
+     * @param V The value function used to estimate the value of states.
+     * @param t The trajectory containing state-action-reward transitions.
+     * @param gamma The discount factor applied to future rewards, in the range [0, 1].
+     * @return The computed n-step TD value error.
      */
     operator fun invoke(
         V: ValueFunction<State>,

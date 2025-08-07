@@ -1,144 +1,117 @@
 package io.github.kotlinrl.core
 
-import io.github.kotlinrl.core.wrapper.episodeFolderName
-import io.github.kotlinrl.core.wrapper.renderFrameToBufferedImage
-import javafx.animation.KeyFrame
-import javafx.animation.PauseTransition
-import javafx.animation.Timeline
-import javafx.application.Application
-import javafx.application.Platform
-import javafx.event.EventHandler
+import io.github.kotlinrl.core.wrapper.*
+import javafx.animation.*
+import javafx.application.*
+import javafx.event.*
+import javafx.geometry.*
 import javafx.geometry.Insets
-import javafx.geometry.Pos
-import javafx.scene.Scene
+import javafx.scene.*
+import javafx.scene.control.*
 import javafx.scene.control.Button
 import javafx.scene.control.Label
-import javafx.scene.control.Slider
+import javafx.scene.image.*
 import javafx.scene.image.Image
-import javafx.scene.image.ImageView
-import javafx.scene.layout.HBox
-import javafx.scene.layout.StackPane
-import javafx.scene.layout.VBox
-import javafx.scene.shape.SVGPath
-import javafx.stage.Stage
-import javafx.util.Duration
-import org.jetbrains.kotlinx.jupyter.api.HTML
-import org.jetbrains.kotlinx.multik.api.*
+import javafx.scene.layout.*
+import javafx.scene.shape.*
+import javafx.stage.*
+import javafx.util.*
+import org.jetbrains.kotlinx.jupyter.api.*
 import org.jetbrains.kotlinx.multik.ndarray.data.*
-import org.jetbrains.kotlinx.multik.ndarray.operations.*
-import java.awt.Desktop
-import java.awt.image.BufferedImage
-import java.io.File
-import kotlin.collections.first
-import kotlin.collections.map
+import java.awt.*
+import java.awt.image.*
+import java.io.*
 
 
 /**
- * Represents a composite key consisting of a state and an action, both of which implement
- * the `Comparable` interface. This key is typically used in contexts where state-action pairs
- * need to be uniquely identified and compared, such as Q-tables or similar data structures
- * in reinforcement learning.
+ * Represents a composite key consisting of a state and an action, primarily designed for use
+ * within environments, such as those in reinforcement learning or simulation contexts.
+ * This key enables the pairing of states and actions in a structured manner and provides
+ * comparison functionality to support consistent ordering.
  *
- * @param State The type of the state, which must implement `Comparable`.
- * @param Action The type of the action, which must implement `Comparable`.
+ * The comparison logic is defined based on the `Comparable` representations of the `state`
+ * and `action` components. Both components are converted to their comparable forms using
+ * the `toComparable` extension function. The state is compared first, and if the states
+ * are identical, the comparison defers to the action.
  *
- * Implements the `Comparable` interface, allowing state-action keys to be ordered
- * lexicographically. The comparison is performed by comparing the state first, followed
- * by the action if the states are equal.
+ * @param State The type representing the state in the key. It must be convertible to a
+ * comparable format.
+ * @param Action The type representing the action in the key. It must be convertible to a
+ * comparable format.
  */
-data class StateActionKey<State : Comparable<State>, Action : Comparable<Action>>(
+data class StateActionKey<State, Action>(
     val state: State,
     val action: Action
 ) : Comparable<StateActionKey<State, Action>> {
     override fun compareTo(other: StateActionKey<State, Action>): Int {
-        val stateCmp = state.compareTo(other.state)
-        return if (stateCmp != 0) stateCmp else action.compareTo(other.action)
+        val stateCmp = state.toComparable().compareTo(other.state)
+        return if (stateCmp != 0) stateCmp else action.toComparable().compareTo(other.action)
     }
 }
 
 /**
- * Represents a wrapper for a list of integers with the ability to define custom comparison logic.
+ * Represents a wrapper around an `NDArray` object that allows for comparisons
+ * between instances based on their data content and size.
  *
- * This class provides a structure to encapsulate a list of integers and implement comparison between
- * instances of the wrapper based on their respective integer lists. It extends the `Comparable` interface to
- * allow use in sorted collections or other contexts requiring total ordering.
+ * The class encapsulates an `NDArray` of integers and provides functionality
+ * to compare two `ComparableNDArray` objects lexicographically. The comparison
+ * is first based on the size of the arrays, and then element-wise if the sizes
+ * are equal. The class also provides a way to retrieve the underlying `NDArray`
+ * and customizes the string representation to directly reflect the `NDArray`.
  *
- * @constructor Creates a new instance of `ComparableIntList` with the provided list of integers.
- * @property data The underlying list of integers that this wrapper encapsulates.
+ * This class implements Kotlin's `Comparable` interface, making it suitable
+ * for use in collections or algorithms requiring sorted data.
+ *
+ * @constructor Creates a `ComparableNDArray` instance with the specified `ndarray`.
+ * @property ndarray The underlying `NDArray` object encapsulated by this class.
  */
 @JvmInline
-value class ComparableIntList(val data: List<Int>) : Comparable<ComparableIntList> {
-    override fun compareTo(other: ComparableIntList): Int {
-        return data.zip(other.data).fold(0) { acc, (a, b) ->
-            if (acc != 0) acc else a.compareTo(b)
+value class ComparableNDArray(val ndarray: NDArray<Int, *>) : Comparable<ComparableNDArray> {
+    override fun compareTo(other: ComparableNDArray): Int {
+        val a = ndarray.data
+        val b = other.ndarray.data
+
+        if (a.size != b.size) return a.size.compareTo(b.size)
+
+        for (i in a.indices) {
+            val cmp = a[i].compareTo(b[i])
+            if (cmp != 0) return cmp
         }
+        return 0
     }
 
-    fun toNDArray(): NDArray<Int, DN> = mk.ndarray(data).asDNArray()
+    fun toNDArray(): NDArray<Int, *> = ndarray
 
-    override fun toString() = data.joinToString(",")
+    override fun toString() = ndarray.toString()
 }
 
 
 /**
- * Constructs a `StateActionKey` for the given state and action.
- * The state and action must either be `Comparable` or transformable into a comparable form.
- * For states of type `NDArray<Int, DN>` and actions of type `Int`,
- * the state is mapped to a `ComparableIntList`. For other cases, both
- * state and action must already be `Comparable`.
+ * Converts the current object to a `Comparable` instance.
  *
- * @param State The type of the state, which must be `Comparable` or transformable to a comparable form.
- * @param Action The type of the action, which must be `Comparable` or transformable to a comparable form.
- * @param s The state to be used in constructing the key.
- * @param a The action to be used in constructing the key.
- * @return A `StateActionKey` instance encapsulating the given state and action.
- * @throws IllegalArgumentException If the state and action cannot be transformed into a comparable form.
+ * If the object implements `Comparable`, it is returned as is.
+ * If the object is an `NDArray`, it is wrapped in a `ComparableNDArray`.
+ * For other types, an error is thrown indicating that the object
+ * must either be `Comparable` or mappable to a comparable key.
+ *
+ * @return This object as a `Comparable` instance, or a wrapped `Comparable` in the case of an `NDArray`.
+ * @throws IllegalStateException if the object is neither `Comparable` nor mappable to a comparable key.
  */
 @Suppress("UNCHECKED_CAST")
-internal fun <State, Action> stateActionKey(s: State, a: Action): StateActionKey<*, *> =
-    when (s) {
-        is NDArray<*, *> if a is Int -> StateActionKey(ComparableIntList((s as NDArray<Int, DN>).toList()), a)
-        is Comparable<*> if a is Comparable<*> -> {
-            StateActionKey(s as Comparable<Any>, a as Comparable<Any>)
-        }
+internal fun <T> T.toComparable(): Comparable<T> =
+    when (this) {
+        is NDArray<*, *> -> ComparableNDArray(this as NDArray<Int, *>)
+        is Comparable<*> -> this
+        else -> error("Value $this must be Comparable or mappable to a comparable key.")
+    } as Comparable<T>
 
-        else -> error("State ($s) and Action ($a) must be Comparable or mappable to a comparable form.")
-    }
-
-/**
- * Determines a comparable key for the given state.
- *
- * The function generates a key that can be compared across instances of the same or compatible types.
- * For states of type `NDArray`, the key is created by converting the array to a list of integers
- * and wrapping it in a `ComparableIntList`. For states that are already of a type implementing `Comparable`,
- * the state itself is returned. Any state not falling into these categories will result in an error.
- *
- * @param State The type representing the state from which a comparable key is derived.
- * @param s The state object for which a comparable key needs to be generated.
- * @return A comparable object representing a consistent key for the provided state.
- * @throws IllegalArgumentException If the provided state is neither comparable nor mappable to a comparable key.
- */
 @Suppress("UNCHECKED_CAST")
-internal fun <State> stateKey(s: State): Comparable<*> =
-    when (s) {
-        is NDArray<*, *> -> ComparableIntList((s as NDArray<Int, DN>).toList())
-        is Comparable<*> -> s
-        else -> error("State $s must be Comparable or mappable to a comparable key.")
-    }
+internal fun <T> Comparable<T>.fromComparable(): T =
+    when (this) {
+        is ComparableNDArray -> this.toNDArray()
+        else -> this
+    }  as T
 
-/**
- * Computes a comparable key for the given action.
- *
- * @param a The action for which a comparable key is required. Must either be of a type that implements `Comparable`
- *          or mappable to a comparable key.
- * @return A comparable key corresponding to the given action.
- * @throws IllegalStateException if the action does not implement `Comparable` and cannot be mapped to a comparable key.
- */
-internal fun <Action> actionKey(a: Action): Comparable<*> =
-    when (a) {
-        is Comparable<*> -> a
-        else -> error("Action $a must be Comparable or mappable to a comparable key.")
-    }
 
 /**
  * Displays a video located in the folder and episode specified.

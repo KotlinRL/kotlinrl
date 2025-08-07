@@ -3,25 +3,26 @@ package io.github.kotlinrl.core.policy
 import kotlin.random.*
 
 /**
- * Implements an epsilon-greedy policy for reinforcement learning.
- * The epsilon-greedy policy selects a random action with a probability
- * given by the epsilon parameter, and selects the greedy (highest Q-value) action otherwise.
+ * A policy implementation that employs the epsilon-greedy strategy in reinforcement learning.
  *
- * @param State the type representing the state in the environment.
- * @param Action the type representing the action that can be performed in the environment.
- * @property Q the Q-function used to evaluate state-action value pairs.
- * @property stateActions a function that provides the list of available actions for a given state.
- * @property epsilon a schedule defining the epsilon value, which controls the trade-off
- * between exploration and exploitation.
- * @property rng the random number generator used to select random actions.
+ * The epsilon-greedy policy selects actions based on a trade-off between exploration and exploitation.
+ * With a probability of epsilon, a random action is chosen (exploration), and with a probability of
+ * 1 - epsilon, the action that maximizes the Q-value (greedy choice) is selected (exploitation).
+ *
+ * @param State the type representing the states of the environment.
+ * @param Action the type representing the actions available in the environment.
+ * @param Q the Q-function used to estimate the quality of state-action pairs and guide action selection.
+ * @param stateActions a function that defines the set of possible actions available for each state.
+ * @param epsilon a parameter schedule that determines the exploration rate.
+ * @param rng the random number generator used to introduce randomness in the policy's exploration.
  */
 class EpsilonGreedyPolicy<State, Action>(
-    override val Q: EnumerableQFunction<State, Action>,
+    override val Q: QFunction<State, Action>,
     override val stateActions: StateActions<State, Action>,
     private val epsilon: ParameterSchedule,
     private val rng: Random = Random.Default
-) : QFunctionPolicy<State, Action> {
-    private val randomPolicy = RandomPolicy(stateActions, rng)
+) : Policy<State, Action> {
+    private val randomPolicy = RandomPolicy(Q, stateActions, rng)
     private val greedyPolicy = GreedyPolicy(Q, stateActions)
 
     /**
@@ -40,15 +41,16 @@ class EpsilonGreedyPolicy<State, Action>(
         }
 
     /**
-     * Creates and returns an updated policy based on the given Q-function using the epsilon-greedy strategy.
-     * The epsilon-greedy policy balances exploration and exploitation by selecting a random action with
-     * probability epsilon, and the best action as per the Q-function with probability (1 - epsilon).
+     * Improves the current policy based on the given Q-function.
      *
-     * @param Q the Q-function to generate the improved policy. It represents the expected rewards for
-     *          each state-action pair and helps guide the action selection process.
-     * @return an epsilon-greedy policy that leverages the updated Q-function to make decisions.
+     * The improved policy is derived using the epsilon-greedy approach, where an action
+     * is selected either greedily based on the Q-function or randomly with a probability
+     * defined by the epsilon parameter.
+     *
+     * @param Q the Q-function representing the expected cumulative reward for each state-action pair.
+     * @return the improved policy using the epsilon-greedy strategy for action selection.
      */
-    override fun improve(Q: EnumerableQFunction<State, Action>): Policy<State, Action> =
+    override fun improve(Q: QFunction<State, Action>): Policy<State, Action> =
         EpsilonGreedyPolicy(
             Q = Q,
             stateActions = stateActions,

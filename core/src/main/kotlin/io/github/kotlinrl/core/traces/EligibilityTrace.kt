@@ -31,13 +31,13 @@ interface EligibilityTrace<State, Action> {
      */
     fun decay(gamma: Double, lambda: Double): EligibilityTrace<State, Action>
     /**
-     * Returns a map representation of the eligibility trace, where each key is a state-action pair
-     * and its associated value is the current trace value for that pair. The returned map provides
-     * a snapshot of the current state of the eligibility trace.
+     * Returns a map of state-action keys to their corresponding trace values.
+     * The map represents the current state of the eligibility trace, where each entry
+     * consists of a state-action pair as the key and its associated trace value.
      *
-     * @return A map of state-action keys to their corresponding trace values.
+     * @return A map containing state-action keys and their respective trace values.
      */
-    fun values(): Map<StateActionKey<*, *>, Double>
+    fun values(): Map<StateActionKey<State, Action>, Double>
     /**
      * Clears all state-action trace values by removing all entries from the eligibility trace.
      *

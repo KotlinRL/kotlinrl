@@ -1,40 +1,42 @@
 package io.github.kotlinrl.core.algorithms.mc
 
 import io.github.kotlinrl.core.*
-import io.github.kotlinrl.core.TrajectoryQFunctionAlgorithm
-import io.github.kotlinrl.core.algorithms.base.TrajectoryQFunctionEstimator
+import io.github.kotlinrl.core.TrajectoryLearningAlgorithm
+import io.github.kotlinrl.core.algorithms.base.EstimateQ_fromTrajectory
 
 /**
- * Implements incremental Monte Carlo control for reinforcement learning. This class uses trajectory-based
- * Q-function estimation and policy improvement to optimize the agent's decision-making process over time.
+ * Implements an incremental Monte Carlo control algorithm for reinforcement learning.
  *
- * IncrementalMonteCarloControl is based on the principle of iterative Q-function updates using experience
- * gathered from episodes of interaction with the environment. It employs an incremental update mechanism
- * that allows dynamic adjustments to the Q-function estimates with an optional focus on first-visit updates.
+ * This class combines policy improvement and value function estimation, refining a policy
+ * iteratively by evaluating it based on state-action trajectories and updating the
+ * Q-function incrementally. The algorithm processes complete episodes, making updates
+ * based on observed returns and adjusting the policy accordingly.
  *
- * @param State the type representing the environment's state.
- * @param Action the type representing the actions the agent can take within the environment.
- * @param initialPolicy the initial Q-function policy that dictates the agent's behavior.
- * @param alpha a parameter schedule that determines the step size (learning rate) for Q-function updates.
- *              Defaults to a constant value of 0.05.
- * @param gamma the discount factor used to account for the temporal nature of rewards. Defaults to 0.99.
- * @param firstVisitOnly a flag indicating whether only the first visit to a state-action pair in a trajectory
- *                       should contribute to the Q-function update. Defaults to true.
- * @param estimator the trajectory-based Q-function estimator used to compute Q-function updates. Defaults to
- *                  `IncrementalMonteCarloQFunctionEstimator` configured with `gamma`, `alpha`, and `firstVisitOnly`.
- * @param onQFunctionUpdate a callback function invoked whenever the Q-function is updated. Defaults to an empty lambda.
- * @param onPolicyUpdate a callback function invoked whenever the policy is updated. Defaults to an empty lambda.
+ * @param State the type representing the states in the environment.
+ * @param Action the type representing the actions that can be taken in the environment.
+ * @param initialPolicy the starting policy that determines the agent's initial behavior in the environment.
+ * @param alpha a parameter schedule defining the learning rate for incremental updates to Q-values.
+ *        Defaults to a constant value of 0.05.
+ * @param gamma the discount factor controlling the weight of future rewards, with a default value of 0.99.
+ * @param firstVisitOnly a Boolean indicating whether to update Q-values only for the first occurrence of state-action
+ *        pairs in a trajectory. Defaults to true.
+ * @param estimateQ the Q-function estimation algorithm used to update the Q-values based on observed trajectories.
+ *        Defaults to IncrementalMonteCarloEstimateQ_fromTrajectory with the given parameters.
+ * @param onQFunctionUpdate a callback triggered after each Q-function update, allowing for custom actions or monitoring
+ *        during the learning process. Defaults to a no-op.
+ * @param onPolicyUpdate a callback triggered after a policy update, useful for custom actions or monitoring during
+ *        the learning process. Defaults to a no-op.
  */
 class IncrementalMonteCarloControl<State, Action>(
-    initialPolicy: QFunctionPolicy<State, Action>,
+    initialPolicy: Policy<State, Action>,
     alpha: ParameterSchedule = ParameterSchedule { 0.05 },
     gamma: Double = 0.99,
     firstVisitOnly: Boolean = true,
-    estimator: TrajectoryQFunctionEstimator<State, Action> = IncrementalMonteCarloQFunctionEstimator(
+    estimateQ: EstimateQ_fromTrajectory<State, Action> = IncrementalMonteCarloEstimateQ_fromTrajectory(
         gamma = gamma,
         alpha = alpha,
         firstVisitOnly = firstVisitOnly
     ),
-    onQFunctionUpdate: EnumerableQFunctionUpdate<State, Action> = { },
+    onQFunctionUpdate: QFunctionUpdate<State, Action> = { },
     onPolicyUpdate: PolicyUpdate<State, Action> = { },
-) : TrajectoryQFunctionAlgorithm<State, Action>(initialPolicy, estimator, onPolicyUpdate, onQFunctionUpdate)
+) : TrajectoryLearningAlgorithm<State, Action>(initialPolicy, estimateQ, onPolicyUpdate, onQFunctionUpdate)

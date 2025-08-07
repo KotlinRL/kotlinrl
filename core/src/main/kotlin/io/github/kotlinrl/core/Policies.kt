@@ -102,21 +102,6 @@ typealias Policy<State, Action> = io.github.kotlinrl.core.policy.Policy<State, A
  */
 typealias QFunction<State, Action> = io.github.kotlinrl.core.policy.QFunction<State, Action>
 /**
- * Type alias for `io.github.kotlinrl.core.policy.QFunctionPolicy`.
- *
- * Represents a policy in reinforcement learning derived from a Q-function,
- * used to determine the behavior of an agent based on the quality of state-action pairs.
- *
- * This policy provides abstraction for computing action probabilities and
- * determining the likelihood of selecting a specific action in a given state.
- * The underlying Q-function evaluates the expected cumulative reward, enabling
- * the policy to make decisions aimed at maximizing performance in an environment.
- *
- * @param State The type representing the state in the environment.
- * @param Action The type representing the actions available in the environment.
- */
-typealias QFunctionPolicy<State, Action> = io.github.kotlinrl.core.policy.QFunctionPolicy<State, Action>
-/**
  * Typealias for `io.github.kotlinrl.core.policy.EnumerableQFunction`, providing a more concise reference
  * to an interface that represents a Q-function with an enumerable state space.
  *
@@ -139,18 +124,6 @@ typealias EnumerableQFunction<State, Action> = io.github.kotlinrl.core.policy.En
  * @param State The type representing the state in the environment.
  */
 typealias ValueFunction<State> = io.github.kotlinrl.core.policy.ValueFunction<State>
-/**
- * A type alias for `io.github.kotlinrl.core.policy.Planner`.
- *
- * Represents a functional interface for creating decision-making policies
- * in reinforcement learning. A `Planner` is used to generate a policy based
- * on the current state of the environment and available actions, facilitating
- * the implementation of various planning strategies.
- *
- * @param State The type representing the state of the environment.
- * @param Action The type representing the actions available in the environment.
- */
-typealias Planner<State, Action> = io.github.kotlinrl.core.policy.Planner<State, Action>
 /**
  * A type alias for the `io.github.kotlinrl.core.policy.EnumerableValueFunction` interface.
  *
@@ -227,50 +200,52 @@ typealias PolicyUpdate<State, Action> = (Policy<State, Action>) -> Unit
 typealias EligibilityTraceUpdate<State, Action> = (EligibilityTrace<State, Action>) -> Unit
 
 /**
- * Creates a random policy that selects actions based on a uniform random distribution
- * over the available actions for a given state.
+ * Creates and returns a random policy based on the given Q-function and state-action space.
+ * This policy selects actions stochastically, providing an exploration mechanism
+ * or baseline behavior in reinforcement learning contexts.
  *
- * @param stateActions A mapping that defines the available actions for each state.
- * @param rng An instance of a random number generator to use. Defaults to [Random.Default].
- * @return A policy that selects actions uniformly at random for a given state.
+ * @param Q The Q-function representing the state-action value estimates.
+ * @param stateActions A definition of the actions available for each possible state in the environment.
+ * @param rng The random number generator used for stochastic action selection.
+ * @return A stochastic policy that selects actions randomly for the specified Q-function and state-action space.
  */
 fun <State, Action> randomPolicy(
+    Q: QFunction<State, Action>,
     stateActions: StateActions<State, Action>,
     rng: Random = Random.Default
-): Policy<State, Action> = RandomPolicy(stateActions, rng)
+): Policy<State, Action> = RandomPolicy(Q, stateActions, rng)
 
 /**
- * Constructs a greedy policy based on the given Q-function and state-actions mapping.
+ * Creates a greedy policy that deterministically selects the action with the highest Q-value
+ * for a given state, based on the provided Q-function and state-actions mapping.
  *
- * This policy selects the action with the highest Q-value for a given state,
- * ensuring deterministic action selection that aims to maximize reward.
- *
- * @param Q The Q-function to evaluate state-action pairs and compute Q-values.
- * @param stateActions The mapping of states to the available actions for each state.
- * @return A deterministic policy that follows the greedy approach to action selection.
+ * @param Q The Q-function that provides the Q-value for state-action pairs.
+ * @param stateActions A mapping that defines the valid actions for each state.
+ * @return A greedy policy that selects actions to maximize the Q-value.
  */
 fun <State, Action> greedyPolicy(
-    Q: EnumerableQFunction<State, Action>,
+    Q: QFunction<State, Action>,
     stateActions: StateActions<State, Action>,
-): QFunctionPolicy<State, Action> = GreedyPolicy(Q, stateActions)
+): Policy<State, Action> = GreedyPolicy(Q, stateActions)
 
 /**
  * Creates an epsilon-greedy policy for action selection in reinforcement learning.
- * The policy selects a random action with a probability defined by the epsilon parameter
- * and selects the action with the highest Q-value otherwise.
  *
- * @param Q the Q-function used to evaluate state-action value pairs and determine the best action.
- * @param stateActions a function that provides the set of available actions for a given state.
- * @param epsilon a parameter schedule defining the exploration probability (epsilon) over time.
- * @param rng the random number generator used for selecting random actions.
- * @return an epsilon-greedy policy that balances exploration and exploitation when selecting actions.
+ * The epsilon-greedy policy balances exploration and exploitation by choosing a random action
+ * with a probability defined by epsilon, and selecting the action with the highest Q-value otherwise.
+ *
+ * @param Q the Q-function used to estimate the value of state-action pairs.
+ * @param stateActions a function defining the set of available actions for each state.
+ * @param epsilon a parameter schedule determining the exploration rate.
+ * @param rng the random number generator used to introduce randomness in action selection.
+ * @return a policy implementing the epsilon-greedy action selection strategy.
  */
 fun <State, Action> epsilonGreedyPolicy(
-    Q: EnumerableQFunction<State, Action>,
+    Q: QFunction<State, Action>,
     stateActions: StateActions<State, Action>,
     epsilon: ParameterSchedule,
     rng: Random = Random.Default
-): QFunctionPolicy<State, Action> = EpsilonGreedyPolicy(
+): Policy<State, Action> = EpsilonGreedyPolicy(
     Q = Q,
     stateActions = stateActions,
     epsilon = epsilon,
@@ -278,18 +253,23 @@ fun <State, Action> epsilonGreedyPolicy(
 )
 
 /**
- * Constructs a softmax policy that selects actions stochastically based on the softmax function,
- * using Q-values for state-action pairs and a temperature parameter to balance exploration and exploitation.
+ * Creates a softmax policy for action selection in reinforcement learning.
  *
- * @param Q the Q-function that estimates the expected cumulative rewards for state-action pairs.
- * @param stateActions a function that retrieves the list of available actions for a given state.
- * @param temperature a parameter schedule that determines the temperature value for the softmax computation.
- *                     Higher values lead to more exploration, while lower values encourage exploitation.
- * @param rng a random number generator used for sampling actions stochastically. Defaults to the standard random generator.
- * @return an instance of SoftmaxPolicy configured with the given Q-function, state-action mapping, temperature, and random generator.
+ * The resulting policy assigns probabilities to each possible action in a given state,
+ * based on the Q-values of the state-action pairs and a temperature parameter. The
+ * temperature parameter controls the trade-off between exploration and exploitation.
+ *
+ * @param State the type representing the state in the environment.
+ * @param Action the type representing the actions available to the agent.
+ * @param Q the Q-function mapping state-action pairs to their utility or quality values.
+ * @param stateActions a function to determine the set of actions available for a given state.
+ * @param temperature a parameter schedule controlling the temperature used in the softmax
+ *        computation, which affects the stochasticity of action selection.
+ * @param rng a random number generator to introduce randomness into the action selection process.
+ * @return an instance of `SoftmaxPolicy` representing the softmax-based stochastic policy.
  */
 fun <State, Action> softMaxPolicy(
-    Q: EnumerableQFunction<State, Action>,
+    Q: QFunction<State, Action>,
     stateActions: StateActions<State, Action>,
     temperature: ParameterSchedule,
     rng: Random = Random.Default
@@ -301,19 +281,21 @@ fun <State, Action> softMaxPolicy(
 )
 
 /**
- * Creates an epsilon-soft policy for reinforcement learning. This policy combines
- * exploration and exploitation by selecting actions stochastically based on an epsilon value.
- * The policy follows the greedy action (highest Q-value) with a probability of (1 - epsilon)
- * and explores other actions with a probability of epsilon.
+ * Constructs an epsilon-soft policy using the provided Q-function, state-action mapping,
+ * epsilon parameter schedule, and random number generator. The epsilon-soft policy
+ * promotes exploration by occasionally selecting non-greedy actions with a probability
+ * controlled by epsilon, while favoring the optimal actions determined by the Q-function.
  *
- * @param Q The Q-function representing the quality of state-action pairs.
- * @param stateActions A function that returns the set of available actions for a given state.
- * @param epsilon The parameter schedule defining the exploration rate (epsilon) over time.
- * @param rng The random number generator used for stochastic decisions. Default is `Random.Default`.
- * @return An `EpsilonSoftPolicy` instance utilizing the provided Q-function and exploration schedule.
+ * @param State the type representing the states in the environment.
+ * @param Action the type representing the actions in the environment.
+ * @param Q the Q-function that estimates the value of state-action pairs.
+ * @param stateActions a functional interface that provides the available actions for a given state.
+ * @param epsilon a parameter schedule defining the exploration rate at each point in time.
+ * @param rng a random number generator for introducing stochasticity in action selection, defaulting to Random.Default.
+ * @return an instance of an epsilon-soft policy, balancing exploration and exploitation in decision-making.
  */
 fun <State, Action> epsilonSoftPolicy(
-    Q: EnumerableQFunction<State, Action>,
+    Q: QFunction<State, Action>,
     stateActions: StateActions<State, Action>,
     epsilon: ParameterSchedule,
     rng: Random = Random.Default
@@ -325,16 +307,16 @@ fun <State, Action> epsilonSoftPolicy(
 )
 
 /**
- * Creates a uniform random policy for a reinforcement learning environment.
- * The policy selects actions uniformly at random from the set of available actions
- * for the given state, ensuring equal probability for all actions.
+ * Generates a uniform random policy for a given Q-function and state-action pairings.
+ * The resulting policy chooses actions uniformly at random from the available actions
+ * for each state, without consideration of Q-function values.
  *
- * @param Q the Q-function representing the expected utility of state-action pairs.
- * @param stateActions a mapping of states to their respective available actions.
- * @return a stochastic policy that chooses actions uniformly at random.
+ * @param Q the Q-function that represents the expected rewards for state-action pairs.
+ * @param stateActions a mapping or accessor that provides all available actions for a given state.
+ * @return a stochastic policy that selects actions uniformly at random for a given state.
  */
 fun <State, Action> uniformRandomPolicy(
-    Q: EnumerableQFunction<State, Action>,
+    Q: QFunction<State, Action>,
     stateActions: StateActions<State, Action>,
 ): StochasticPolicy<State, Action> = UniformStochasticPolicy(Q, stateActions)
 

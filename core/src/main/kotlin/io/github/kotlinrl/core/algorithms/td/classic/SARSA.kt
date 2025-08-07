@@ -3,39 +3,35 @@ package io.github.kotlinrl.core.algorithms.td.classic
 import io.github.kotlinrl.core.*
 
 /**
- * Implements the SARSA (State-Action-Reward-State-Action) algorithm for reinforcement learning.
- * SARSA is an on-policy Temporal Difference (TD) learning algorithm that updates the Q-function
- * using the action selected by the current policy in the subsequent state. The update is based on
- * the observed transition and the next action taken by the agent, making it strictly follow the
- * current policy during learning.
+ * An implementation of the SARSA (State-Action-Reward-State-Action) reinforcement learning algorithm.
  *
- * The SARSA algorithm is useful in scenarios where the behavior of the learning process needs
- * to align with the policy being followed, as it reduces deviation between learning and acting.
- * This makes it a fully on-policy learning algorithm.
+ * SARSA is an on-policy learning algorithm, meaning that it updates its Q-function based on the current policy being followed.
+ * The algorithm learns by interacting with the environment, observing one-step transitions, and using the temporal difference
+ * method to update the Q-function. The Q-function is then used to improve the policy iteratively.
  *
- * The class relies on a [SARSAQFunctionEstimator] for calculating the TD error and updating
- * the Q-function iteratively based on the discount factor and learning rate. It also allows
- * the use of custom callbacks to monitor or react to updates of the Q-function or policy,
- * providing control over the learning process.
+ * Key features of this class:
+ * - Integrates on-policy learning with the SARSA update rule.
+ * - Allows for flexible customization of learning rate (`alpha`) and discount factor (`gamma`).
+ * - Supports dynamic adjustment of Q-function and policy with callbacks (`onQFunctionUpdate` and `onPolicyUpdate`).
+ * - By default, uses the `SARSAEstimateQ_fromTransition` implementation for Q-function estimation with SARSA-specific updates.
  *
- * @param State the type representing the state of the environment.
- * @param Action the type representing the actions that can be taken within the environment.
- * @param initialPolicy the initial policy for selecting actions, represented as a Q-function-based policy.
- * @param alpha the learning rate, provided as a [ParameterSchedule] that can adapt over time.
- * @param gamma the discount factor for future rewards, ranging between 0 and 1.
- * @param estimator the transition Q-function estimator used to calculate Q-function updates.
- * Defaults to [SARSAQFunctionEstimator] using the learning rate and discount factor.
- * @param onQFunctionUpdate a callback function invoked whenever the Q-function is updated.
- * @param onPolicyUpdate a callback function invoked whenever the policy is updated.
+ * @param State the type representing the state space of the environment.
+ * @param Action the type representing the action space of the environment.
+ * @param initialPolicy the starting policy that determines the agent's actions at the beginning and is improved iteratively.
+ * @param alpha the learning rate, represented as a [ParameterSchedule], which may vary over time.
+ * @param gamma the discount factor for future rewards, ranging between 0 and 1; controls the trade-off between immediate and future rewards.
+ * @param estimateQ a Q-function estimator that determines how to update the Q-function based on observed transitions, defaulting to SARSA's method.
+ * @param onQFunctionUpdate a callback invoked whenever the Q-function is updated; useful for monitoring or logging.
+ * @param onPolicyUpdate a callback invoked whenever the policy is updated; allows for external actions on policy changes.
  */
 class SARSA<State, Action>(
-    initialPolicy: QFunctionPolicy<State, Action>,
+    initialPolicy: Policy<State, Action>,
     alpha: ParameterSchedule,
     gamma: Double,
-     estimator: TransitionQFunctionEstimator<State, Action> = SARSAQFunctionEstimator(alpha, gamma),
-    onQFunctionUpdate: EnumerableQFunctionUpdate<State, Action> = { },
+    estimateQ: EstimateQ_fromTransition<State, Action> = SARSAEstimateQ_fromTransition(alpha, gamma),
+    onQFunctionUpdate: QFunctionUpdate<State, Action> = { },
     onPolicyUpdate: PolicyUpdate<State, Action> = { },
-) : TransitionQFunctionAlgorithm<State, Action>(initialPolicy, estimator, onPolicyUpdate, onQFunctionUpdate)
+) : TransitionLearningAlgorithm<State, Action>(initialPolicy, estimateQ, onPolicyUpdate, onQFunctionUpdate)
 
 
 
