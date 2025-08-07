@@ -30,6 +30,26 @@ class QTableD4(
     internal val base = QTableDN(shape = shape, deterministic, tolerance, defaultQValue)
 
     /**
+     * Converts the Q-table to a value function representation.
+     *
+     * This method generates an enumerable value function by iterating over all states in the Q-table
+     * and calculating the maximum Q-value for each state. The resulting value function is returned
+     * as an instance of `EnumerableValueFunction<NDArray<Int, D3>>`.
+     *
+     * @return An enumerable value function representing the maximum Q-values for each state.
+     */
+    @Suppress("DuplicatedCode")
+    override fun toV(): EnumerableValueFunction<NDArray<Int, D3>> {
+        val Q = (if (deterministic) this else copy(true))
+        val shape = Q.shape.dropLast(1).toIntArray()
+        var V = VTableD4(shape = shape)
+        for (state in allStates()) {
+            V = V.update(state, Q.maxValue(state)) as VTableD4
+        }
+        return V
+    }
+
+    /**
      * Retrieves the Q-value associated with a given state and action.
      *
      * @param state The state represented as an NDArray of type Int with 3 dimensions.
@@ -84,12 +104,14 @@ class QTableD4(
         base.bestAction(state.asDNArray())
 
     /**
-     * Creates a copy of the current QTableD4 instance, including its internal data.
+     * Creates a copy of the current `QTableD4` instance with the option to modify its determinism.
      *
-     * @return A new QTableD4 instance with the same shape, deterministic setting,
-     * tolerance, default Q-value, and copied internal data.
+     * @param deterministic Specifies whether the copied instance should use a deterministic approach.
+     *                       Defaults to the value of `this.deterministic` in the current instance.
+     * @return A new `QTableD4` instance with the same properties as the current instance,
+     *         but with the specified determinism setting.
      */
-    fun copy(): QTableD4 =
+    fun copy(deterministic: Boolean = this.deterministic): QTableD4 =
         QTableD4(
             shape = shape,
             deterministic = deterministic,

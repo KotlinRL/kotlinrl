@@ -5,17 +5,18 @@ import org.jetbrains.kotlinx.multik.api.*
 import org.jetbrains.kotlinx.multik.ndarray.data.*
 
 /**
- * A one-dimensional implementation of `EnumerableQFunction`, designed to efficiently represent
- * and manage Q-values for a system with two state-action dimensionality. This class simplifies
- * the Q-function table by assuming the state space is one-dimensional.
+ * Represents a deterministic or non-deterministic Q-table with a one-dimensional state space
+ * and a configurable shape. It is an implementation of the `EnumerableQFunction` interface
+ * for handling Q-values in reinforcement learning.
  *
- * The underlying Q-table is internally represented through a `QTableDN` instance, enabling
- * additional flexibility and extensibility for dimensional transformations.
- *
- * @property shape Specifies the dimensions of the state and action space. Requires exactly two integers.
- * @property deterministic Determines whether the action selection process is deterministic or probabilistic.
- * @property tolerance The allowed numerical tolerance for comparing Q-values in non-deterministic selection.
- * @property defaultQValue The initial value assigned to all Q-values in the table.
+ * @param shape Shape of the Q-table, specified as two integers representing
+ *              the number of states and actions, respectively.
+ * @param deterministic Determines whether the Q-table operates in a deterministic
+ *                       mode or not. Defaults to `true`.
+ * @param tolerance The threshold value used for tolerances in the Q-table operations.
+ *                  Defaults to `1e-6`.
+ * @param defaultQValue The default Q-value assigned to all state-action pairs
+ *                      at the time of initialization. Defaults to `0.0`.
  */
 class QTableD1(
     vararg val shape: Int,
@@ -29,6 +30,23 @@ class QTableD1(
     }
 
     private val base = QTableDN(shape = shape, deterministic, tolerance, defaultQValue)
+
+    /**
+     * Converts the current QTableD1 instance into an EnumerableValueFunction.
+     * The function computes the maximum Q-value for each state and represents it as a value function.
+     *
+     * @return An EnumerableValueFunction instance representing the maximum Q-value for each state.
+     */
+    @Suppress("DuplicatedCode")
+    override fun toV(): EnumerableValueFunction<Int> {
+        val Q = (if (deterministic) this else copy(true))
+        val shape = Q.shape.dropLast(1).toIntArray()
+        var V = VTableD1(shape = shape)
+        for (state in allStates()) {
+            V = V.update(state, Q.maxValue(state)) as VTableD1
+        }
+        return V
+    }
 
     /**
      * Retrieves the Q-value for the given state and action from the QTable.
@@ -82,11 +100,14 @@ class QTableD1(
         base.bestAction(mk.ndarray(intArrayOf(state)).asDNArray())
 
     /**
-     * Creates a duplicate instance of the current QTableD1 object, maintaining the same configuration and state.
+     * Creates a copy of the current QTableD1 instance while allowing the deterministic property to be overridden.
      *
-     * @return A new QTableD1 instance with the same attributes and internal data as the original object.
+     * @param deterministic A Boolean value indicating whether the QTableD1 instance should operate in a deterministic
+     * mode. If not specified, the value defaults to the deterministic property of the current instance.
+     * @return A new QTableD1 instance with the same attributes as the current instance, but with the deterministic
+     * property set to the provided value.
      */
-    fun copy(): QTableD1 =
+    fun copy(deterministic: Boolean = this.deterministic): QTableD1 =
         QTableD1(
             shape = shape,
             deterministic = deterministic,

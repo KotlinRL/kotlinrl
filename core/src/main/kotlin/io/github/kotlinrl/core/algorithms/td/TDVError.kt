@@ -3,30 +3,33 @@ package io.github.kotlinrl.core.algorithms.td
 import io.github.kotlinrl.core.*
 
 /**
- * Represents a functional interface for computing Temporal Difference (TD) errors for value functions.
+ * A functional interface for computing Temporal Difference (TD) errors based on state values.
  *
- * Temporal Difference methods are widely used in reinforcement learning to estimate value functions
- * by bootstrapping, which combines observed rewards with estimates of future values.
- * This interface provides a blueprint for defining error calculation logic in TD-based approaches,
- * such as TD(0), TD(λ), or other variations.
+ * The TD error quantifies the difference between the estimated value of the current state
+ * and the target value derived from the observed reward and the estimated value of the subsequent state.
+ * This serves as a foundational component in reinforcement learning algorithms for value prediction,
+ * enabling incremental updates towards more accurate value functions.
  *
- * @param State The type representing the states in the environment or Markov Decision Process (MDP).
+ * This interface provides flexibility in defining various TD error calculation strategies,
+ * such as standard TD error computation or methods tailored to specific environments or learning objectives.
+ *
+ * @param State The type representing the states in the environment.
  */
 fun interface TDVError<State> {
     /**
-     * Computes the Temporal Difference (TD) error for a given value function and transition.
+     * Computes the Temporal Difference (TD) error based on the provided value function and transition.
      *
-     * This method calculates the TD error, which represents the discrepancy between the estimated value
-     * of the current state and the target value. The target value is based on the observed reward and
-     * the estimated value of the subsequent state, scaled by the discount factor.
+     * This operator function calculates the TD error as the discrepancy between the observed target value,
+     * which incorporates a discounted estimate of future rewards, and the estimated value of the current state.
+     * The gamma parameter determines the discount factor applied to future rewards.
      *
-     * @param V the value function used to retrieve the scalar value of a given state.
-     * @param t the transition, containing the current state, reward, next state,
-     * and a flag indicating if the episode has ended.
-     * @param gamma the discount factor, a value between 0 and 1 that weighs the importance
-     * of future rewards.
-     * @return the computed TD error as a `Double`, capturing the difference between the predicted
-     * and target state values.
+     * @param V the value function that maps a state to its estimated value.
+     * @param t the transition, which contains the current state, reward, next state, and a flag indicating
+     *          whether the transition ends an episode.
+     * @param gamma the discount factor, a value in the range [0, 1], which determines the trade-off
+     *              between immediate and future rewards.
+     * @return the calculated TD error as a `Double`, representing the difference between
+     *         the predicted value and the target value.
      */
     operator fun invoke(
         V: ValueFunction<State>,

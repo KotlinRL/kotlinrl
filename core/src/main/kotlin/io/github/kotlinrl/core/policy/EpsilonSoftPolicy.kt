@@ -3,20 +3,23 @@ package io.github.kotlinrl.core.policy
 import kotlin.random.*
 
 /**
- * Represents a stochastic policy implementation utilizing epsilon-soft action selection.
- * It ensures that the agent explores with probability epsilon while following the greedy policy
- * with probability (1 - epsilon). The exploration rate (epsilon) is determined dynamically
- * using the provided parameter schedule.
+ * Represents an epsilon-soft policy in reinforcement learning, which introduces stochasticity
+ * into the policy selection process. This policy promotes exploration by occasionally choosing
+ * suboptimal actions with a probability controlled by the epsilon parameter, while still favoring
+ * the optimal action as determined by the Q-function.
  *
- * @param State the type representing the state in the environment.
- * @param Action the type representing the actions that can be performed in the environment.
- * @param Q the Q-function used to evaluate the quality of state-action pairs.
- * @param stateActions a function providing the available actions for a given state.
- * @param epsilon a parameter schedule that defines the value of epsilon, balancing exploration and exploitation.
- * @param rng the random number generator used for stochastic decisions.
+ * This approach ensures a balance between exploration and exploitation, making it suitable for various
+ * reinforcement learning tasks where an agent needs to learn an optimal policy over time.
+ *
+ * @param State the type representing states in the environment.
+ * @param Action the type representing actions available in the environment.
+ * @param Q the Q-function used to estimate the value of state-action pairs.
+ * @param stateActions a functional interface that provides the list of possible actions for a given state.
+ * @param epsilon a parameter schedule that determines the exploration rate at any given time.
+ * @param rng a random number generator used for stochastic behavior in action selection.
  */
 class EpsilonSoftPolicy<State, Action>(
-    override val Q: EnumerableQFunction<State, Action>,
+    override val Q: QFunction<State, Action>,
     override val stateActions: StateActions<State, Action>,
     private val epsilon: ParameterSchedule,
     rng: Random
@@ -46,12 +49,16 @@ class EpsilonSoftPolicy<State, Action>(
     }
 
     /**
-     * Improves the given Q-function by returning an updated epsilon-soft policy.
+     * Improves the current policy by generating an epsilon-soft policy using the given Q-function.
      *
-     * @param Q the Q-function to be improved, which provides state-action value information.
-     * @return a new policy that implements an epsilon-soft approach using the provided Q-function.
+     * The epsilon-soft policy ensures that actions are chosen based on an epsilon-greedy strategy,
+     * where the agent usually selects the action with the highest Q-value, but occasionally explores
+     * other actions with a probability defined by epsilon.
+     *
+     * @param Q the Q-function representing the expected cumulative reward for each state-action pair.
+     * @return an improved policy that utilizes the provided Q-function for decision-making.
      */
-    override fun improve(Q: EnumerableQFunction<State, Action>): Policy<State, Action> =
+    override fun improve(Q: QFunction<State, Action>): Policy<State, Action> =
         EpsilonSoftPolicy(
             Q = Q,
             epsilon = epsilon,

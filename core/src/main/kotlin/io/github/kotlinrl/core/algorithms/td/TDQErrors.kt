@@ -3,25 +3,29 @@ package io.github.kotlinrl.core.algorithms.td
 import io.github.kotlinrl.core.*
 
 /**
- * A collection of Temporal Difference (TD) error calculation strategies for Q-functions.
+ * TDQErrors provides a collection of standard Temporal Difference (TD) error calculation functions
+ * for reinforcement learning, enabling the computation of TD errors for Q-functions using methods
+ * such as Q-Learning, SARSA, and Expected SARSA.
  *
- * This object provides implementations of commonly used TD error methods, tailored for different RL algorithms.
- * The calculated TD errors are used to update Q-values in reinforcement learning algorithms.
- * Methods include implementations for Q-Learning, SARSA, Expected SARSA, and semi-gradient SARSA.
+ * These functions facilitate the comparison of predicted Q-values against target values that
+ * incorporate observed rewards and future estimated Q-values, serving as a cornerstone
+ * for updating Q-functions in various RL algorithms.
  */
 object TDQErrors {
     /**
-     * Creates a Temporal Difference (TD) error function based on the Q-Learning algorithm.
+     * Creates a Temporal Difference (TD) error function for the Q-Learning algorithm.
      *
-     * The resulting TD error function computes the error for a state-action pair,
-     * where the target value is derived from the observed reward and the maximum Q-value
-     * of the subsequent state. If the transition signifies the end of an episode, the target
-     * value does not include future state values.
+     * Q-Learning is an off-policy reinforcement learning algorithm used to estimate the
+     * optimal action-value function (Q-function). This function defines the calculation
+     * of the TD error, which measures the discrepancy between the predicted Q-value for
+     * a state-action pair and a target Q-value computed using the Bellman optimality equation.
      *
-     * This implementation is off-policy, as it uses the maximum Q-value across all possible actions
-     * in the next state, irrespective of the action actually taken.
+     * The Q-Learning TD error is formulated as:
+     * TD error = reward + γ * max_a' Q(next_state, a') - Q(state, action)
+     * where `max_a' Q(next_state, a')` is the maximum Q-value for all possible actions
+     * in the next state, and γ is the discount factor.
      *
-     * @return a TDQError implementation that calculates TD errors using the Q-Learning method.
+     * @return a `TDQError` instance representing the Q-Learning TD error function.
      */
     fun <State, Action> qLearning(): TDQError<State, Action> =
         TDQError { Q, t, _, gamma, done ->
@@ -31,19 +35,15 @@ object TDQErrors {
         }
 
     /**
-     * Constructs a Temporal Difference (TD) error calculation strategy using the SARSA algorithm.
+     * Constructs the TD error computation for the SARSA (State-Action-Reward-State-Action) algorithm.
      *
-     * SARSA (State-Action-Reward-State-Action) is an on-policy TD control algorithm.
-     * It computes the TD error by considering the reward received after transitioning
-     * to the next state and the Q-value of the next state-action pair under the current policy.
+     * The SARSA TD error is calculated using the observed reward, the current Q-value of the state-action pair,
+     * and the Q-value of the next state-action pair. It is an on-policy TD learning method that incorporates
+     * the action taken in the next state when computing the target value. If the transition represents the
+     * end of an episode, the TD target incorporates no future Q-value.
      *
-     * The computed TD error is used to update the Q-function and improve the policy.
-     * This implementation accounts for terminal states by setting the future Q-value
-     * to zero if the episode has ended.
-     *
-     * @return a `TDQError` functional interface that calculates the SARSA TD error
-     * for a given Q-function and transition, using the provided discount factor and
-     * next action under the current policy.
+     * @return a `TDQError` instance configured to compute the TD error following the SARSA algorithm.
+     * The computed TD error quantifies the discrepancy between the Q-value prediction and the on-policy target.
      */
     fun <State, Action> sarsa(): TDQError<State, Action> =
         TDQError { Q, t, aPrime, gamma, done ->
@@ -53,18 +53,19 @@ object TDQErrors {
         }
 
     /**
-     * Computes the Temporal Difference (TD) error for Expected SARSA using the supplied policy.
+     * Computes the Temporal Difference (TD) error using the Expected SARSA method.
      *
-     * This function calculates the TD error based on the Expected SARSA algorithm, which utilizes
-     * a probabilistic expectation over next-state Q-values to determine the target Q-value.
-     * The TD error is then used to update the Q-function for better action-value estimation.
+     * This method combines the predicted Q-value of the current state-action pair, reward,
+     * and the expected Q-value of the subsequent state to calculate the error. The expected
+     * Q-value is computed using the policy's probabilities of selecting actions in the next state.
      *
-     * @param policy the Q-function-based policy that provides the probabilities of selecting
-     * each action in a given state and the Q-values to calculate the TD error.
-     * @return a TDQError functional interface instance that computes the TD error given a Q-function,
-     * a state-action transition, discount factor, and episode completion flag.
+     * @param State the type representing the states in the environment.
+     * @param Action the type representing the actions in the environment.
+     * @param policy the policy used to determine the probabilities of actions for the next state.
+     *               The policy also provides a Q-function that maps state-action pairs to Q-values.
+     * @return a TDQError instance that computes the Expected SARSA TD error using the given policy.
      */
-    fun <State, Action> expectedSarsa(policy: QFunctionPolicy<State, Action>): TDQError<State, Action> =
+    fun <State, Action> expectedSarsa(policy: Policy<State, Action>): TDQError<State, Action> =
         TDQError { _, t, _, gamma, done ->
             val (s, a, r, sPrime) = t
             val Q = policy.Q

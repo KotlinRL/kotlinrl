@@ -41,6 +41,25 @@ class QTableDN(
     internal var table: NDArray<Double, DN> = mk.dnarray<Double, DN>(shape) { defaultQValue }.asDNArray()
 
     /**
+     * Converts the current Q-table into a value function representation.
+     *
+     * The method iterates over all states, computes the maximum Q-value for each state,
+     * and stores these as values in a value function.
+     *
+     * @return An instance of `EnumerableValueFunction` containing the maximum Q-values for all states.
+     */
+    @Suppress("DuplicatedCode")
+    override fun toV(): EnumerableValueFunction<NDArray<Int, DN>> {
+        val Q = (if (deterministic) this else copy(true))
+        val shape = Q.shape.dropLast(1).toIntArray()
+        var V = VTableDN(shape = shape)
+        for (state in allStates()) {
+            V = V.update(state, Q.maxValue(state)) as VTableDN
+        }
+        return V
+    }
+
+    /**
      * Retrieves the Q-value for the given state and action combination from the Q-table.
      *
      * @param state The state represented as an NDArray of integers.
@@ -156,12 +175,14 @@ class QTableDN(
     fun print() = println(table)
 
     /**
-     * Creates a copy of the current QTableDN instance with identical properties and Q-table data.
+     * Creates a copy of the current QTableDN instance with an optional override for the deterministic parameter.
      *
-     * @return A new QTableDN instance with the same shape, deterministic flag, tolerance, default Q-value,
-     *         and a copied Q-table representing the state-action space.
+     * @param deterministic A boolean indicating whether the copied instance should use deterministic behavior.
+     *                       If not provided, it defaults to the value of `this.deterministic`.
+     * @return A new QTableDN instance with the specified `deterministic` value and the same attributes
+     *         and data as the current instance.
      */
-    fun copy(): QTableDN =
+    fun copy(deterministic: Boolean = this.deterministic): QTableDN =
         QTableDN(
             shape = shape,
             deterministic = deterministic,

@@ -16,26 +16,26 @@ import io.github.kotlinrl.core.*
  * @param alpha A schedule controlling the learning rate for Q-function updates.
  * @param gamma The discount factor for future rewards. Must be in the range [0, 1].
  * @param n The number of steps used for the n-step temporal-difference update.
- * @param estimator A trajectory-based Q-function estimator implementing the n-step Q-learning update rule.
+ * @param estimateQ A trajectory-based Q-function estimator implementing the n-step Q-learning update rule.
  * @param onQFunctionUpdate A callback triggered after updates to the Q-function.
  * @param onPolicyUpdate A callback triggered after updates to the policy.
  */
 class NStepQLearning<State, Action>(
-    initialPolicy: QFunctionPolicy<State, Action>,
+    initialPolicy: Policy<State, Action>,
     alpha: ParameterSchedule,
     gamma: Double,
     n: Int,
-    estimator: TrajectoryQFunctionEstimator<State, Action> = NStepTDQFunctionEstimator(
+    estimateQ: EstimateQ_fromTrajectory<State, Action> = NStepEstimateQ_fromTrajectory(
         alpha = alpha,
         gamma = gamma,
         td = NStepTDQErrors.nStepQLearning()
     ),
-    onQFunctionUpdate: EnumerableQFunctionUpdate<State, Action> = {},
+    onQFunctionUpdate: QFunctionUpdate<State, Action> = {},
     onPolicyUpdate: PolicyUpdate<State, Action> = {}
 ) : NStepTD<State, Action>(
     initialPolicy = initialPolicy,
     n = n,
-    estimator = estimator,
+    estimateQ = estimateQ,
     onPolicyUpdate = onPolicyUpdate,
     onQFunctionUpdate = onQFunctionUpdate
 )

@@ -98,174 +98,167 @@ fun <State, Action> policyAgent(
 )
 
 /**
- * Creates a learning agent capable of interacting with an environment
- * and adapting its behavior based on the specified learning algorithm.
+ * Creates a learning agent that can interact with an environment, adapt its behavior through
+ * feedback, and make decisions using a specified learning algorithm.
  *
- * @param State The type representing the state space of the environment.
- * @param Action The type representing the action space of the environment.
- * @param id The unique identifier of the learning agent. If not provided, a randomly generated UUID is used.
+ * @param id The unique identifier of the learning agent. Defaults to a randomly generated UUID.
  * @param algorithm The learning algorithm used by the agent to determine actions and update its behavior.
- * @return A new learning agent instance using the specified learning algorithm and identifier.
+ * @return An instance of a learning agent configured with the specified identifier and algorithm.
  */
 fun <State, Action> learningAgent(
     id: String = UUID.randomUUID().toString(),
     algorithm: LearningAlgorithm<State, Action>,
 ): Agent<State, Action> = LearningAgent(
     id = id,
-    algorithm = algorithm,
+    algorithm = algorithm
 )
 
 /**
- * Creates an agent utilizing the Bellman Value Function Iteration algorithm for planning in a
- * reinforcement learning environment.
+ * Creates an agent that uses Bellman value function iteration to optimize its policy
+ * in a model-based environment. The agent interacts with the environment, updates
+ * the value function, policy, and Q-function iteratively, and supports callbacks for each update step.
  *
- * @param State The type representing the state space of the environment.
- * @param Action The type representing the action space of the environment.
- * @param id A unique identifier for the agent. Defaults to a randomly generated UUID string.
- * @param initialV The initial value function over the state space, used for iterative computation.
- * @param env The model-based environment that simulates the state transitions and dynamics.
- * @param numSamples The number of samples to draw from the environment for estimating transition probabilities. Defaults to 100.
- * @param gamma The discount factor that determines the importance of future rewards. Defaults to 0.99.
- * @param theta The threshold for convergence in the value function updates. Defaults to 1e-6.
- * @param stateActions A function that maps each state to its possible actions.
- * @param onValueFunctionUpdate A callback function invoked upon every update of the value function.
- *                              Defaults to an empty function with no operation.
- * @return An agent that uses the value function-based policy derived from the Bellman Value Function Iteration algorithm for action selection.
+ * @param id A unique identifier for the agent. Defaults to a randomly generated UUID.
+ * @param initialPolicy The initial policy used by the agent, mapping states to action probabilities.
+ * @param env The model-based environment in which the agent operates. Provides state transitions and rewards.
+ * @param numSamples The number of samples used to empirically approximate transitions. Defaults to 100.
+ * @param gamma The discount factor for future rewards, determining the balance between immediate and long-term rewards. Defaults to 0.99.
+ * @param theta The threshold for convergence in value function updates. Iterations stop when the maximum change across states is less than this value. Defaults to 1e-6.
+ * @param stateActions A function that maps states to the set of possible actions for each state.
+ * @param onQFunctionUpdate A callback triggered after updates to the Q-function. Defaults to no-op.
+ * @param onPolicyUpdate A callback triggered after updates to the policy. Defaults to no-op.
+ * @param onValueFunctionUpdate A callback triggered after updates to the value function. Defaults to no-op.
+ * @return An agent configured to perform Bellman value function iteration in the given environment.
  */
 fun <State, Action> bellmanValueFunctionIterationAgent(
     id: String = UUID.randomUUID().toString(),
-    initialV: EnumerableValueFunction<State>,
-    env: ModelBasedEnv<State, Action, *, *>,
-    numSamples: Int = 100,
-    gamma: Double = 0.99,
-    theta: Double = 1e-6,
-    stateActions: StateActions<State, Action>,
-    onValueFunctionUpdate: EnumerableValueFunctionUpdate<State> = { },
-): Agent<State, Action> = policyAgent(
-    id = id,
-    policy = bellmanValueFunctionIteration(
-        initialV = initialV,
-        env = env,
-        numSamples = numSamples,
-        gamma = gamma,
-        theta = theta,
-        stateActions = stateActions,
-        onValueFunctionUpdate = onValueFunctionUpdate,
-    ).plan()
-)
-
-/**
- * Creates an agent utilizing the Bellman Q-function iteration process for reinforcement learning.
- *
- * @param State The type representing the state space of the environment.
- * @param Action The type representing the action space of the environment.
- * @param id A unique identifier for the agent. Defaults to a randomly generated UUID string.
- * @param initialQ The initial Q-function providing estimates for state-action values.
- * @param env The model-based environment the agent interacts with.
- * @param numSamples The number of samples from the environment used during estimation. Defaults to 100.
- * @param gamma The discount factor (0 ≤ gamma ≤ 1) determining the trade-off between short-term
- *        and long-term rewards. Defaults to 0.99.
- * @param theta The convergence threshold for iterative updates, representing the minimum change
- *        required to halt the update process. Defaults to 1e-6.
- * @param stateActions A function to retrieve the list of valid actions for a given state.
- * @param onQFunctionUpdate Callback invoked whenever the Q-function is updated during the process.
- *        Defaults to an empty observer.
- * @return An agent based on a policy derived from the Bellman Q-function iteration process.
- */
-fun <State, Action> bellmanQFunctionIterationAgent(
-    id: String = UUID.randomUUID().toString(),
-    initialQ: EnumerableQFunction<State, Action>,
-    env: ModelBasedEnv<State, Action, *, *>,
-    numSamples: Int = 100,
-    gamma: Double = 0.99,
-    theta: Double = 1e-6,
-    stateActions: StateActions<State, Action>,
-    onQFunctionUpdate: (EnumerableQFunction<State, Action>) -> Unit = { }
-): Agent<State, Action> = policyAgent(
-    id = id,
-    policy = bellmanQFunctionIteration(
-        initialQ = initialQ,
-        env = env,
-        numSamples = numSamples,
-        gamma = gamma,
-        theta = theta,
-        stateActions = stateActions,
-        onQFunctionUpdate = onQFunctionUpdate,
-    ).plan()
-)
-
-/**
- * Creates an agent that uses the Bellman Policy Iteration algorithm to optimize its policy
- * for decision-making in a reinforcement learning environment.
- *
- * @param State The type representing the state space of the environment.
- * @param Action The type representing the action space of the environment.
- * @param id A unique identifier for the agent. Defaults to a randomly generated UUID string.
- * @param initialV The initial enumerable value function used to estimate state values.
- * @param initialPolicy The initial policy used by the agent for decision-making.
- * @param env The model-based environment where the agent operates.
- * @param numSamples The number of samples used to approximate state transitions in the empirical environment model. Defaults to 100.
- * @param gamma The discount factor, determining the relative importance of future rewards. Defaults to 0.99.
- * @param theta A small threshold to determine the convergence of the value function. Defaults to 1e-6.
- * @param stateActions A function that maps states to their possible actions.
- * @param onValueFunctionUpdate A callback function invoked when the value function is updated.
- * @param onPolicyUpdate A callback function invoked when the policy is updated.
- * @return An agent implementing the Bellman Policy Iteration algorithm for reinforcement learning.
- */
-fun <State, Action> bellmanPolicyIterationAgent(
-    id: String = UUID.randomUUID().toString(),
-    initialV: EnumerableValueFunction<State>,
     initialPolicy: Policy<State, Action>,
     env: ModelBasedEnv<State, Action, *, *>,
     numSamples: Int = 100,
     gamma: Double = 0.99,
     theta: Double = 1e-6,
     stateActions: StateActions<State, Action>,
-    onValueFunctionUpdate: EnumerableValueFunctionUpdate<State> = { },
-    onPolicyUpdate: PolicyUpdate<State, Action> = { }
-): Agent<State, Action> = policyAgent(
+    onQFunctionUpdate: QFunctionUpdate<State, Action> = { },
+    onPolicyUpdate: PolicyUpdate<State, Action> = { },
+    onValueFunctionUpdate: ValueFunctionUpdate<State> = { },
+): Agent<State, Action> = learningAgent(
     id = id,
-    policy = bellmanPolicyIteration(
-        initialV = initialV,
+    algorithm = bellmanValueFunctionIteration(
         initialPolicy = initialPolicy,
         env = env,
         numSamples = numSamples,
         gamma = gamma,
         theta = theta,
         stateActions = stateActions,
-        onValueFunctionUpdate = onValueFunctionUpdate,
+        onQFunctionUpdate = onQFunctionUpdate,
         onPolicyUpdate = onPolicyUpdate,
-    ).plan()
+        onValueFunctionUpdate = onValueFunctionUpdate,
+    )
 )
 
 /**
- * Creates an agent that follows the on-policy Monte Carlo control algorithm to update
- * both its Q-function and policy based on observed episodes. This method constructs
- * the agent with the algorithm and settings provided.
+ * Creates an agent that employs Bellman Q-function iteration for determining an optimal policy
+ * in a model-based environment. The agent iterates over state-action pairs to update
+ * its policy based on learned Q-values.
  *
- * @param State The type representing the state space of the environment.
- * @param Action The type representing the action space of the environment.
+ * @param id A unique identifier for the agent. Defaults to a randomly generated UUID.
+ * @param initialPolicy The initial policy for the agent, defining the initial behavior.
+ * @param env The model-based environment enabling simulation of state transitions and rewards.
+ * @param numSamples The number of samples used to approximate transitions and rewards in the environment. Defaults to 100.
+ * @param gamma The discount factor for future rewards, typically a value between 0 and 1. Defaults to 0.99.
+ * @param theta A convergence threshold indicating when the iteration process should terminate. Defaults to 1e-6.
+ * @param stateActions A function that provides the possible actions for a given state.
+ * @param onQFunctionUpdate A callback triggered when the Q-function is updated during the algorithm's execution. Defaults to an empty lambda.
+ * @param onPolicyUpdate A callback triggered when the agent's policy is updated. Defaults to an empty lambda.
+ * @return An agent configured with the Bellman Q-function iteration algorithm for policy optimization.
+ */
+fun <State, Action> bellmanQFunctionIterationAgent(
+    id: String = UUID.randomUUID().toString(),
+    initialPolicy: Policy<State, Action>,
+    env: ModelBasedEnv<State, Action, *, *>,
+    numSamples: Int = 100,
+    gamma: Double = 0.99,
+    theta: Double = 1e-6,
+    stateActions: StateActions<State, Action>,
+    onQFunctionUpdate: QFunctionUpdate<State, Action> = { },
+    onPolicyUpdate: PolicyUpdate<State, Action> = { }
+): Agent<State, Action> = learningAgent(
+    id = id,
+    algorithm = bellmanQFunctionIteration(
+        initialPolicy = initialPolicy,
+        env = env,
+        numSamples = numSamples,
+        gamma = gamma,
+        theta = theta,
+        stateActions = stateActions,
+        onQFunctionUpdate = onQFunctionUpdate,
+        onPolicyUpdate = onPolicyUpdate,
+    )
+)
+
+/**
+ * Creates a reinforcement learning agent that applies Bellman's policy iteration algorithm to optimize its policy
+ * within a model-based environment. The agent iteratively evaluates and improves its policy until convergence
+ * based on the given parameters and callbacks.
+ *
  * @param id The unique identifier of the agent. Defaults to a randomly generated UUID.
- * @param initialPolicy The initial policy that guides the agent's actions. It is represented
- * as a Q-function-based policy.
- * @param gamma The discount factor in the range [0, 1], determining the importance of
- * future rewards relative to immediate rewards.
- * @param firstVisitOnly If true, only the first visit to a state in an episode
- * is considered when updating the Q-function. If false, every visit to a state
- * contributes to the Q-function update.
- * @param onQFunctionUpdate Callback invoked when the Q-function is updated, providing
- * an opportunity to observe or modify its behavior.
- * @param onPolicyUpdate Callback invoked when the policy is updated, providing
- * an opportunity to observe or modify its behavior.
- * @return An agent implementing the on-policy Monte Carlo control algorithm, capable
- * of learning and interacting with an environment.
+ * @param initialPolicy The initial policy used to start policy iteration. This policy will be iteratively improved.
+ * @param env The model-based environment representing the problem dynamics, including state transitions and rewards.
+ * @param numSamples The number of samples to approximate transitions and rewards for the environment. Default is 100.
+ * @param gamma The discount factor for future rewards, controlling how the agent values future versus immediate rewards. Default is 0.99.
+ * @param theta The convergence threshold for the policy evaluation process. Smaller values improve precision but increase computation. Default is 1e-6.
+ * @param stateActions The function mapping states to their available actions.
+ * @param onQFunctionUpdate A callback invoked whenever the Q-function is updated during learning. Default is an empty lambda.
+ * @param onPolicyUpdate A callback invoked whenever the policy is updated during policy iteration. Default is an empty lambda.
+ * @param onValueFunctionUpdate A callback invoked whenever the value function is updated during policy evaluation. Default is an empty lambda.
+ * @return An agent configured to use Bellman's policy iteration algorithm for decision-making and policy optimization.
+ */
+fun <State, Action> bellmanPolicyIterationAgent(
+    id: String = UUID.randomUUID().toString(),
+    initialPolicy: Policy<State, Action>,
+    env: ModelBasedEnv<State, Action, *, *>,
+    numSamples: Int = 100,
+    gamma: Double = 0.99,
+    theta: Double = 1e-6,
+    stateActions: StateActions<State, Action>,
+    onQFunctionUpdate: QFunctionUpdate<State, Action> = { },
+    onPolicyUpdate: PolicyUpdate<State, Action> = { },
+    onValueFunctionUpdate: ValueFunctionUpdate<State> = { },
+): Agent<State, Action> = learningAgent(
+    id = id,
+    algorithm = bellmanPolicyIteration(
+        initialPolicy = initialPolicy,
+        env = env,
+        numSamples = numSamples,
+        gamma = gamma,
+        theta = theta,
+        stateActions = stateActions,
+        onQFunctionUpdate = onQFunctionUpdate,
+        onPolicyUpdate = onPolicyUpdate,
+        onValueFunctionUpdate = onValueFunctionUpdate,
+    )
+)
+
+/**
+ * Creates an agent that utilizes the on-policy Monte Carlo control method for reinforcement learning.
+ * This agent follows a specific policy, collects rewards and state-action trajectories during interactions
+ * with the environment, and uses the collected data to refine both the policy and the Q-function.
+ *
+ * @param id A unique identifier for the agent. Defaults to a randomly generated UUID.
+ * @param initialPolicy The initial policy used by the agent for decision-making, which will be updated during learning.
+ * @param gamma The discount factor to apply to future rewards, where 0 ≤ gamma ≤ 1.
+ * @param firstVisitOnly If true, only the first occurrence of a state-action pair in a trajectory is used for updates.
+ *                       If false, all occurrences are used for updates. Defaults to true.
+ * @param onQFunctionUpdate A callback invoked after every update to the Q-function, providing the updated values.
+ * @param onPolicyUpdate A callback invoked after every update to the policy, providing the updated policy state.
+ * @return An agent configured to implement the on-policy Monte Carlo control method for reinforcement learning.
  */
 fun <State, Action> onPolicyMonteCarloControlAgent(
     id: String = UUID.randomUUID().toString(),
-    initialPolicy: QFunctionPolicy<State, Action>,
+    initialPolicy: Policy<State, Action>,
     gamma: Double,
     firstVisitOnly: Boolean = true,
-    onQFunctionUpdate: EnumerableQFunctionUpdate<State, Action> = { },
+    onQFunctionUpdate: QFunctionUpdate<State, Action> = { },
     onPolicyUpdate: PolicyUpdate<State, Action> = { },
 ): Agent<State, Action> = learningAgent(
     id = id,
@@ -279,24 +272,25 @@ fun <State, Action> onPolicyMonteCarloControlAgent(
 )
 
 /**
- * Creates an off-policy Monte Carlo control agent with specified behavioral and target policies and additional configurations.
+ * Creates an off-policy Monte Carlo control learning agent. This agent estimates the optimal action-value
+ * function using trajectories generated with a behavioral policy while improving a separate target policy.
  *
- * @param State The type representing the state space of the environment.
- * @param Action The type representing the action space of the environment.
- * @param id The unique identifier for the agent. Defaults to a randomly generated UUID if not provided.
- * @param behavioralPolicy The exploratory behavioral policy used to generate trajectories in the environment.
- * @param targetPolicy The deterministic or fixed target policy associated with the agent, updated based on the Q-function.
- * @param gamma The discount factor applied to future rewards. Defaults to 0.99.
- * @param onQFunctionUpdate A callback invoked upon updates to the Q-function during learning. Defaults to an empty lambda.
- * @param onPolicyUpdate A callback invoked upon updates to the policy during learning. Defaults to an empty lambda.
- * @return An agent configured for off-policy Monte Carlo control learning with the specified parameters.
+ * @param State The type representing the state of the environment.
+ * @param Action The type representing actions that can be executed within the environment.
+ * @param id A unique identifier for the agent. Defaults to a randomly generated UUID.
+ * @param behavioralPolicy The policy used to generate trajectories during learning. This policy may differ from the target policy.
+ * @param targetPolicy The policy being improved over time based on the action-value function.
+ * @param gamma The discount factor for future rewards. Must be in the range [0, 1]. Defaults to 0.99.
+ * @param onQFunctionUpdate Callback invoked upon an update to the action-value function (Q-function).
+ * @param onPolicyUpdate Callback invoked when the target policy is updated.
+ * @return An off-policy Monte Carlo control agent that implements the specified behavioral and target policies.
  */
 fun <State, Action> offPolicyMonteCarloControlAgent(
     id: String = UUID.randomUUID().toString(),
-    behavioralPolicy: QFunctionPolicy<State, Action>,
-    targetPolicy: QFunctionPolicy<State, Action>,
+    behavioralPolicy: Policy<State, Action>,
+    targetPolicy: Policy<State, Action>,
     gamma: Double = 0.99,
-    onQFunctionUpdate: EnumerableQFunctionUpdate<State, Action> = { },
+    onQFunctionUpdate: QFunctionUpdate<State, Action> = { },
     onPolicyUpdate: PolicyUpdate<State, Action> = { },
 ): Agent<State, Action> = learningAgent(
     id = id,
@@ -310,31 +304,27 @@ fun <State, Action> offPolicyMonteCarloControlAgent(
 )
 
 /**
- * Creates an incremental Monte Carlo control agent for reinforcement learning.
+ * Creates an agent that uses the Incremental Monte Carlo Control algorithm to learn an action-value function and improve
+ * its policy incrementally based on observed trajectories. The agent can perform exploration and updates while considering
+ * first-visit or every-visit updates for the Q-function.
  *
- * This function constructs an agent that utilizes the incremental Monte Carlo control algorithm
- * to optimize its behavior based on collected experiences. The agent uses a policy initialized
- * with the provided Q-function policy and adjusts it iteratively while learning from the environment.
- *
- * @param State The type representing the state space of the environment.
- * @param Action The type representing the action space of the environment.
- * @param id An optional unique identifier for the agent. If not provided, a random UUID will be generated.
- * @param initialPolicy The initial Q-function policy used by the agent to select actions.
- * @param gamma The discount factor for future rewards, where values closer to 1 consider distant rewards more heavily.
- * @param alpha A schedule defining the learning rate used when updating the Q-function. Defaults to a constant value of 0.05.
- * @param firstVisitOnly Specifies whether to use only the first visit to a state-action pair for updates (if true)
- *                       or all visits (if false). Defaults to true.
- * @param onQFunctionUpdate A callback invoked whenever the Q-function is updated. Receives arguments related to the update.
- * @param onPolicyUpdate A callback invoked whenever the policy is updated. Receives arguments related to the update.
- * @return An agent configured to use the incremental Monte Carlo control algorithm for adapting its policy.
+ * @param id The unique identifier for the agent. Defaults to a randomly generated UUID.
+ * @param initialPolicy The initial policy the agent uses for selecting actions, represented as a Q-function-based policy.
+ * @param gamma The discount factor for future rewards. Must be within the range [0, 1]. Defaults to 0.99.
+ * @param alpha A dynamically adjustable schedule for the learning rate used to update the Q-function. Defaults to 0.05 constant.
+ * @param firstVisitOnly If true, only the first visit to a state-action pair in an episode is used to update the Q-function.
+ *                       Defaults to true.
+ * @param onQFunctionUpdate A callback function invoked after the Q-function is updated, useful for logging or custom behavior.
+ * @param onPolicyUpdate A callback function invoked after the policy is updated, useful for logging or custom behavior.
+ * @return An agent that learns and improves its policy through the Incremental Monte Carlo Control algorithm.
  */
 fun <State, Action> incrementalMonteCarloControlAgent(
     id: String = UUID.randomUUID().toString(),
-    initialPolicy: QFunctionPolicy<State, Action>,
+    initialPolicy: Policy<State, Action>,
     gamma: Double = 0.99,
     alpha: ParameterSchedule = ParameterSchedule { 0.05 },
     firstVisitOnly: Boolean = true,
-    onQFunctionUpdate: EnumerableQFunctionUpdate<State, Action> = { },
+    onQFunctionUpdate: QFunctionUpdate<State, Action> = { },
     onPolicyUpdate: PolicyUpdate<State, Action> = { }
 ): Agent<State, Action> = learningAgent(
     id = id,
@@ -349,24 +339,22 @@ fun <State, Action> incrementalMonteCarloControlAgent(
 )
 
 /**
- * Creates a Q-Learning-based reinforcement learning agent.
+ * Creates a Q-learning-based agent for reinforcement learning tasks using the given parameters.
  *
- * @param State The type representing the state space of the environment.
- * @param Action The type representing the action space of the environment.
- * @param id The unique identifier of the agent. Defaults to a randomly generated UUID if not provided.
- * @param initialPolicy The initial Q-function policy used by the agent to determine actions.
- * @param alpha The learning rate parameter schedule for the Q-Learning algorithm.
- * @param gamma The discount factor for future rewards in the Q-Learning algorithm.
- * @param onQFunctionUpdate Callback executed on updates to the Q-function.
- * @param onPolicyUpdate Callback executed on updates to the policy.
- * @return A Q-Learning-based agent capable of interacting with an environment and adapting its behavior.
+ * @param id A unique identifier for the agent. Defaults to a randomly generated UUID.
+ * @param initialPolicy The initial policy that the agent follows, which determines the action-selection strategy.
+ * @param alpha A parameter schedule defining the learning rate for updating the Q-function.
+ * @param gamma The discount factor, which determines the importance of future rewards relative to immediate rewards.
+ * @param onQFunctionUpdate A callback triggered after the Q-function is updated. The default is an empty callback.
+ * @param onPolicyUpdate A callback triggered after the policy is updated. The default is an empty callback.
+ * @return An agent configured to use the Q-learning algorithm for learning and decision-making.
  */
 fun <State, Action> qLearningAgent(
     id: String = UUID.randomUUID().toString(),
-    initialPolicy: QFunctionPolicy<State, Action>,
+    initialPolicy: Policy<State, Action>,
     alpha: ParameterSchedule,
     gamma: Double,
-    onQFunctionUpdate: EnumerableQFunctionUpdate<State, Action> = { },
+    onQFunctionUpdate: QFunctionUpdate<State, Action> = { },
     onPolicyUpdate: PolicyUpdate<State, Action> = { }
 ): Agent<State, Action> = learningAgent(
     id = id,
@@ -380,25 +368,31 @@ fun <State, Action> qLearningAgent(
 )
 
 /**
- * Creates a SARSA agent capable of interacting with an environment and learning based on the
- * SARSA reinforcement learning algorithm.
+ * Creates an agent that implements the SARSA (State-Action-Reward-State-Action) algorithm
+ * for reinforcement learning. The SARSA algorithm is an on-policy method, where the action-value
+ * function is updated based on the current action and the observed successor state-action pair.
  *
- * @param State The type representing the state space of the environment.
- * @param Action The type representing the action space of the environment.
- * @param id The unique identifier for the agent. If not provided, a random UUID will be generated.
- * @param initialPolicy The initial policy used by the agent, defined as a Q-function policy over states and actions.
- * @param alpha A schedule for the learning rate, which controls the weight of new information in updates.
- * @param gamma The discount factor, which determines the importance of future rewards.
- * @param onQFunctionUpdate Callback function executed after every Q-function update.
- * @param onPolicyUpdate Callback function executed after every policy update.
- * @return An agent instance that uses the SARSA algorithm for learning and decision-making.
+ * @param State The type representing states in the environment.
+ * @param Action The type representing actions in the environment.
+ * @param id The unique identifier for the agent. Defaults to a randomly generated UUID.
+ * @param initialPolicy The initial policy defined by a Q-function, which determines the
+ * actions to take in specific states.
+ * @param alpha A schedule for the learning rate. This defines how much influence new information
+ * has over past values when updating the Q-function.
+ * @param gamma The discount factor for future rewards. It determines the relative importance
+ * of immediate rewards versus future rewards.
+ * @param onQFunctionUpdate A callback that is invoked each time the Q-function is updated. This
+ * can be used for logging, monitoring, or additional side effects.
+ * @param onPolicyUpdate A callback invoked each time the policy is updated. This allows hooks
+ * or additional side effects during policy updates.
+ * @return An agent configured to use the SARSA algorithm for learning and decision-making.
  */
 fun <State, Action> sarsaAgent(
     id: String = UUID.randomUUID().toString(),
-    initialPolicy: QFunctionPolicy<State, Action>,
+    initialPolicy: Policy<State, Action>,
     alpha: ParameterSchedule,
     gamma: Double,
-    onQFunctionUpdate: EnumerableQFunctionUpdate<State, Action> = { },
+    onQFunctionUpdate: QFunctionUpdate<State, Action> = { },
     onPolicyUpdate: PolicyUpdate<State, Action> = { }
 ): Agent<State, Action> = learningAgent(
     id = id,
@@ -412,24 +406,26 @@ fun <State, Action> sarsaAgent(
 )
 
 /**
- * Creates an agent using the Expected SARSA algorithm for reinforcement learning.
+ * Creates an Expected SARSA learning agent for reinforcement learning tasks.
  *
- * @param State The type representing the state space of the environment.
- * @param Action The type representing the action space of the environment.
- * @param id The unique identifier for the agent. Defaults to a randomly generated UUID.
- * @param initialPolicy The initial policy used in the Expected SARSA algorithm, represented as a Q-function policy.
- * @param alpha A schedule for the learning rate parameter, which determines how fast the agent adjusts based on new experiences.
- * @param gamma The discount factor, which represents the importance of future rewards over immediate rewards.
- * @param onQFunctionUpdate A callback triggered when the Q-function is updated, allowing for optional custom functionality.
- * @param onPolicyUpdate A callback triggered when the policy is updated, allowing for optional custom functionality.
- * @return An agent that uses the Expected SARSA algorithm for learning and decision-making.
+ * The agent is initialized with a unique identifier, an initial policy for action selection,
+ * a parameterized learning rate, and a discount factor for future rewards. Optional callbacks
+ * can be provided to handle updates to the Q-function and the policy.
+ *
+ * @param id The unique identifier of the agent. Defaults to a randomly generated UUID string.
+ * @param initialPolicy The initial policy guiding the selection of actions based on states.
+ * @param alpha The parameter schedule for the learning rate, dictating the adjustment of Q-values.
+ * @param gamma The discount factor, determining the weight of future rewards in decision-making.
+ * @param onQFunctionUpdate Callback invoked when the Q-function is updated. Defaults to an empty callback.
+ * @param onPolicyUpdate Callback invoked when the policy is updated. Defaults to an empty callback.
+ * @return A reinforcement learning agent configured with the Expected SARSA algorithm.
  */
 fun <State, Action> expectedSarsaAgent(
     id: String = UUID.randomUUID().toString(),
-    initialPolicy: QFunctionPolicy<State, Action>,
+    initialPolicy: Policy<State, Action>,
     alpha: ParameterSchedule,
     gamma: Double,
-    onQFunctionUpdate: EnumerableQFunctionUpdate<State, Action> = { },
+    onQFunctionUpdate: QFunctionUpdate<State, Action> = { },
     onPolicyUpdate: PolicyUpdate<State, Action> = { }
 ): Agent<State, Action> = learningAgent(
     id = id,
@@ -443,27 +439,24 @@ fun <State, Action> expectedSarsaAgent(
 )
 
 /**
- * Creates an n-step SARSA learning agent that utilizes the given policy and parameters to
- * learn and adapt its behavior over time.
+ * Creates an n-step SARSA agent that interacts with an environment and learns using the n-step SARSA algorithm.
  *
- * @param State The type representing the state space of the environment.
- * @param Action The type representing the action space of the environment.
- * @param id The unique identifier of the learning agent. Defaults to a randomly generated UUID if not provided.
- * @param initialPolicy The initial policy used by the agent, often represented as a Q-function policy.
- * @param alpha A parameter schedule that determines the learning rate for Q-function updates.
- * @param gamma The discount factor used to balance immediate and future rewards, must be in the range [0, 1].
- * @param n The number of steps to accumulate rewards before applying updates, influencing the learning process.
- * @param onQFunctionUpdate A callback function executed on Q-function updates, allowing custom behavior during learning.
- * @param onPolicyUpdate A callback function executed on policy updates, allowing for custom behavior when the policy changes.
- * @return A learning agent implementing the n-step SARSA algorithm.
+ * @param id The unique identifier of the agent. Defaults to a randomly generated UUID.
+ * @param initialPolicy The initial policy to guide the agent's decision-making, which will be updated during learning.
+ * @param alpha The learning rate schedule governing updates to the Q-function.
+ * @param gamma The discount factor, determining the importance of future rewards relative to immediate rewards.
+ * @param n The number of steps used in the n-step update process during learning.
+ * @param onQFunctionUpdate A callback invoked when the Q-function is updated.
+ * @param onPolicyUpdate A callback invoked when the policy is updated.
+ * @return An instance of an agent configured with the n-step SARSA learning algorithm.
  */
 fun <State, Action> nStepSarsaAgent(
     id: String = UUID.randomUUID().toString(),
-    initialPolicy: QFunctionPolicy<State, Action>,
+    initialPolicy: Policy<State, Action>,
     alpha: ParameterSchedule,
     gamma: Double,
     n: Int,
-    onQFunctionUpdate: EnumerableQFunctionUpdate<State, Action> = { },
+    onQFunctionUpdate: QFunctionUpdate<State, Action> = { },
     onPolicyUpdate: PolicyUpdate<State, Action> = { }
 ): Agent<State, Action> = learningAgent(
     id = id,

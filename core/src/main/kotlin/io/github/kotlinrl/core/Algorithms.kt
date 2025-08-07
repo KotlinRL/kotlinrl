@@ -3,33 +3,28 @@ package io.github.kotlinrl.core
 import kotlin.random.*
 
 /**
- * A type alias representing a reinforcement learning algorithm that computes actions based on states
- * and updates its policy according to observed transitions and trajectories.
+ * A type alias for the `LearningAlgorithm` interface defined in the `io.github.kotlinrl.core.algorithms.base` package.
  *
- * This abstraction provides functionality for:
- * - Invoking the algorithm with a state to obtain an action.
- * - Updating the algorithm's policy based on individual transitions or trajectories.
+ * This alias simplifies references to the `LearningAlgorithm` interface, which is a core abstraction
+ * representing reinforcement learning algorithms. It encompasses the operations required for learning
+ * from environment interactions, including determining actions, processing transitions, and trajectory updates.
  *
- * The actual implementation is defined in the `io.github.kotlinrl.core.algorithms.base.LearningAlgorithm` class.
- *
- * @param State The type representing the states in the environment.
- * @param Action The type representing the actions that can be performed in the environment.
+ * @param State the type representing the state of the environment.
+ * @param Action the type representing the actions that can be taken in the environment.
  */
 typealias LearningAlgorithm<State, Action> = io.github.kotlinrl.core.algorithms.base.LearningAlgorithm<State, Action>
 /**
- * A type alias for `QFunctionAlgorithm` class, which serves as the base class for algorithms
- * utilizing a Q-Function for decision-making in reinforcement learning. The Q-Function maps
- * state-action pairs to expected rewards, facilitating learning and optimization processes.
+ * A type alias for `io.github.kotlinrl.core.algorithms.base.HybridPolicyPlanningAlgorithm`.
  *
- * This base class supports both on-policy and off-policy updates and is integrated with
- * a `QFunctionPolicy` for policy handling. The `Q` property of the algorithm maintains the
- * Q-values used during the learning process, and updates trigger a configurable handler for
- * processing Q-function changes in real-time.
+ * Represents a hybrid policy planning algorithm that combines model-based and model-free
+ * reinforcement learning approaches. This type alias simplifies references to the
+ * fully qualified class name within the codebase, enabling cleaner and more concise
+ * type declarations.
  *
- * @param State The type parameter representing the state space handled by the algorithm.
- * @param Action The type parameter representing the action space handled by the algorithm.
+ * @param State The type representing the states in the environment.
+ * @param Action The type representing the possible actions in the environment.
  */
-typealias QFunctionAlgorithm<State, Action> = io.github.kotlinrl.core.algorithms.base.QFunctionAlgorithm<State, Action>
+typealias HybridPolicyPlanningAlgorithm<State, Action> = io.github.kotlinrl.core.algorithms.base.HybridPolicyPlanningAlgorithm<State, Action>
 /**
  * Type alias for `TDQError`, a functional interface used to compute Temporal Difference (TD) Q-errors
  * in reinforcement learning.
@@ -67,429 +62,463 @@ typealias TDQErrors = io.github.kotlinrl.core.algorithms.td.TDQErrors
  */
 typealias TDVErrors = io.github.kotlinrl.core.algorithms.td.TDVErrors
 /**
- * A type alias for the `TransitionQFunctionAlgorithm` class.
+ * A type alias for `io.github.kotlinrl.core.algorithms.base.TransitionLearningAlgorithm`.
  *
- * Represents an abstract class for reinforcement learning algorithms that utilize
- * Q-function estimations driven by observed state-action transitions. It combines
- * a Q-function estimation strategy with policy improvement to iteratively refine
- * both the policy and the Q-function.
+ * Represents a reinforcement learning algorithm that updates the Q-function and policy
+ * based on state-action transitions. This alias simplifies references to the core
+ * `TransitionLearningAlgorithm` class, which provides functionality for incremental
+ * learning methods that process individual transitions rather than complete trajectories.
  *
- * This alias is used to simplify references to the implementation in the codebase.
- *
- * Generic parameters:
- * - `State`: The type representing an environment's state.
- * - `Action`: The type representing an action within the environment.
+ * @param State The type representing the states in the environment.
+ * @param Action The type representing the actions that can be performed within the environment.
  */
-typealias TransitionQFunctionAlgorithm<State, Action> = io.github.kotlinrl.core.algorithms.base.TransitionQFunctionAlgorithm<State, Action>
+typealias TransitionLearningAlgorithm<State, Action> = io.github.kotlinrl.core.algorithms.base.TransitionLearningAlgorithm<State, Action>
 /**
- * A type alias for `TransitionQFunctionEstimator` interface, which provides a method
- * to estimate a new `EnumerableQFunction` based on a given Q-function and a state-action transition.
+ * Typealias for `io.github.kotlinrl.core.algorithms.base.TrajectoryLearningAlgorithm`.
  *
- * This interface is commonly utilized in reinforcement learning algorithms where
- * Q-functions are updated based on observed transitions within the environment.
+ * Represents a reinforcement learning algorithm that focuses on trajectory-based learning,
+ * where updates to the policy and Q-function are performed using sequences of state-action-reward
+ * transitions (trajectories). The algorithm works with on-policy updates, delegating Q-function
+ * estimation to a trajectory-informed estimation process.
  *
- * @param State the type representing the state in the environment.
- * @param Action the type representing the action to be taken in the environment.
+ * Useful for scenarios where entire episodes or trajectories are leveraged for learning,
+ * improving the decision-making policy over time based on observed data.
+ *
+ * @param State The type representing the environment states.
+ * @param Action The type representing possible actions performed in the environment.
  */
-typealias TransitionQFunctionEstimator<State, Action> = io.github.kotlinrl.core.algorithms.base.TransitionQFunctionEstimator<State, Action>
+typealias TrajectoryLearningAlgorithm<State, Action> = io.github.kotlinrl.core.algorithms.base.TrajectoryLearningAlgorithm<State, Action>
 /**
- * Represents a type alias for `TrajectoryQFunctionAlgorithm` class.
- * This abstraction defines a Q-learning based trajectory prediction algorithm,
- * designed for reinforcement learning. It utilizes a policy and a trajectory-based
- * Q-function estimator to update both the Q-function and policy iteratively.
+ * Type alias for `io.github.kotlinrl.core.algorithms.base.EstimateQ_fromTransition`.
  *
- * The class implements the observation of trajectories and uses the trajectory
- * data to refine the Q-function and improve decision-making policies.
+ * Represents a functional interface for estimating an updated Q-function from a given
+ * state-action-reward-next-state transition. It provides a mechanism to modify or recalculate a
+ * Q-function to better approximate the quality of state-action pairs during reinforcement learning.
  *
- * This type alias simplifies the reference to the fully qualified class name
- * within the codebase.
+ * This alias simplifies the reference to the `EstimateQ_fromTransition` type within the library
+ * or application code.
  *
- * @param State The type representing the state in the environment.
- * @param Action The type representing the action in the environment.
+ * @param State The type representing the states of the environment.
+ * @param Action The type representing the actions performable in the environment.
  */
-typealias TrajectoryQFunctionAlgorithm<State, Action> = io.github.kotlinrl.core.algorithms.base.TrajectoryQFunctionAlgorithm<State, Action>
+typealias EstimateQ_fromTransition<State, Action> = io.github.kotlinrl.core.algorithms.base.EstimateQ_fromTransition<State, Action>
 /**
- * Type alias for the `TrajectoryQFunctionEstimator` interface, which provides functionality
- * to estimate Q-values for given state-action pairs based on a trajectory.
+ * A type alias for `io.github.kotlinrl.core.algorithms.base.EstimateQ_fromTrajectory`.
  *
- * The interface is used to estimate an enumerable Q-function (`EnumerableQFunction`) using
- * a specified trajectory (`Trajectory`), enabling reinforcement learning algorithms
- * to update their Q-value representations based on observed experiences.
+ * Represents a functional interface intended for estimating a new Q-function
+ * based on a trajectory of state-action-reward transitions. This interface
+ * defines the logic or algorithm for improving Q-function evaluation using
+ * complete episodes to refine state-action value estimations, valuable in
+ * reinforcement learning contexts.
  *
  * @param State The type representing states in the environment.
- * @param Action The type representing actions in the environment.
+ * @param Action The type representing actions taken within the environment.
  */
-typealias TrajectoryQFunctionEstimator<State, Action> = io.github.kotlinrl.core.algorithms.base.TrajectoryQFunctionEstimator<State, Action>
+typealias EstimateQ_fromTrajectory<State, Action> = io.github.kotlinrl.core.algorithms.base.EstimateQ_fromTrajectory<State, Action>
 /**
- * Type alias for the `TrajectoryValueFunctionEstimator` interface.
+ * A type alias for the `EstimateQ_fromProbabilisticTrajectory` functional interface.
  *
- * `TrajectoryValueFunctionEstimator` represents a contract for estimating the value function
- * from a provided trajectory in a reinforcement learning context. The implementation is expected
- * to update or compute an enumerable value function (`V`) based on observed state-action trajectories.
+ * It represents a mechanism to estimate or update a Q-function using state-action
+ * probabilities from a probabilistic trajectory in reinforcement learning.
  *
- * @param State The type representing the state space of the environment.
- * @param Action The type representing the action space of the environment.
+ * The alias simplifies reference to the `io.github.kotlinrl.core.algorithms.base.EstimateQ_fromProbabilisticTrajectory`
+ * interface, which is used for iterative learning and updates to a Q-function based
+ * on stochastic transitions.
+ *
+ * @param State The type representing the states in the environment.
+ * @param Action The type representing the actions that can be performed in the environment.
  */
-typealias TrajectoryValueFunctionEstimator<State, Action> = io.github.kotlinrl.core.algorithms.base.TrajectoryValueFunctionEstimator<State, Action>
+typealias EstimateQ_fromProbabilisticTrajectory<State, Action> = io.github.kotlinrl.core.algorithms.base.EstimateQ_fromProbabilisticTrajectory<State, Action>
 /**
- * A type alias for the `TransitionValueFunctionEstimator` interface.
+ * Represents a type alias for the `EstimateV_fromTrajectory` functional interface.
  *
- * This interface defines a mechanism for estimating updated state value functions
- * given an enumerable value function and a state-action transition.
- *
- * It provides abstraction for algorithms that require estimation of
- * value function updates influenced by transitions in a reinforcement learning context.
+ * This alias simplifies referencing the `io.github.kotlinrl.core.algorithms.base.EstimateV_fromTrajectory`
+ * interface, which defines a mechanism to estimate a value function (V) based on a given trajectory
+ * of states and actions. The functional interface processes an initial value function and updates it
+ * using the information from the trajectory, enabling value function estimation in reinforcement learning algorithms.
  *
  * @param State the type representing states in the environment.
- * @param Action the type representing actions in the environment.
- *
- * Features:
- * - Accepts an input value function (`V`) which maps states to values.
- * - Considers a given transition consisting of state-action pairs.
- * - Outputs an updated value function reflecting changes induced by the transition.
+ * @param Action the type representing actions that can be performed in the environment.
  */
-typealias TransitionValueFunctionEstimator<State, Action> = io.github.kotlinrl.core.algorithms.base.TransitionValueFunctionEstimator<State, Action>
+typealias EstimateV_fromTrajectory<State, Action> = io.github.kotlinrl.core.algorithms.base.EstimateV_fromTrajectory<State, Action>
 /**
- * Type alias for `BellmanValueFunctionIteration`, a Dynamic Programming algorithm used in
- * Reinforcement Learning for solving Markov Decision Processes (MDPs). It iteratively updates
- * the value function for all states in the MDP using the Bellman equation until convergence.
+ * Type alias for the `io.github.kotlinrl.core.algorithms.base.EstimateV_fromTransition` functional interface.
  *
- * This algorithm works by calculating the expected return of taking the best action possible
- * for each state-action pair, based on the current value function and model transitions, ensuring
- * that the policy derived is optimal for the given MDP.
+ * Represents a strategy used to estimate or update the value function within reinforcement learning contexts
+ * based on observed state-action transitions and the current value function.
  *
- * State: The type representing the states in the MDP.
- * Action: The type representing the actions in the MDP.
+ * This alias simplifies references in the codebase, providing a concise way to describe a
+ * mechanism for recalculating the value function in response to environment dynamics.
+ *
+ * @param State The type representing the states in the environment.
+ * @param Action The type representing actions performed in the environment.
  */
-typealias BellmanValueFunctionIteration<State, Action> = io.github.kotlinrl.core.algorithms.dp.BellmanValueFunctionIteration<State, Action>
+typealias EstimateV_fromTransition<State, Action> = io.github.kotlinrl.core.algorithms.base.EstimateV_fromTransition<State, Action>
 /**
- * Type alias for `BellmanQFunctionIteration`, which is a dynamic programming approach
- * for iteratively updating and computing the Q-function in reinforcement learning.
+ * Type alias for `io.github.kotlinrl.core.algorithms.base.EstimateV_fromProbabilisticTrajectory`.
  *
- * This type represents a specific implementation of Bellman updates, utilizing
- * an MDP model, state-action space, and a configurable discount factor (`gamma`)
- * and convergence threshold (`theta`). Commonly used for policy evaluation
- * or policy improvement operations.
+ * This alias defines a functional interface for estimating a value function (V) in the context of
+ * reinforcement learning, based on a probabilistic trajectory. The probabilistic trajectory represents
+ * sequences of states, actions, and their associated probabilities, which reflect the dynamics of
+ * the environment. By utilizing this trajectory, implementations can refine or update the value
+ * function using methods such as Monte Carlo evaluation or Temporal-Difference learning.
+ *
+ * @param State The type representing the states in the environment.
+ * @param Action The type representing the actions available in the environment.
  */
-typealias BellmanQFunctionIteration<State, Action> = io.github.kotlinrl.core.algorithms.dp.BellmanQFunctionIteration<State, Action>
+typealias EstimateV_fromProbabilisticTrajectory<State, Action> = io.github.kotlinrl.core.algorithms.base.EstimateV_fromProbabilisticTrajectory<State, Action>
 /**
- * A type alias for the `BellmanPolicyIteration` class, used in dynamic programming
- * for solving Markov Decision Processes (MDPs) through policy iteration.
+ * A type alias for the `PolicyPlanner` interface, simplifying its reference within the codebase.
  *
- * This method iteratively evaluates and improves a given policy based on the Bellman equation,
- * ensuring convergence to an optimal policy under specific conditions.
+ * `PolicyPlanner` defines a contract for creating policies in the context of reinforcement learning,
+ * leveraging Q-functions, environment models, and state-action mappings for Markov Decision Processes (MDPs).
  *
- * @param State The type representing states in the MDP.
- * @param Action The type representing actions in the MDP.
+ * This alias makes it easier to utilize the `PolicyPlanner` in creating or manipulating agent policies
+ * based on specific environment dynamics and decision-making criteria.
+ *
+ * @param State the type that represents the possible states in the environment.
+ * @param Action the type that represents the possible actions in the environment.
  */
-typealias BellmanPolicyIteration<State, Action> = io.github.kotlinrl.core.algorithms.dp.BellmanPolicyIteration<State, Action>
+typealias PolicyPlanner<State, Action> = io.github.kotlinrl.core.algorithms.base.PolicyPlanner<State, Action>
 /**
- * Type alias for the `OnPolicyMonteCarloControl` class, which implements the On-Policy Monte Carlo
- * Control algorithm for reinforcement learning.
+ * A type alias for `io.github.kotlinrl.core.algorithms.dp.BellmanIterateV`.
  *
- * This algorithm estimates the state-action value function (Q-function) using complete episodes
- * or trajectories by averaging returns (rewards) for each state-action pair.
+ * Represents an iterative policy improvement algorithm leveraging the Bellman equations
+ * to refine value and Q-functions for a given Markov Decision Process (MDP). It applies
+ * successive Bellman updates to estimate optimal policies by updating value functions
+ * until convergence criteria are met.
  *
- * Key features include:
- * - Support for first-visit or every-visit Monte Carlo methods.
- * - Integration with a policy derived from a Q-function using an epsilon-greedy approach or similar.
- * - Modular design allowing customization of Q-function updates and policy updates.
+ * This alias provides a simplified reference to the `BellmanIterateV` class within the
+ * relevant codebase, allowing for improved readability and usability.
  *
- * This alias provides a concise way to reference the full class within the codebase and is typed
- * for specific `State` and `Action` definitions.
+ * @param State The type representing states in the environment.
+ * @param Action The type representing actions available in the environment.
  */
-typealias OnPolicyMonteCarloControl<State, Action> = io.github.kotlinrl.core.algorithms.mc.OnPolicyMonteCarloControl<State, Action>
+typealias BellmanIterateV<State, Action> = io.github.kotlinrl.core.algorithms.dp.BellmanIterateV<State, Action>
 /**
- * Type alias for `IncrementalMonteCarloControl` in the `io.github.kotlinrl.core.algorithms.mc` package.
+ * Type alias for `io.github.kotlinrl.core.algorithms.dp.BellmanIterateQ`.
  *
- * Represents a reinforcement learning algorithm based on Incremental Monte Carlo control.
- * It is used for learning an optimal policy by iteratively improving the Q-function and
- * policy based on accumulated experience (trajectories). The algorithm supports incremental
- * updates using learning rate (`alpha`), discount factor (`gamma`), and can operate in
- * first-visit mode.
+ * Represents an iterative approach to refining Q-values using the Bellman equation until convergence.
+ * The purpose of this alias is to simplify and improve code readability when referring to the
+ * BellmanIterateQ class within the reinforcement learning library.
  *
- * This alias provides a shorthand reference to the full class, simplifying usage and improving code readability.
+ * @param State The type representing the states in the environment.
+ * @param Action The type representing the allowable actions in the environment.
  */
-typealias IncrementalMonteCarloControl<State, Action> = io.github.kotlinrl.core.algorithms.mc.IncrementalMonteCarloControl<State, Action>
+typealias BellmanIterateQ<State, Action> = io.github.kotlinrl.core.algorithms.dp.BellmanIterateQ<State, Action>
 /**
- * Type alias for `OffPolicyMonteCarloControl` class, part of the reinforcement learning algorithm suite.
- * This class implements an off-policy Monte Carlo control algorithm for learning Q-values
- * based on sample trajectories from a behavioral policy while improving a target policy.
+ * Type alias for `io.github.kotlinrl.core.algorithms.dp.BellmanIteratePolicy`.
  *
- * The algorithm supports:
- * - A behavioral policy for generating trajectories.
- * - A target policy, which is improved iteratively.
- * - Discount factor `gamma` to account for future rewards.
- * - Configurable trajectory Q-function estimators and callbacks for updates.
+ * Represents the Bellman policy iteration algorithm applied to a Markov Decision Process (MDP).
+ * This algorithm alternates between policy evaluation and policy improvement steps to compute
+ * the optimal policy for a given MDP. It leverages Bellman equations, probabilistic trajectories,
+ * and iterative updates of value and Q-functions to ensure convergence towards an optimal policy.
  *
- * The off-policy approach utilizes importance sampling techniques to correct for
- * the mismatch between the behavioral policy and the target policy.
- * It is suitable for problems requiring the learning agent to evaluate and improve policies
- * from exploratory data without fully relying on following the target policy.
+ * Provides a more concise reference to `io.github.kotlinrl.core.algorithms.dp.BellmanIteratePolicy`.
+ *
+ * @param State The type parameter representing states in the MDP.
+ * @param Action The type parameter representing actions in the MDP.
  */
-typealias OffPolicyMonteCarloControl<State, Action> = io.github.kotlinrl.core.algorithms.mc.OffPolicyMonteCarloControl<State, Action>
+typealias BellmanIteratePolicy<State, Action> = io.github.kotlinrl.core.algorithms.dp.BellmanIteratePolicy<State, Action>
 /**
- * Type alias for the ExpectedSARSA class in the Classic Temporal Difference (TD) learning algorithms package.
+ * A type alias for `io.github.kotlinrl.core.algorithms.mc.OnPolicyMonteCarloControl`.
  *
- * Expected SARSA is a model-free reinforcement learning algorithm used for estimating the action-value
- * function (Q-function) in environments where exact dynamics are not known. This alias provides
- * a convenient shorthand for the fully-qualified class reference within the codebase.
+ * This type alias provides a simplified reference to the `OnPolicyMonteCarloControl` class,
+ * which implements an on-policy Monte Carlo control algorithm for reinforcement learning.
  *
- * The ExpectedSARSA algorithm combines elements of TD learning and the policy evaluation
- * phase of SARSA with an expectation over actions, rather than relying on a sampled next action.
- * It uses this expectation to compute the TD target, making it more stable and potentially
- * leading to better convergence properties compared to SARSA.
+ * The alias is parameterized with `State` and `Action` types, representing the agent's
+ * state space and action space, respectively. The underlying class leverages Monte Carlo
+ * methods to estimate the Q-function and improve the policy based on sampled trajectories.
  *
- * This alias assumes the use of the following components:
- * - `initialPolicy`: The initial policy, represented as a Q-function policy.
- * - `alpha`: A parameter schedule controlling the learning rate.
- * - `gamma`: The discount factor for future rewards.
- * - `estimator`: A transition Q-function estimator, defaulting to the ExpectedSARSAQFunctionEstimator.
- * - `onQFunctionUpdate` and `onPolicyUpdate`: Callbacks for Q-function and policy updates, respectively.
- *
- * The ExpectedSARSA algorithm operates on states (`State`) and actions (`Action`) as generic parameters,
- * enabling flexibility in application to various tasks and environments.
- */
-typealias ExpectedSARSA<State, Action> = io.github.kotlinrl.core.algorithms.td.classic.ExpectedSARSA<State, Action>
-/**
- * A type alias for the `QLearning` class, representing the Q-Learning algorithm
- * implementation for reinforcement learning. Q-Learning is an off-policy, temporal-difference
- * learning algorithm used to learn the optimal policy for an agent interacting with an environment.
- *
- * This alias provides a more concise and readable reference for the implementation of
- * Q-Learning within the codebase. The class supports customizable policies, learning rate schedules,
- * discount factors, Q-function estimators, and hooks for policy and Q-function updates.
- *
- * @param State The type representing the state space of the environment.
- * @param Action The type representing the action space of the agent.
- */
-typealias QLearning<State, Action> = io.github.kotlinrl.core.algorithms.td.classic.QLearning<State, Action>
-/**
- * Type alias for the `SARSA` class, a reinforcement learning algorithm that performs state-action
- * value updates based on the SARSA (State-Action-Reward-State-Action) update rule. It is a form of
- * Temporal Difference (TD) learning.
- *
- * The SARSA algorithm utilizes the current policy to update the Q-function and is often called an
- * on-policy learning algorithm. It incrementally learns the Q-value function for a given
- * environment while interacting with it.
- *
- * This alias simplifies the reference to the `SARSA` implementation within the codebase.
- *
- * Parameters of the underlying SARSA class include:
- * - `initialPolicy`: Initial policy for selecting actions in each state.
- * - `alpha`: Step size parameter or learning rate.
- * - `gamma`: Discount factor dictating the consideration of future rewards.
- * - `estimator`: The transition Q-function estimator, used to compute updates.
- * - `onQFunctionUpdate`: Callback invoked after updating the Q-function.
- * - `onPolicyUpdate`: Callback invoked after updating the policy.
- */
-typealias SARSA<State, Action> = io.github.kotlinrl.core.algorithms.td.classic.SARSA<State, Action>
-/**
- * Type alias for `NStepSARSA`, a reinforcement learning algorithm implementing the
- * n-step SARSA (State-Action-Reward-State-Action) method within the context of Temporal Difference (TD) learning.
- *
- * `NStepSARSA` is a temporal difference learning strategy that updates the Q-function using n-step transitions,
- * balancing between Monte Carlo and bootstrapping techniques. It leverages a specific policy, learning rate (alpha),
- * discount factor (gamma), and a trajectory-based Q-value estimator.
- *
- * The algorithm supports custom update handling for both the Q-function and policy, allowing flexible integration
- * into different reinforcement learning frameworks.
- */
-typealias NStepSARSA<State, Action> = io.github.kotlinrl.core.algorithms.td.nstep.NStepSARSA<State, Action>
-/**
- * Type alias for `DPIteration` class, which serves as a fundamental building block for dynamic programming
- * algorithms in reinforcement learning. The `DPIteration` class is an abstract implementation of a planner
- * that computes and returns a policy for a given environment. The planning process typically involves iterative
- * methods to optimize the policy based on the problem's dynamics and reward structure.
- *
- * This alias provides a concise reference to the class while maintaining type parameterization for state and action.
- *
- * @param State Represents the type used for states in the environment.
- * @param Action Represents the type used for actions in the environment.
- */
-typealias DPIteration<State, Action> = io.github.kotlinrl.core.algorithms.dp.DPIteration<State, Action>
-/**
- * A type alias for `DPValueFunctionEstimator`, which provides functionality to estimate
- * updated value functions in dynamic programming approaches for reinforcement learning.
- *
- * This estimator takes an existing value function and a probabilistic trajectory as inputs
- * and computes an adjusted value function.
- *
- * - `State`: The type representing the state space in the environment.
- * - `Action`: The type representing the action space in the environment.
- */
-typealias DPValueFunctionEstimator<State, Action> = io.github.kotlinrl.core.algorithms.dp.DPValueFunctionEstimator<State, Action>
-/**
- * Defines a type alias for a function responsible for updating an `EnumerableQFunction`.
- *
- * An `EnumerableQFunction` represents a Q-function that can enumerate all possible
- * state-action pairs. This alias encapsulates the pattern where updates or modifications
- * can be made to an existing `EnumerableQFunction` instance through a custom implementation.
- *
- * @param State Represents the state space of the Q-function.
- * @param Action Represents the action space of the Q-function.
- */
-typealias EnumerableQFunctionUpdate<State, Action> = (EnumerableQFunction<State, Action>) -> Unit
-/**
- * Represents a function type that enables updates to an `EnumerableValueFunction` of a given state type.
- *
- * This type alias is used to define a functional transformation or modification that can be applied to
- * an `EnumerableValueFunction`, which is a function mapping enumerable states to values.
- *
- * @param State The type of the state associated with the `EnumerableValueFunction`.
- */
-typealias EnumerableValueFunctionUpdate<State> = (EnumerableValueFunction<State>) -> Unit
-
-
-/**
- * Performs Bellman value function iteration for a given Markov Decision Process (MDP) environment.
- * This method iteratively computes the optimal state-value function using Bellman's equation.
- *
- * @param State The type representing the states of the MDP.
- * @param Action The type representing the actions of the MDP.
- * @param initialV The initial value function over the enumerable state space.
- * @param env The model-based environment used to simulate state transitions and rewards.
- * @param numSamples The number of samples used to approximate the transition dynamics and rewards. Defaults to 100.
- * @param gamma The discount factor for future rewards, defining the importance of future rewards relative to immediate rewards. Defaults to 0.99.
- * @param theta The convergence threshold for the value function iteration. Iteration terminates when the maximum change in value function across states is less than this threshold
- * . Defaults to 1e-6.
- * @param stateActions A mapping from states to the set of possible actions in each state.
- * @param onValueFunctionUpdate A callback triggered after each value function update during the iteration process. Defaults to no-op.
- * @return A `DPIteration` object representing the constructed result of the dynamic programming iteration process, including the policy and value function.
- */
-fun <State, Action> bellmanValueFunctionIteration(
-    initialV: EnumerableValueFunction<State>,
-    env: ModelBasedEnv<State, Action, *, *>,
-    numSamples: Int = 100,
-    gamma: Double = 0.99,
-    theta: Double = 1e-6,
-    stateActions: StateActions<State, Action>,
-    onValueFunctionUpdate: EnumerableValueFunctionUpdate<State> = { },
-): DPIteration<State, Action> = BellmanValueFunctionIteration(
-    initialV = initialV,
-    model = EmpiricalMDPModel(
-        env = env,
-        allStates = initialV.allStates(),
-        allActions = initialV.allStates().flatMap { stateActions(it) }.toList(),
-        numSamples = numSamples
-    ),
-    gamma = gamma,
-    theta = theta,
-    stateActions = stateActions,
-    onValueFunctionUpdate = onValueFunctionUpdate
-)
-
-/**
- * Performs the Bellman Q-function iteration algorithm to find an optimal policy
- * for a given model-based environment based on the Q-learning approach.
+ * This alias is useful to streamline references and improve code readability within the
+ * codebase that utilizes Monte Carlo-based control methods.
  *
  * @param State The type representing the states in the environment.
  * @param Action The type representing the actions in the environment.
- * @param initialQ An instance of `EnumerableQFunction` representing the initial Q-function
- *                 values for state-action pairs.
- * @param env The model-based environment for simulation and evaluation, used to
- *            approximate transition dynamics and rewards.
- * @param numSamples The number of samples to use for approximating transitions and rewards in
- *                   the empirical model. Defaults to 100.
- * @param gamma The discount factor for future rewards, commonly between 0 and 1. Defaults to 0.99.
- * @param theta A convergence threshold for stopping the iteration. The iteration halts
- *              if the maximum change between Q-values of successive iterations is less than this value.
- *              Defaults to 1e-6.
- * @param stateActions A function that provides the list of all possible actions for a given
- *                     state in the environment.
- * @param onQFunctionUpdate A callback executed after every Q-function update during the iteration.
- *                          Defaults to an empty lambda.
- *
- * @return An instance of `DPIteration` that contains the results of the Bellman Q-function iteration
- *         process and the derived optimal policy.
  */
-fun <State, Action> bellmanQFunctionIteration(
-    initialQ: EnumerableQFunction<State, Action>,
-    env: ModelBasedEnv<State, Action, *, *>,
-    numSamples: Int = 100,
-    gamma: Double = 0.99,
-    theta: Double = 1e-6,
-    stateActions: StateActions<State, Action>,
-    onQFunctionUpdate: EnumerableQFunctionUpdate<State, Action> = { },
-): DPIteration<State, Action> = BellmanQFunctionIteration(
-    initialQ = initialQ,
-    model = EmpiricalMDPModel(
-        env = env,
-        allStates = initialQ.allStates(),
-        allActions = initialQ.allStates().flatMap { stateActions(it) }.toList(),
-        numSamples = numSamples
-    ),
-    gamma = gamma,
-    theta = theta,
-    stateActions = stateActions,
-    onQFunctionUpdate = onQFunctionUpdate
-)
+typealias OnPolicyMonteCarloControl<State, Action> = io.github.kotlinrl.core.algorithms.mc.OnPolicyMonteCarloControl<State, Action>
+/**
+ * Typealias for `io.github.kotlinrl.core.algorithms.mc.IncrementalMonteCarloControl`.
+ *
+ * Encapsulates the implementation of an incremental Monte Carlo control algorithm
+ * for reinforcement learning, which combines policy iteration with value function
+ * estimation. It utilizes complete episodes for refining the policy and updating
+ * the Q-function incrementally based on observed returns.
+ *
+ * @param State The type representing the states in the environment.
+ * @param Action The type representing the actions that can be taken in the environment.
+ */
+typealias IncrementalMonteCarloControl<State, Action> = io.github.kotlinrl.core.algorithms.mc.IncrementalMonteCarloControl<State, Action>
+/**
+ * Type alias for the `OffPolicyMonteCarloControl` class in the `io.github.kotlinrl.core.algorithms.mc` package.
+ *
+ * Provides a shorthand reference to the implementation of the Off-Policy Monte Carlo Control algorithm
+ * for reinforcement learning. This type alias simplifies the usage of the class by reducing the verbosity
+ * of referencing it in the codebase.
+ *
+ * @param State The type representing the states in the environment.
+ * @param Action The type representing the actions that can be taken in the environment.
+ */
+typealias OffPolicyMonteCarloControl<State, Action> = io.github.kotlinrl.core.algorithms.mc.OffPolicyMonteCarloControl<State, Action>
+/**
+ * A type alias for `io.github.kotlinrl.core.algorithms.td.classic.ExpectedSARSA`.
+ *
+ * Represents the Expected SARSA algorithm for reinforcement learning, which is an on-policy
+ * algorithm that updates Q-values based on the expected rewards and transitions, integrating
+ * the probabilities of all possible actions in the next state under the given policy. This
+ * approach reduces variance compared to traditional SARSA while maintaining stability and
+ * efficiency in learning.
+ *
+ * @param State The type representing states in the environment.
+ * @param Action The type representing actions that can be executed within the environment.
+ */
+typealias ExpectedSARSA<State, Action> = io.github.kotlinrl.core.algorithms.td.classic.ExpectedSARSA<State, Action>
+/**
+ * Typealias for `io.github.kotlinrl.core.algorithms.td.classic.QLearning`.
+ *
+ * Simplifies the reference to the implementation of the Q-Learning algorithm, an
+ * off-policy reinforcement learning method. Q-Learning enables learning an optimal
+ * policy by iteratively updating the action-value function (Q-function) based on
+ * observed state-action transitions and rewards.
+ *
+ * This alias facilitates concise use of the Q-Learning implementation within the
+ * codebase while retaining its full functionality and configuration options, such
+ * as learning rates, discount factors, and policy updates.
+ *
+ * @param State Represents the type for states in the environment.
+ * @param Action Represents the type for actions within the environment.
+ */
+typealias QLearning<State, Action> = io.github.kotlinrl.core.algorithms.td.classic.QLearning<State, Action>
+/**
+ * A type alias for the `SARSA` class from the `io.github.kotlinrl.core.algorithms.td.classic` package.
+ *
+ * This alias represents the SARSA (State-Action-Reward-State-Action) reinforcement learning algorithm,
+ * an on-policy temporal difference learning method used to improve policies based on observed experiences
+ * in an environment. SARSA updates its Q-function by following the policy being actively used during learning,
+ * and balances future and immediate rewards through a specified discount factor.
+ *
+ * The parameters `State` and `Action` define the state and action spaces of the environment, respectively.
+ */
+typealias SARSA<State, Action> = io.github.kotlinrl.core.algorithms.td.classic.SARSA<State, Action>
+/**
+ * Typealias for `io.github.kotlinrl.core.algorithms.td.nstep.NStepSARSA`.
+ *
+ * Represents an implementation of the n-step SARSA algorithm, which is a
+ * temporal difference (TD) reinforcement learning method for policy
+ * evaluation and improvement. This typealias provides a shorthand
+ * reference to the n-step SARSA class for applications involving n-step
+ * state-action-reward-state-action (SARSA) updates.
+ *
+ * The algorithm focuses on accumulating rewards over a sequence of n steps
+ * and updating the Q-function based on the temporal difference error
+ * calculated over the trajectory. It operates in an on-policy setting,
+ * where the policy being evaluated and improved is also used to generate
+ * the action sequence.
+ *
+ * The n-step SARSA implementation is configurable with various parameters
+ * including learning rate, discount factor, trajectory length, and callback
+ * functions for observing updates to the Q-function and policy.
+ *
+ * @param State The type representing the state space in the environment.
+ * @param Action The type representing the action space in the environment.
+ */
+typealias NStepSARSA<State, Action> = io.github.kotlinrl.core.algorithms.td.nstep.NStepSARSA<State, Action>
+/**
+ * A type alias for a function that updates a Q-function.
+ *
+ * Represents an operation performed on a `QFunction` instance.
+ * This alias is used as a shorthand for defining a function signature
+ * that takes a `QFunction<State, Action>` as input and performs an update
+ * operation without returning a value.
+ *
+ * @param State The type representing the states of the environment.
+ * @param Action The type representing the actions available in the environment.
+ */
+typealias QFunctionUpdate<State, Action> = (QFunction<State, Action>) -> Unit
+/**
+ * A type alias for a function that updates a `ValueFunction` instance for a given state type.
+ *
+ * This provides a concise way to define operations that modify or transform a value function
+ * during reinforcement learning or optimization processes. Typically, the function takes a
+ * `ValueFunction` as an input and applies some updates to it, potentially based on a policy,
+ * learning algorithm, or dynamic adjustment.
+ *
+ * @param State The type representing the state space of the `ValueFunction`.
+ */
+typealias ValueFunctionUpdate<State> = (ValueFunction<State>) -> Unit
+
 
 /**
- * Performs policy iteration using Bellman's approach to improve a policy and its value function
- * for a given model-based environment. This algorithm iteratively evaluates a policy and updates
- * it until a stable (optimal) policy is found.
+ * Implements a Bellman value function iteration algorithm for hybrid policy planning. This method
+ * integrates model-based reinforcement learning with value iteration to optimize policies. The
+ * algorithm iterates over the value function using the Bellman equation and updates the policy
+ * accordingly.
  *
- * @param initialV The initial value function as an enumerable value function over the state space.
- * @param initialPolicy The initial policy to be improved during the policy iteration process.
- * @param env The model-based environment representing the problem dynamics.
- * @param numSamples The number of samples to use for approximating transitions and rewards. Default is 100.
- * @param gamma The discount factor for future rewards, controlling how much future rewards are valued. Default is 0.99.
- * @param theta The convergence threshold for policy evaluation. Smaller values lead to higher precision but more iterations. Default is 1e-6.
- * @param stateActions A function that maps a state to the list of possible actions in that state.
- * @param onValueFunctionUpdate A callback invoked upon value function updates during policy evaluation. Default is an empty lambda.
- * @param onPolicyUpdate A callback invoked upon policy updates during improvement. Default is an empty lambda.
- * @return The resulting policy iteration algorithm interface that, when executed, finds the optimal policy for the given environment.
+ * @param State the type representing the states in the environment.
+ * @param Action the type representing the actions within the environment.
+ * @param initialPolicy the policy to initialize the learning process with.
+ * @param env the model-based environment that provides state transitions and rewards.
+ * @param numSamples the number of samples used to approximate transitions in the environment. Defaults to 100.
+ * @param gamma the discount factor for future rewards. Must be in the range [0, 1]. Defaults to 0.99.
+ * @param theta the threshold for convergence in value function updates. Defaults to 1e-6.
+ * @param stateActions a function mapping states to their available actions.
+ * @param onQFunctionUpdate a callback invoked when the Q-function is updated.
+ * @param onPolicyUpdate a callback invoked when the policy is updated.
+ * @param onValueFunctionUpdate a callback invoked when the value function is updated.
+ * @return an instance of the `LearningAlgorithm` that applies the Bellman value function iteration.
  */
-fun <State, Action> bellmanPolicyIteration(
-    initialV: EnumerableValueFunction<State>,
+fun <State, Action> bellmanValueFunctionIteration(
     initialPolicy: Policy<State, Action>,
     env: ModelBasedEnv<State, Action, *, *>,
     numSamples: Int = 100,
     gamma: Double = 0.99,
     theta: Double = 1e-6,
     stateActions: StateActions<State, Action>,
-    onValueFunctionUpdate: EnumerableValueFunctionUpdate<State> = { },
-    onPolicyUpdate: PolicyUpdate<State, Action> = { }
-): DPIteration<State, Action> = BellmanPolicyIteration(
+    onQFunctionUpdate: QFunctionUpdate<State, Action> = { },
+    onPolicyUpdate: PolicyUpdate<State, Action> = { },
+    onValueFunctionUpdate: ValueFunctionUpdate<State> = { },
+): LearningAlgorithm<State, Action> = HybridPolicyPlanningAlgorithm(
     initialPolicy = initialPolicy,
-    initialV = initialV,
     model = EmpiricalMDPModel(
         env = env,
-        allStates = initialV.allStates(),
-        allActions = initialV.allStates().flatMap { stateActions(it) }.toList(),
+        allStates = env.allStates(),
+        allActions = env.allStates().flatMap { stateActions(it) }.toList(),
         numSamples = numSamples
     ),
-    gamma = gamma,
-    theta = theta,
     stateActions = stateActions,
-    onValueFunctionUpdate = onValueFunctionUpdate,
-    onPolicyUpdate = onPolicyUpdate
+    policyPlanner = BellmanIterateV(
+        gamma = gamma,
+        theta = theta,
+        stateActions = stateActions,
+        onValueFunctionUpdate = onValueFunctionUpdate,
+    ),
+    onPolicyUpdate = onPolicyUpdate,
+    onQFunctionUpdate = onQFunctionUpdate
 )
 
 /**
- * Implements the on-policy Monte Carlo control method for reinforcement learning.
- * This method iteratively improves a policy based on observed trajectories and
- * updates the associated Q-function.
+ * Performs the Bellman Q-function iteration for a given policy and environment. This function
+ * integrates model-based and iterative approaches within a hybrid policy planning algorithm.
  *
- * @param initialPolicy the initial policy to be used for decision-making and updated during learning
- * @param gamma the discount factor applied to future rewards, where 0 ≤ gamma ≤ 1
- * @param firstVisitOnly if true, only the first occurrence of a state-action pair in a trajectory
- *        will be used for updates; if false, all occurrences will be used
- * @param onQFunctionUpdate an optional callback invoked upon each update of the Q-function,
- *        providing the updated values
- * @param onPolicyUpdate an optional callback invoked upon each update of the policy,
- *        providing the new policy state
- * @return a configured [TrajectoryQFunctionAlgorithm] instance that performs the on-policy
- *         Monte Carlo control method
+ * @param State The type representing the states in the environment.
+ * @param Action The type representing the possible actions within the environment.
+ * @param initialPolicy The initial policy used to begin the Bellman Q-function iteration.
+ * @param env The model-based environment in which the algorithm operates.
+ * @param numSamples The number of samples to use for estimating transitions and rewards. Defaults to 100.
+ * @param gamma The discount factor determining the significance of future rewards. Defaults to 0.99.
+ * @param theta The convergence threshold for Q-function updates. Iteration stops when updates are smaller than this value. Defaults to 1e-6.
+ * @param stateActions A function that defines the valid actions available for each state.
+ * @param onQFunctionUpdate A callback function invoked whenever the Q-function is updated. Defaults to an empty callback function.
+ * @param onPolicyUpdate A callback function invoked whenever the policy is updated. Defaults to an empty callback function.
+ * @return A learning algorithm that iteratively updates the Q-function and corresponding policy using the Bellman equation.
+ */
+fun <State, Action> bellmanQFunctionIteration(
+    initialPolicy: Policy<State, Action>,
+    env: ModelBasedEnv<State, Action, *, *>,
+    numSamples: Int = 100,
+    gamma: Double = 0.99,
+    theta: Double = 1e-6,
+    stateActions: StateActions<State, Action>,
+    onQFunctionUpdate: QFunctionUpdate<State, Action> = { },
+    onPolicyUpdate: PolicyUpdate<State, Action> = { }
+): LearningAlgorithm<State, Action> = HybridPolicyPlanningAlgorithm(
+    initialPolicy = initialPolicy,
+    model = EmpiricalMDPModel(
+        env = env,
+        allStates = env.allStates(),
+        allActions = env.allStates().flatMap { stateActions(it) }.toList(),
+        numSamples = numSamples
+    ),
+    stateActions = stateActions,
+    policyPlanner = BellmanIterateQ(
+        gamma = gamma,
+        theta = theta,
+        stateActions = stateActions,
+        onQFunctionUpdate = onQFunctionUpdate,
+    ),
+    onPolicyUpdate = onPolicyUpdate,
+    onQFunctionUpdate = onQFunctionUpdate
+)
+
+/**
+ * Implements a hybrid policy iteration algorithm using the Bellman update approach.
+ * This function integrates model-based reinforcement learning techniques to iteratively update the policy
+ * and value function for a given environment.
+ *
+ * @param State the type representing the states in the environment.
+ * @param Action the type representing the possible actions within the environment.
+ * @param initialPolicy the initial policy provided as the starting point for policy iteration.
+ * @param env the model-based environment used for simulating steps and generating the empirical MDP model.
+ * @param numSamples the number of samples used to approximate the transition dynamics of the model.
+ *                   A higher value increases accuracy but also computational cost. Default is 100.
+ * @param gamma the discount factor (between 0 and 1) used to weigh future rewards relative to immediate rewards. Default is 0.99.
+ * @param theta the threshold used to determine convergence of the value function update. Default is 1e-6.
+ * @param stateActions a function mapping each state to the list of possible actions in that state.
+ * @param onQFunctionUpdate an optional callback function triggered on each Q-function update. Default is an empty function.
+ * @param onPolicyUpdate an optional callback function triggered whenever the policy is recalculated. Default is an empty function.
+ * @param onValueFunctionUpdate a callback function triggered on each value function update during policy iteration.
+ * @return a learning algorithm instance that integrates the Bellman-based policy iteration with empirical MDP modeling.
+ */
+fun <State, Action> bellmanPolicyIteration(
+    initialPolicy: Policy<State, Action>,
+    env: ModelBasedEnv<State, Action, *, *>,
+    numSamples: Int = 100,
+    gamma: Double = 0.99,
+    theta: Double = 1e-6,
+    stateActions: StateActions<State, Action>,
+    onQFunctionUpdate: QFunctionUpdate<State, Action> = { },
+    onPolicyUpdate: PolicyUpdate<State, Action> = { },
+    onValueFunctionUpdate: ValueFunctionUpdate<State>
+): LearningAlgorithm<State, Action> = HybridPolicyPlanningAlgorithm(
+    initialPolicy = initialPolicy,
+    model = EmpiricalMDPModel(
+        env = env,
+        allStates = env.allStates(),
+        allActions = env.allStates().flatMap { stateActions(it) }.toList(),
+        numSamples = numSamples
+    ),
+    stateActions = stateActions,
+    policyPlanner = BellmanIteratePolicy(
+        initialPolicy = initialPolicy,
+        gamma = gamma,
+        theta = theta,
+        stateActions = stateActions,
+        onValueFunctionUpdate = onValueFunctionUpdate,
+    ),
+    onPolicyUpdate = onPolicyUpdate,
+    onQFunctionUpdate = onQFunctionUpdate
+)
+
+/**
+ * Creates an implementation of the On-Policy Monte Carlo Control learning algorithm.
+ *
+ * The function uses On-Policy Monte Carlo methods to improve a policy and estimate
+ * the Q-function based on episodes sampled from the environment. It supports both
+ * first-visit and every-visit Monte Carlo approaches and provides hooks for updates
+ * to the Q-function and policy.
+ *
+ * @param State The type representing the state's space of the environment.
+ * @param Action The type representing the action's space of the environment.
+ * @param initialPolicy The initial policy used to determine the agent's action-selection
+ *        strategy at the beginning of learning.
+ * @param gamma The discount factor used to weigh future rewards relative to immediate rewards.
+ *        Should be in the range [0, 1].
+ * @param firstVisitOnly A flag indicating whether the first-visit approach (true) or the every-visit
+ *        approach (false) should be used for updating the Q-function. Default is true.
+ * @param onQFunctionUpdate A callback function invoked whenever the Q-function is updated.
+ *        Default is an empty callback.
+ * @param onPolicyUpdate A callback function invoked whenever the policy is updated.
+ *        Default is an empty callback.
+ * @return A constructed instance of the On-Policy Monte Carlo Control learning algorithm
+ *         that can be used for reinforcement learning in an environment.
  */
 fun <State, Action> onPolicyMonteCarloControl(
-    initialPolicy: QFunctionPolicy<State, Action>,
+    initialPolicy: Policy<State, Action>,
     gamma: Double,
     firstVisitOnly: Boolean = true,
-    onQFunctionUpdate: EnumerableQFunctionUpdate<State, Action> = { },
+    onQFunctionUpdate: QFunctionUpdate<State, Action> = { },
     onPolicyUpdate: PolicyUpdate<State, Action> = { }
-): TrajectoryQFunctionAlgorithm<State, Action> = OnPolicyMonteCarloControl(
+): LearningAlgorithm<State, Action> = OnPolicyMonteCarloControl(
     initialPolicy = initialPolicy,
     gamma = gamma,
     firstVisitOnly = firstVisitOnly,
@@ -498,31 +527,28 @@ fun <State, Action> onPolicyMonteCarloControl(
 )
 
 /**
- * Implements the Incremental Monte Carlo Control algorithm, a reinforcement learning algorithm
- * that uses a Monte Carlo method to estimate the action-value function and improves the policy incrementally.
+ * Implements the incremental Monte Carlo control algorithm for policy improvement and
+ * value estimation in reinforcement learning. This method refines the policy iteratively
+ * by processing complete episodes, using state-action trajectories to estimate Q-values and updating the policy.
  *
- * @param State The type representing states in the environment.
- * @param Action The type representing actions in the environment.
- * @param initialPolicy The initial policy to be used for decision-making, represented as a Q-function-based policy.
- * @param gamma The discount factor for future rewards, must be in the range [0, 1]. Default value is 0.99.
- * @param alpha A schedule for the learning rate used to update the Q-function. Defaults to a constant schedule of 0.05.
- * @param firstVisitOnly If true, only the first visit to a state-action pair in a trajectory is considered
- *                       for updating the Q-function. If false, all visits are considered. Defaults to true.
- * @param onQFunctionUpdate A callback invoked after each Q-function update, allowing interventions or logging.
- *                          Default is an empty lambda.
- * @param onPolicyUpdate A callback invoked after each policy update, allowing interventions or logging.
- *                       Default is an empty lambda.
- * @return An implementation of the `TrajectoryQFunctionAlgorithm` interface, which can be used to run
- *         and manage the Incremental Monte Carlo Control algorithm.
+ * @param State The type representing the states in the environment.
+ * @param Action The type representing the actions that can be taken in the environment.
+ * @param initialPolicy The initial policy that guides the agent's behavior in the environment.
+ * @param gamma The discount factor for future rewards. Default is 0.99.
+ * @param alpha A parameter schedule defining the learning rate for Q-value updates. Defaults to a constant schedule with a value of 0.05.
+ * @param firstVisitOnly If true, Q-values are updated only for the first occurrence of state-action pairs in a trajectory. Default is true.
+ * @param onQFunctionUpdate A callback executed after each Q-function update, allowing for custom behavior or monitoring during the learning process.
+ * @param onPolicyUpdate A callback executed after each policy update, enabling additional custom actions or monitoring.
+ * @return A reinforcement learning algorithm instance that can be used to train policies using the incremental Monte Carlo control method.
  */
 fun <State, Action> incrementalMonteCarloControl(
-    initialPolicy: QFunctionPolicy<State, Action>,
+    initialPolicy: Policy<State, Action>,
     gamma: Double = 0.99,
     alpha: ParameterSchedule = constantParameterSchedule(0.05),
     firstVisitOnly: Boolean = true,
-    onQFunctionUpdate: EnumerableQFunctionUpdate<State, Action> = { },
+    onQFunctionUpdate: QFunctionUpdate<State, Action> = { },
     onPolicyUpdate: PolicyUpdate<State, Action> = { }
-): TrajectoryQFunctionAlgorithm<State, Action> = IncrementalMonteCarloControl(
+): LearningAlgorithm<State, Action> = IncrementalMonteCarloControl(
     initialPolicy = initialPolicy,
     gamma = gamma,
     alpha = alpha,
@@ -532,24 +558,32 @@ fun <State, Action> incrementalMonteCarloControl(
 )
 
 /**
- * Implements an off-policy Monte Carlo control algorithm for reinforcement learning. This method estimates
- * the optimal action-value function and improves the target policy using trajectories collected under a
- * behavioral policy.
+ * Implements the Off-Policy Monte Carlo Control algorithm for reinforcement learning.
+ * This function uses trajectories generated by a behavioral policy to improve a target policy
+ * through off-policy Q-function updates with importance sampling.
  *
- * @param behavioralPolicy The policy used to generate trajectories. It may behave differently from the targetPolicy.
- * @param targetPolicy The policy being improved during the learning process.
- * @param gamma Discount factor for future rewards. Must be in the range [0, 1]. Defaults to 0.99.
- * @param onQFunctionUpdate Callback invoked when the action-value function (Q-function) is updated.
- * @param onPolicyUpdate Callback invoked when the target policy is updated.
- * @return An instance of TrajectoryQFunctionAlgorithm representing the off-policy Monte Carlo control process.
+ * @param State Type representing the states in the environment.
+ * @param Action Type representing the actions that can be taken in the environment.
+ * @param behavioralPolicy The policy used to generate trajectories during exploration.
+ *                         This is the policy actively interacting with the environment.
+ * @param targetPolicy The policy being optimized, which learns an improved mapping
+ *                     of states to actions based on the Q-function updates.
+ * @param gamma The discount factor, a value in the range [0.0, 1.0], determining the
+ *              weight of future rewards in Q-function updates. Default is 0.99.
+ * @param onQFunctionUpdate A callback function that is invoked after each Q-function update,
+ *                          allowing for custom operations or logging. Default is no-op.
+ * @param onPolicyUpdate A callback function that is invoked when the target policy is updated.
+ *                       This provides a mechanism for responding to policy improvements. Default is no-op.
+ * @return A configured instance of `OffPolicyMonteCarloControl` as the learning algorithm
+ *         for optimizing the target policy.
  */
 fun <State, Action> offPolicyMonteCarloControl(
-    behavioralPolicy: QFunctionPolicy<State, Action>,
-    targetPolicy: QFunctionPolicy<State, Action>,
+    behavioralPolicy: Policy<State, Action>,
+    targetPolicy: Policy<State, Action>,
     gamma: Double = 0.99,
-    onQFunctionUpdate: EnumerableQFunctionUpdate<State, Action> = { },
+    onQFunctionUpdate: QFunctionUpdate<State, Action> = { },
     onPolicyUpdate: PolicyUpdate<State, Action> = { },
-): TrajectoryQFunctionAlgorithm<State, Action> = OffPolicyMonteCarloControl(
+): LearningAlgorithm<State, Action> = OffPolicyMonteCarloControl(
     behavioralPolicy = behavioralPolicy,
     targetPolicy = targetPolicy,
     gamma = gamma,
@@ -558,40 +592,38 @@ fun <State, Action> offPolicyMonteCarloControl(
 )
 
 /**
- * Represents off-policy control strategies in reinforcement learning where two policies are used:
- * one for generating behavior (behavioral policy) and another for evaluating or improving (target policy).
+ * Represents a structure for off-policy reinforcement learning control mechanisms.
+ *
+ * This class is used to define and manage the relationship between two policies:
+ * a behavioral policy and a target policy. The behavioral policy is used to generate
+ * trajectories or samples by interacting with the environment, whereas the target policy
+ * is the policy being optimized or evaluated.
  *
  * @param State The type representing the state space of the environment.
  * @param Action The type representing the action space of the environment.
- * @property behavioralPolicy The policy used to generate behavior or actions during interactions with the environment.
- * @property targetPolicy The policy being evaluated or improved to optimize performance.
+ * @property behavioralPolicy The policy used to determine actions during interaction with the environment.
+ * @property targetPolicy The policy being optimized or used to compute target values.
  */
 data class OffPolicyControls<State, Action>(
-    val behavioralPolicy: QFunctionPolicy<State, Action>,
-    val targetPolicy: QFunctionPolicy<State, Action>
+    val behavioralPolicy: Policy<State, Action>,
+    val targetPolicy: Policy<State, Action>
 )
 
 /**
- * Constructs an off-policy control mechanism using an epsilon-greedy target policy
- * and an epsilon-soft behavioral policy. The target policy is used for evaluation
- * or improvement, while the behavioral policy is used for generating actions during
- * environment interaction.
+ * Constructs an off-policy control mechanism using epsilon-greedy and epsilon-soft strategies
+ * for target and behavioral policies, respectively. This method is utilized in reinforcement
+ * learning scenarios where exploration and exploitation are balanced through epsilon-controlled
+ * mechanisms.
  *
- * @param Q The Q-function that maps state-action pairs to their corresponding
- *          action-value estimates.
- * @param stateActions A mapping of all possible actions available for each state
- *                     within the environment.
- * @param targetEpsilon A schedule defining the epsilon parameter for the epsilon-greedy
- *                      target policy. This controls the level of exploration vs. exploitation.
- * @param behaviorEpsilon A schedule defining the epsilon parameter for the epsilon-soft
- *                        behavioral policy. This controls the level of exploration
- *                        performed during interactions.
- * @param rng An optional random number generator for controlling randomness in action
- *            selection by the policies. Defaults to Random.Default.
- * @return An OffPolicyControls object containing both the behavioral and target policies.
+ * @param Q The Q-function representing the value estimation for state-action pairs.
+ * @param stateActions A function that provides the available actions for a given state.
+ * @param targetEpsilon A parameter schedule controlling the exploration rate (epsilon) for the target policy.
+ * @param behaviorEpsilon A parameter schedule controlling the exploration rate (epsilon) for the behavioral policy.
+ * @param rng A random number generator for stochastic action selection, defaulting to `Random.Default`.
+ * @return An `OffPolicyControls` instance containing the target and behavioral policies, respectively.
  */
 fun <State, Action> epsilonGreedySoftOffPolicyControls(
-    Q: EnumerableQFunction<State, Action>,
+    Q: QFunction<State, Action>,
     stateActions: StateActions<State, Action>,
     targetEpsilon: ParameterSchedule,
     behaviorEpsilon: ParameterSchedule,
@@ -617,22 +649,33 @@ fun <State, Action> epsilonGreedySoftOffPolicyControls(
 }
 
 /**
- * Implements the Q-Learning algorithm to optimize a policy based on observed transitions and rewards.
+ * Creates a Q-Learning-based learning algorithm for reinforcement learning tasks.
  *
- * @param initialPolicy The initial Q-function policy which determines the action-selection strategy.
- * @param alpha A parameter schedule defining the learning rate for Q-function updates.
- * @param gamma The discount factor, which determines the importance of future rewards.
- * @param onQFunctionUpdate A callback invoked after updating the Q-function for added extensibility. The default is no-op.
- * @param onPolicyUpdate A callback invoked after updating the policy for added extensibility. The default is no-op.
- * @return An instance of TransitionQFunctionAlgorithm which encapsulates the Q-Learning algorithm.
+ * Q-Learning is an off-policy, model-free reinforcement learning algorithm that updates
+ * the action-value function (Q-function) to approximate the optimal policy. It uses
+ * the Temporal Difference (TD) update rule with the formula:
+ *
+ * Q(s, a) ← Q(s, a) + α * [r + γ * max(Q(s', a')) − Q(s, a)]
+ *
+ * This implementation allows customization of the learning process through parameter
+ * schedules, event callbacks for Q-function updates, and updates to the policy.
+ *
+ * @param State the type representing the environment's states.
+ * @param Action the type representing the actions that can be performed in the environment.
+ * @param initialPolicy the starting policy that governs action selection in the environment.
+ * @param alpha a parameter schedule that controls the learning rate for Q-function updates.
+ * @param gamma the discount factor, a value between 0 and 1, that determines the weight of future rewards.
+ * @param onQFunctionUpdate a callback triggered whenever the Q-function is updated.
+ * @param onPolicyUpdate a callback triggered whenever the policy is updated.
+ * @return a Q-Learning-based learning algorithm for state-action value estimation.
  */
 fun <State, Action> qLearning(
-    initialPolicy: QFunctionPolicy<State, Action>,
+    initialPolicy: Policy<State, Action>,
     alpha: ParameterSchedule,
     gamma: Double,
-    onQFunctionUpdate: EnumerableQFunctionUpdate<State, Action> = { },
+    onQFunctionUpdate: QFunctionUpdate<State, Action> = { },
     onPolicyUpdate: PolicyUpdate<State, Action> = { }
-): TransitionQFunctionAlgorithm<State, Action> = QLearning(
+): LearningAlgorithm<State, Action> = QLearning(
     initialPolicy = initialPolicy,
     alpha = alpha,
     gamma = gamma,
@@ -642,30 +685,28 @@ fun <State, Action> qLearning(
 
 /**
  * Implements the SARSA (State-Action-Reward-State-Action) reinforcement learning algorithm.
- * SARSA is an on-policy temporal-difference control algorithm that updates the action-value
- * function based on the current action and the observed successor state-action pair.
  *
- * @param State The type representing states in the environment.
- * @param Action The type representing actions in the environment.
- * @param initialPolicy The initial policy defined by a Q-function, determining which
- * actions to take in given states.
- * @param alpha A schedule for the learning rate. This determines how much new information
- * overrides old information during the update to the Q-function.
- * @param gamma The discount factor for future rewards, determining the relative importance
- * of immediate versus later rewards.
- * @param onQFunctionUpdate A callback triggered each time the Q-function is updated. This
- * can be used for monitoring or logging purposes.
- * @param onPolicyUpdate A callback triggered each time the policy is updated, allowing for
- * optional hooks or side effects during policy updates.
- * @return A SARSA-based implementation of a transition Q-function algorithm.
+ * This method creates a SARSA learning algorithm that updates Q-values based on the current policy
+ * and observed transitions in an environment. It provides flexibility through callbacks for
+ * Q-function and policy updates, customization of the learning rate, and control over the
+ * discount factor.
+ *
+ * @param State the type representing the states in the environment.
+ * @param Action the type representing the actions in the environment.
+ * @param initialPolicy the initial policy the agent should follow; this policy is updated during learning.
+ * @param alpha a [ParameterSchedule] specifying the learning rate, which may change over time for fine-tuning convergence.
+ * @param gamma the discount factor, a value between 0 and 1 indicating the importance of future rewards relative to immediate rewards.
+ * @param onQFunctionUpdate a callback function invoked whenever the Q-function is updated, allowing monitoring or logging of updates.
+ * @param onPolicyUpdate a callback function invoked whenever the policy is updated, enabling external actions on policy changes.
+ * @return a [LearningAlgorithm] instance representing the configured SARSA algorithm, ready for interaction with an environment.
  */
 fun <State, Action> sarsa(
-    initialPolicy: QFunctionPolicy<State, Action>,
+    initialPolicy: Policy<State, Action>,
     alpha: ParameterSchedule,
     gamma: Double,
-    onQFunctionUpdate: EnumerableQFunctionUpdate<State, Action> = { },
+    onQFunctionUpdate: QFunctionUpdate<State, Action> = { },
     onPolicyUpdate: PolicyUpdate<State, Action> = { }
-): TransitionQFunctionAlgorithm<State, Action> = SARSA(
+): LearningAlgorithm<State, Action> = SARSA(
     initialPolicy = initialPolicy,
     alpha = alpha,
     gamma = gamma,
@@ -674,22 +715,25 @@ fun <State, Action> sarsa(
 )
 
 /**
- * Creates and configures an Expected SARSA algorithm for reinforcement learning.
+ * Creates an instance of the Expected SARSA reinforcement learning algorithm.
+ * Expected SARSA is an on-policy algorithm that calculates the Q-value updates
+ * by considering the expected value of the next state over all possible actions,
+ * reducing variance and improving learning stability.
  *
- * @param initialPolicy The initial Q-function policy that guides the selection of actions.
- * @param alpha The learning rate represented as a parameter schedule.
- * @param gamma The discount factor, which determines the importance of future rewards.
- * @param onQFunctionUpdate Callback invoked when the Q-function is updated. Default is an empty callback.
- * @param onPolicyUpdate Callback invoked when the policy is updated. Default is an empty callback.
- * @return A configured instance of the Expected SARSA algorithm.
+ * @param initialPolicy The initial policy used by the agent to make decisions.
+ * @param alpha A schedule specifying the learning rate to update Q-values over time.
+ * @param gamma The discount factor representing the importance of future rewards, constrained between 0 and 1.
+ * @param onQFunctionUpdate A callback invoked after updating the Q-function, allowing additional processing or monitoring.
+ * @param onPolicyUpdate A callback invoked after the policy update, enabling additional handling or monitoring of changes.
+ * @return A reinforcement learning algorithm implementing Expected SARSA with specified parameters and callbacks.
  */
 fun <State, Action> expectedSarsa(
-    initialPolicy: QFunctionPolicy<State, Action>,
+    initialPolicy: Policy<State, Action>,
     alpha: ParameterSchedule,
     gamma: Double,
-    onQFunctionUpdate: EnumerableQFunctionUpdate<State, Action> = { },
+    onQFunctionUpdate: QFunctionUpdate<State, Action> = { },
     onPolicyUpdate: PolicyUpdate<State, Action> = { },
-): TransitionQFunctionAlgorithm<State, Action> = ExpectedSARSA(
+): LearningAlgorithm<State, Action> = ExpectedSARSA(
     initialPolicy = initialPolicy,
     alpha = alpha,
     gamma = gamma,
@@ -698,25 +742,33 @@ fun <State, Action> expectedSarsa(
 )
 
 /**
- * Implements the n-step SARSA (State-Action-Reward-State-Action) algorithm for reinforcement learning.
- * This algorithm updates the policy based on n-step temporal difference errors.
+ * Creates an instance of the n-step SARSA reinforcement learning algorithm for policy evaluation
+ * and improvement. This method configures the algorithm with the provided parameters and callbacks.
  *
- * @param initialPolicy The initial policy, represented as a Q-function policy, to be updated during learning.
- * @param alpha The learning rate schedule that controls the step size for value updates.
- * @param gamma The discount factor, which determines the importance of future rewards.
- * @param n The number of steps used in the n-step update process.
- * @param onQFunctionUpdate A callback that executes upon updating the Q-function.
- * @param onPolicyUpdate A callback that executes upon updating the policy.
- * @return An instance of TrajectoryQFunctionAlgorithm used to execute the n-step SARSA algorithm.
+ * @param State The type representing the state space of the environment.
+ * @param Action The type representing the action space of the environment.
+ * @param initialPolicy The initial policy governing the agent's action selection. This policy
+ *                       will be updated iteratively as learning progresses.
+ * @param alpha A schedule defining the learning rate (step size) for Q-function updates. The value
+ *              determines the magnitude of updates to the Q-function based on temporal difference errors.
+ * @param gamma The discount factor applied to future rewards during the learning process. This parameter
+ *              balances the importance of immediate versus long-term rewards. Should be in the range [0, 1].
+ * @param n The number of steps used in the computation of n-step returns. This defines the length of
+ *          the trajectory considered for temporal difference updates.
+ * @param onQFunctionUpdate A callback function invoked after each Q-function update. This can be used
+ *                          for monitoring or logging the updates to the Q-function.
+ * @param onPolicyUpdate A callback function invoked after each policy update. Enables tracking or logging
+ *                       the changes to the policy during the learning process.
+ * @return An instance of `LearningAlgorithm` configured with the n-step SARSA implementation.
  */
 fun <State, Action> nStepSarsa(
-    initialPolicy: QFunctionPolicy<State, Action>,
+    initialPolicy: Policy<State, Action>,
     alpha: ParameterSchedule,
     gamma: Double,
     n: Int,
-    onQFunctionUpdate: EnumerableQFunctionUpdate<State, Action> = { },
+    onQFunctionUpdate: QFunctionUpdate<State, Action> = { },
     onPolicyUpdate: PolicyUpdate<State, Action> = { },
-): TrajectoryQFunctionAlgorithm<State, Action> = NStepSARSA(
+): LearningAlgorithm<State, Action> = NStepSARSA(
     initialPolicy = initialPolicy,
     alpha = alpha,
     gamma = gamma,

@@ -1,15 +1,13 @@
 package io.github.kotlinrl.core
 
 /**
- * A typealias for `io.github.kotlinrl.core.model.EmpiricalMDPModel<State, Action>`.
+ * Type alias for `io.github.kotlinrl.core.model.EmpiricalMDPModel`.
  *
- * Represents an empirical model for a Markov Decision Process (MDP) that uses sampling-based
- * methods to approximate transition dynamics and expected rewards. This model interacts
- * with a predefined model-based environment to simulate state-action transitions,
- * compute transition probabilities, and estimate rewards empirically.
+ * Represents an empirical approach to modeling Markov Decision Processes (MDPs),
+ * using sampling-based strategies to approximate transition dynamics and expected rewards.
  *
- * @param State The type representing the states in the MDP.
- * @param Action The type representing the actions in the MDP.
+ * @param State The type representing states in the MDP.
+ * @param Action The type representing actions in the MDP.
  */
 typealias EmpiricalMDPModel<State, Action> = io.github.kotlinrl.core.model.EmpiricalMDPModel<State, Action>
 /**

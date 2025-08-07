@@ -3,46 +3,42 @@ package io.github.kotlinrl.core.algorithms.td.lambda
 import io.github.kotlinrl.core.*
 
 /**
- * An abstract representation of the TD(λ) algorithm, a temporal-difference learning approach
- * that incorporates eligibility traces to efficiently assign credit to prior state-action pairs
- * over multiple time steps. This class serves as a foundation for deriving specific TD(λ) algorithms.
+ * Implements the TD(λ) reinforcement learning algorithm, an extension of Temporal Difference (TD) learning,
+ * combining TD methods with eligibility traces. The algorithm allows credit assignment across multiple
+ * time steps by maintaining a trace of visited states and actions.
  *
- * TD(λ) enables a balance between Monte Carlo methods and one-step TD methods through the λ parameter.
- * It is highly adaptable to various reinforcement learning scenarios by leveraging customizable
- * components such as eligibility trace implementations, Q-function update rules, and transition estimators.
+ * TD(λ) balances between one-step and multi-step updates in reinforcement learning through the λ parameter.
+ * It can be especially effective in environments with sequential dependencies by propagating rewards over
+ * a temporal chain of state-action pairs.
  *
- * @param State The type representing the states in the environment.
- * @param Action The type representing the actions that can be taken in the environment.
- * @param initialPolicy The initial policy guiding action selection. This policy can be updated
- *        dynamically to reflect improvements in the Q-function over time.
- * @param alpha A schedule for the learning rate controlling the magnitude of Q-function updates.
- * @param gamma The discount factor used to prioritize immediate versus future rewards during updates.
- * @param lambda A schedule for the λ parameter controlling the decay rate of eligibility traces,
- *        where higher values assign greater weight to distant past state-action pairs.
- * @param initialEligibilityTrace A mechanism for tracking state-action visitations using eligibility traces.
- *        Defaults to `ReplacingTrace`, which resets trace values to 1 upon visitation and decays them over time.
- * @param onQFunctionUpdate A callback invoked after each Q-function update to allow for custom operations
- *        following updates, such as logging or visualization.
- * @param onPolicyUpdate A callback invoked after the policy update to enable responses or additional
- *        operations following policy improvements.
- * @param onEligibilityTraceUpdate A callback invoked after updates to the eligibility trace,
- *        useful for debugging or monitoring the trace dynamics.
- * @param td The temporal-difference (TD) error function defining the mechanism for calculating the
- *        difference between predicted and observed rewards or values.
- * @param estimator The Q-function estimator utilized to predict updates based on observed transitions,
- *        combining TD errors, eligibility traces, and learning parameters.
+ * This abstract class serves as the foundation for concrete implementations that utilize the TD(λ) learning
+ * framework, providing mechanisms for Q-function estimation, policy updates, and eligibility trace management.
+ *
+ * @param State The type representing the state space of the environment.
+ * @param Action The type representing the action space of the environment.
+ * @property initialPolicy The initial policy used for selecting actions.
+ * @property alpha A parameter schedule for the learning rate, controlling the magnitude of Q-value updates.
+ * @property gamma The discount factor, determining the importance of future rewards in the learning process.
+ * @property lambda A parameter schedule for the eligibility trace decay factor.
+ * @property initialEligibilityTrace The initial eligibility trace, which determines the initial credit assignment dynamics.
+ * @property onQFunctionUpdate A callback triggered whenever the Q-function is updated.
+ * @property onPolicyUpdate A callback triggered whenever the policy is updated.
+ * @property onEligibilityTraceUpdate A callback triggered whenever the eligibility trace is updated.
+ * @property td A function to calculate the temporal-difference (TD) error.
+ * @property estimateQ The Q-function estimator to calculate and update Q-values based on state transitions,
+ * implementing the core of the TD(λ) algorithm.
  */
 abstract class TDLambda<State, Action>(
-    initialPolicy: QFunctionPolicy<State, Action>,
+    initialPolicy: Policy<State, Action>,
     alpha: ParameterSchedule,
     gamma: Double,
     lambda: ParameterSchedule,
     initialEligibilityTrace: EligibilityTrace<State, Action> = ReplacingTrace(),
-    onQFunctionUpdate: EnumerableQFunctionUpdate<State, Action> = {},
+    onQFunctionUpdate: QFunctionUpdate<State, Action> = {},
     onPolicyUpdate: PolicyUpdate<State, Action> = {},
     onEligibilityTraceUpdate: EligibilityTraceUpdate<State, Action> = { },
     td: TDQError<State, Action>,
-    estimator: TransitionQFunctionEstimator<State, Action> = TDLambdaQFunctionEstimator(
+    estimateQ: EstimateQ_fromTransition<State, Action> = TDLambdaEstimateQ_fromTransition(
         initialPolicy = initialPolicy,
         alpha = alpha,
         lambda = lambda,
@@ -51,14 +47,9 @@ abstract class TDLambda<State, Action>(
         initialEligibilityTrace = initialEligibilityTrace,
         onEligibilityTraceUpdate = onEligibilityTraceUpdate
     ),
-) : TransitionQFunctionAlgorithm<State, Action>(
+) : TransitionLearningAlgorithm<State, Action>(
     initialPolicy = initialPolicy,
-    estimator = estimator,
+    estimateQ = estimateQ,
     onQFunctionUpdate = onQFunctionUpdate,
-    onPolicyUpdate = {
-        when (estimator) {
-            is TDLambdaQFunctionEstimator -> estimator.policy = it
-        }
-        onPolicyUpdate(it)
-    }
+    onPolicyUpdate = onPolicyUpdate
 )

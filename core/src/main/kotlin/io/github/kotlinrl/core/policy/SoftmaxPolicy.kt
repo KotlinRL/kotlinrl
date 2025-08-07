@@ -1,27 +1,26 @@
 package io.github.kotlinrl.core.policy
 
-import io.github.kotlinrl.core.EnumerableQFunction
-import io.github.kotlinrl.core.SoftmaxPolicy
 import kotlin.math.*
 import kotlin.random.*
 
 /**
- * A policy that selects actions using the softmax function, commonly used in reinforcement learning
- * to model the probability distribution over actions based on their Q-values. The policy's behavior
- * is influenced by a temperature parameter, which controls the exploration versus exploitation trade-off.
+ * A policy implementation based on the softmax function, used in reinforcement learning
+ * for stochastic action selection. The softmax policy assigns probabilities to actions
+ * based on their Q-values, influenced by a temperature parameter. A lower temperature
+ * increases the preference for actions with higher Q-values, making the policy more greedy,
+ * while a higher temperature increases exploration by distributing probabilities more evenly
+ * among the actions.
  *
- * Higher temperature values lead to more exploration by making the action probabilities more uniform,
- * while lower values focus the probabilities around the best actions, promoting exploitation.
- *
- * @param State the type representing the states in the environment.
- * @param Action the type representing the actions available in the environment.
- * @param Q the Q-function that provides the expected cumulative rewards for each state-action pair.
- * @param stateActions a function that retrieves the list of available actions for a given state.
- * @param temperature a parameter schedule that determines the temperature value to be used in the softmax computation.
- * @param rng a random number generator used for stochastic sampling of actions.
+ * @param State the type representing the state in the environment.
+ * @param Action the type representing the actions available to the agent.
+ * @param Q the Q-function mapping state-action pairs to their utility or quality values.
+ * @param stateActions a function to determine the possible actions for a given state.
+ * @param temperature a parameter schedule controlling the temperature, which affects
+ *        the stochasticity of the policy. Lower values result in less exploration.
+ * @param rng a random number generator for stochastic decision-making.
  */
 class SoftmaxPolicy<State, Action>(
-    override val Q: EnumerableQFunction<State, Action>,
+    override val Q: QFunction<State, Action>,
     override val stateActions: StateActions<State, Action>,
     private val temperature: ParameterSchedule,
     rng: Random
@@ -46,15 +45,15 @@ class SoftmaxPolicy<State, Action>(
     }
 
     /**
-     * Creates an improved policy based on the given Q-function using a softmax distribution.
-     * The softmax function assigns probabilities to actions based on their Q-values and a
-     * temperature parameter, allowing for stochastic decision-making. Higher Q-values result
-     * in higher probabilities, and the temperature parameter influences the level of exploration.
+     * Creates an improved policy based on the provided Q-function by utilizing a softmax strategy.
      *
-     * @param Q the Q-function that estimates the expected cumulative rewards for state-action pairs.
-     * @return an improved policy represented as a softmax policy, which uses the given Q-function
-     *         and softmax distribution for action selection.
+     * The resulting policy assigns probabilities to actions in each state determined by
+     * their corresponding Q-values, influenced by a temperature parameter. This approach
+     * facilitates exploration and balances the trade-off between exploitation and exploration.
+     *
+     * @param Q the Q-function representing the expected cumulative reward for each state-action pair.
+     * @return the improved policy modeled as a softmax policy which uses the provided Q-function.
      */
-    override fun improve(Q: EnumerableQFunction<State, Action>): Policy<State, Action> =
+    override fun improve(Q: QFunction<State, Action>): Policy<State, Action> =
         SoftmaxPolicy(Q, stateActions, temperature, rng)
 }

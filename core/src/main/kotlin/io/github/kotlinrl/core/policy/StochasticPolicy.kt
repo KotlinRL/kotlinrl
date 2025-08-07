@@ -3,19 +3,17 @@ package io.github.kotlinrl.core.policy
 import kotlin.random.*
 
 /**
- * Represents a stochastic policy for reinforcement learning, where action selection is
- * based on probabilistic sampling derived from an underlying Q-function or scoring mechanism.
+ * A stochastic policy implementation that selects actions according to a probability distribution
+ * derived from a scoring mechanism. This class defines the framework for evaluating actions and
+ * their scores, calculating probabilities, and selecting actions based on stochastic sampling.
  *
- * This policy computes the probabilities of actions given a state and samples an action
- * based on those probabilities, introducing stochasticity in decision-making.
- *
- * @param State the type representing the state in the environment.
- * @param Action the type representing the actions that can be performed.
- * @property rng the random number generator used for probabilistic sampling.
+ * @param State the type representing the state of the environment.
+ * @param Action the type representing the available actions in the environment.
+ * @param rng a `Random` instance used for stochastic sampling of actions.
  */
 abstract class StochasticPolicy<State, Action>(
     protected val rng: Random
-) : QFunctionPolicy<State, Action> {
+) : Policy<State, Action> {
 
     /**
      * Computes a list of actions and their associated scores for a given state.
