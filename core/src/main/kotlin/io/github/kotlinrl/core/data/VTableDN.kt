@@ -1,5 +1,6 @@
 package io.github.kotlinrl.core.data
 
+import io.github.kotlinrl.core.QTableDN
 import io.github.kotlinrl.core.policy.*
 import org.jetbrains.kotlinx.multik.api.*
 import org.jetbrains.kotlinx.multik.ndarray.data.*
@@ -19,7 +20,7 @@ class VTableDN(
 ) : EnumerableValueFunction<NDArray<Int, DN>> {
 
     init {
-        require(shape.size >= 2) { "VTableDN shape requires at least 2 arguments" }
+        require(shape.isNotEmpty()) { "VTableDN shape requires at least 1 arguments" }
     }
 
     internal val table: NDArray<Double, DN> = mk.dnarray<Double, DN>(shape) { 0.0 }.asDNArray()
@@ -34,19 +35,16 @@ class VTableDN(
     override operator fun get(state: NDArray<Int, DN>): Double = table[state.toIntArray()]
 
     /**
-     * Updates the value associated with the specified state in the VTableDN and returns
-     * an updated enumerable value function.
+     * Updates the value associated with the specified state in the VTableDN.
      *
-     * @param state An NDArray of integers representing the state whose value is
-     * to be updated. The state corresponds to a unique entry in the table.
-     * @param value The new value to associate with the specified state in the table.
-     * @return An updated instance of the enumerable value function reflecting
-     * the new state-value mapping.
+     * @param state The multi-dimensional array (NDArray) of integers representing the state to be updated.
+     * @param value The new value of type Double to associate with the specified state.
+     * @return A new VTableDN instance with the updated value for the given state.
      */
     override fun update(
         state: NDArray<Int, DN>,
         value: Double
-    ): EnumerableValueFunction<NDArray<Int, DN>> = copy().also { it.table[state.toIntArray()] = value }
+    ): VTableDN = copy().also { it.table[state.toIntArray()] = value }
 
     /**
      * Finds the maximum value from the data stored in the underlying table.
@@ -63,8 +61,12 @@ class VTableDN(
      *         state in the multi-dimensional table.
      */
     override fun allStates(): List<NDArray<Int, DN>> {
-        val rawStates = cartesianProduct(*shape.map { 0 until it }.toTypedArray())
-        return rawStates.map { mk.ndarray(it).asDNArray() }
+        val stateRank = shape.size
+        val allStates = mutableSetOf<NDArray<Int, DN>>()
+        for (index in table.multiIndices) {
+            allStates +=  toNestedNDArray(index, stateRank)
+        }
+        return allStates.toList()
     }
 
     /**
@@ -97,6 +99,7 @@ class VTableDN(
     fun load(path: String) {
         val dn = mk.readCsvSafely(path)
         val reshaped = when (shape.size) {
+            1 -> dn
             2 -> dn.reshape(shape[0], shape[1])
             3 -> dn.reshape(shape[0], shape[1], shape[2])
             4 -> dn.reshape(shape[0], shape[1], shape[2], shape[3])
@@ -109,17 +112,4 @@ class VTableDN(
      * Prints the contents of the underlying table of the VTableDN instance to the standard output.
      */
     fun print() = println(table)
-
-    /**
-     * Generates the Cartesian product of the provided ranges as a list of integer arrays.
-     *
-     * @param ranges A variable number of Iterable<Int> representing the ranges of values across different dimensions.
-     * Each range will contribute to the Cartesian product.
-     * @return A list of integer arrays, where each array represents one combination of the Cartesian product.
-     */
-    private fun cartesianProduct(vararg ranges: Iterable<Int>): List<IntArray> {
-        return ranges.fold(listOf(IntArray(0))) { acc, range ->
-            acc.flatMap { prefix -> range.map { i -> prefix + i } }
-        }
-    }
 }

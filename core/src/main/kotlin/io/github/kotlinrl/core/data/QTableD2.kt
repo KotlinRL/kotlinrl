@@ -1,6 +1,7 @@
 package io.github.kotlinrl.core.data
 
 import io.github.kotlinrl.core.*
+import org.jetbrains.kotlinx.multik.api.*
 import org.jetbrains.kotlinx.multik.ndarray.data.*
 import org.jetbrains.kotlinx.multik.ndarray.operations.*
 
@@ -9,8 +10,6 @@ import org.jetbrains.kotlinx.multik.ndarray.operations.*
  * Q-table for reinforcement learning tasks. This class uses a structured representation of states
  * and actions, providing functionality for managing Q-values in a deterministic or stochastic manner.
  *
- * @property shape The dimensions of the Q-table, specified as a variable number of integers. The shape
- * must explicitly contain three dimensions.
  * @property deterministic A flag indicating whether the Q-table should operate deterministically. If true,
  * the best action is selected deterministically; otherwise, stochastic behavior is applied for ties.
  * @property tolerance The allowable tolerance for determining equality of floating-point numbers, typically
@@ -18,62 +17,100 @@ import org.jetbrains.kotlinx.multik.ndarray.operations.*
  * @property defaultQValue The initial Q-value assigned to all state-action pairs when the Q-table is instantiated.
  */
 class QTableD2(
-    vararg val shape: Int,
-    private val deterministic: Boolean = true,
-    private val tolerance: Double = 1e-6,
-    private val defaultQValue: Double = 0.0
+    rowSize: Int,
+    colSize: Int,
+    actionSize: Int,
+    val deterministic: Boolean = true,
+    val tolerance: Double = 1e-6,
+    val defaultQValue: Double = 0.0
 ) : EnumerableQFunction<NDArray<Int, D1>, Int> {
 
-    init {
-        require(shape.size == 3) { "QTableD2 shape requires exactly 3 arguments" }
-    }
+    /**
+     * Defines the dimensions of the Q-table in the format of a 3D integer array.
+     *
+     * The dimensions include:
+     * - Row size (`rowSize`): Represents the number of rows in the Q-table.
+     * - Column size (`colSize`): Represents the number of columns in the Q-table.
+     * - Action size (`actionSize`): Represents the number of possible actions for each state in the Q-table.
+     */
+    val shape = intArrayOf(rowSize, colSize, actionSize)
 
+    /**
+     * Represents the underlying Q-table data structure for the `QTableD2` class.
+     *
+     * This value is initialized with a `QTableDN` instance, using the parameters `shape`, `deterministic`,
+     * `tolerance`, and `defaultQValue` defined in the enclosing class. It stores the state-action value function
+     * for reinforcement learning tasks, supporting multi-dimensional state spaces and multiple possible actions
+     * per state.
+     *
+     * The `base` property serves as the core of the Q-learning model, enabling operations such as retrieving,
+     * updating, and converting Q-values, and providing flexibility in representing arbitrary shaped Q-tables.
+     */
     internal val base = QTableDN(shape = shape, deterministic, tolerance, defaultQValue)
 
     /**
-     * Converts the current Q-table into a value function representation.
+     * Converts the current Q-table to a value table representation by computing the maximum Q-value
+     * for each possible state. This transformation creates a V-table, which represents the optimal
+     * values for all states based on the current Q-table data.
      *
-     * This method calculates the value function by iterating through all states in the Q-table
-     * and selecting the maximum Q-value for each state, resulting in a value function that
-     * represents the expected rewards for each state under the optimal policy.
-     *
-     * @return A value function represented as an `EnumerableValueFunction` containing the maximum values
-     *         for each state derived from the Q-table.
+     * @return A VTableD2 instance where each state corresponds to the maximum Q-value from the Q-table.
      */
     @Suppress("DuplicatedCode")
-    override fun toV(): EnumerableValueFunction<NDArray<Int, D1>> {
+    override fun toV(): VTableD2 {
         val Q = (if (deterministic) this else copy(true))
-        val shape = Q.shape.dropLast(1).toIntArray()
-        var V = VTableD2(shape = shape)
+        var V = VTableD2(rowSize = Q.shape[0], colSize = Q.shape[1])
         for (state in allStates()) {
-            V = V.update(state, Q.maxValue(state)) as VTableD2
+            V = V.update(state, Q.maxValue(state))
         }
         return V
     }
 
     /**
-     * Retrieves the Q-value for a given state-action pair from the Q-table.
+     * Retrieves the Q-value for the specified state-action pair from the Q-table.
      *
      * @param state The state represented as an `NDArray` of integers with one dimension (D1).
      * @param action The action represented as an integer.
-     * @return The Q-value as a `Double` corresponding to the provided state-action pair.
+     * @return The Q-value as a `Double` associated with the specified state and action.
      */
     override fun get(state: NDArray<Int, D1>, action: Int): Double = base[state.asDNArray(), action]
 
     /**
-     * Updates the Q-value in the Q-table for a given state-action pair with the provided value.
+     * Retrieves the Q-value from the Q-table for a specified two-dimensional state and action.
+     *
+     * @param row The first dimension index of the state.
+     * @param col The second dimension index of the state.
+     * @param action The action represented as an integer.
+     * @return The Q-value as a Double associated with the given state and action.
+     */
+    operator fun get(row: Int, col: Int, action: Int): Double =
+        this[mk.ndarray(mk[row, col]), action]
+
+    /**
+     * Updates the Q-value in the Q-table for a specific state-action pair.
      *
      * @param state The state represented as an `NDArray` of integers with one dimension (D1).
      * @param action The action represented as an integer.
-     * @param value The Q-value represented as a double to update the table for the provided state-action pair.
-     * @return A new instance of `EnumerableQFunction` reflecting the updated Q-table.
+     * @param value The new Q-value to update in the table.
+     * @return A new instance of `QTableD2` reflecting the updated Q-table.
      */
     override fun update(
         state: NDArray<Int, D1>,
         action: Int,
         value: Double
-    ): EnumerableQFunction<NDArray<Int, D1>, Int> =
+    ): QTableD2 =
         copy().also { it.base.table[state.toIntArray() + action] = value }
+
+    /**
+     * Updates the Q-value in the Q-table for the specified two-dimensional state and action.
+     *
+     * @param row The row index of the state.
+     * @param col The column index of the state.
+     * @param action The action represented as an integer.
+     * @param value The new Q-value to update in the table.
+     * @return A new instance of `QTableD2` reflecting the updated Q-table.
+     */
+    fun update(row: Int, col: Int, action: Int, value: Double): QTableD2 =
+        update(mk.ndarray(mk[row, col]), action, value)
 
     /**
      * Retrieves a list of all possible states in the Q-table, represented as `NDArray` objects with one dimension (D1).
@@ -93,6 +130,16 @@ class QTableD2(
         base.maxValue(state.asDNArray())
 
     /**
+     * Finds the maximum Q-value for a specific two-dimensional state in the Q-table.
+     *
+     * @param row The row index of the state.
+     * @param col The column index of the state.
+     * @return The maximum Q-value associated with the given state, represented as a `Double`.
+     */
+    fun maxValue(row: Int, col: Int): Double =
+        maxValue(mk.ndarray(mk[row, col]))
+
+    /**
      * Determines the best action to take for a given state based on the Q-table.
      *
      * @param state The current state represented as an `NDArray` of integers with one dimension (D1).
@@ -100,6 +147,17 @@ class QTableD2(
      */
     override fun bestAction(state: NDArray<Int, D1>): Int =
         base.bestAction(state.asDNArray())
+
+    /**
+     * Determines the best action for a specific state in a two-dimensional representation
+     * based on the Q-table data.
+     *
+     * @param row The row index of the state in the Q-table.
+     * @param col The column index of the state in the Q-table.
+     * @return The best action for the given state, represented as an integer.
+     */
+    fun bestAction(row: Int, col: Int): Int =
+        bestAction(mk.ndarray(mk[row, col]))
 
     /**
      * Creates a copy of the current `QTableD2` instance, with an optional override for its determinism property.
@@ -110,7 +168,9 @@ class QTableD2(
      */
     fun copy(deterministic: Boolean = this.deterministic): QTableD2 =
         QTableD2(
-            shape = shape,
+            rowSize = shape[0],
+            colSize = shape[1],
+            actionSize = shape[2],
             deterministic = deterministic,
             tolerance = tolerance,
             defaultQValue = defaultQValue
@@ -143,19 +203,27 @@ class QTableD2(
     fun print() = base.print()
 
     /**
-     * Converts the current QTableD2 instance into a QTableD3 instance with the specified shape.
+     * Converts the current `QTableD2` instance into a three-dimensional `QTableD3` instance with the specified shape.
      *
-     * The new QTableD3 instance uses the same underlying data as the current QTableD2 but updates the
-     * shape and dimensionality to match the requirements of a QTableD3. This conversion enables flexible
-     * management of Q-tables with different dimensions.
+     * The resulting `QTableD3` instance will maintain the same data and properties, including determinism,
+     * tolerance, and default Q-value, while updating the structure and dimensionality to a three-dimensional table.
+     * The underlying data is copied into the new instance.
      *
-     * @param shape The shape of the new QTableD3 instance, which must consist of exactly 4 dimensions.
-     * @return A new QTableD3 instance with the specified shape and the same underlying data and properties.
-     * @throws IllegalArgumentException If the provided shape does not have exactly 4 dimensions.
+     * @param rowSize The number of rows in the resulting `QTableD3`.
+     * @param colSize The number of columns in the resulting `QTableD3`.
+     * @param layerSize The number of layers in the resulting `QTableD3`.
+     * @param actionSize The number of possible actions in the resulting `QTableD3`.
+     * @return A new `QTableD3` instance with the specified dimensions and the same underlying data and properties.
      */
-    fun asQTableD3(vararg shape: Int): QTableD3 =
+    fun asQTableD3(rowSize: Int,
+                   colSize: Int,
+                   layerSize: Int,
+                   actionSize: Int): QTableD3 =
         QTableD3(
-            shape = shape,
+            rowSize = rowSize,
+            colSize = colSize,
+            layerSize = layerSize,
+            actionSize = actionSize,
             deterministic = deterministic,
             tolerance = tolerance,
             defaultQValue = defaultQValue
@@ -164,19 +232,30 @@ class QTableD2(
         }
 
     /**
-     * Converts the current instance of `QTableD2` into a `QTableD4` with the specified shape.
+     * Converts the current `QTableD2` instance into a four-dimensional `QTableD4` instance with the specified shape.
      *
-     * The resulting `QTableD4` instance will have the updated shape and dimensionality while preserving
-     * the underlying data and properties such as determinism, tolerance, and default Q-value.
-     * This method ensures that the newly created instance shares the same Q-table data as the original.
+     * The resulting `QTableD4` instance retains the same data and properties, including determinism, tolerance,
+     * and default Q-value, while restructuring the data into a four-dimensional table. The underlying data
+     * is copied into the new instance.
      *
-     * @param shape The shape of the resulting `QTableD4`. This must consist of exactly 5 dimensions.
-     * @return A new instance of `QTableD4` with the specified shape and the same underlying properties and data.
-     * @throws IllegalArgumentException If the provided shape does not have exactly 5 dimensions.
+     * @param rowSize The number of rows in the resulting `QTableD4`.
+     * @param colSize The number of columns in the resulting `QTableD4`.
+     * @param layerSize The number of layers in the resulting `QTableD4`.
+     * @param featureSize The number of features in the resulting `QTableD4`.
+     * @param actionSize The number of possible actions in the resulting `QTableD4`.
+     * @return A new `QTableD4` instance with the specified dimensions and the same underlying data and properties.
      */
-    fun asQTableD4(vararg shape: Int): QTableD4 =
+    fun asQTableD4(rowSize: Int,
+                   colSize: Int,
+                   layerSize: Int,
+                   featureSize: Int,
+                   actionSize: Int): QTableD4 =
         QTableD4(
-            shape = shape,
+            rowSize = rowSize,
+            colSize = colSize,
+            layerSize = layerSize,
+            featureSize = featureSize,
+            actionSize = actionSize,
             deterministic = deterministic,
             tolerance = tolerance,
             defaultQValue = defaultQValue
@@ -185,18 +264,29 @@ class QTableD2(
         }
 
     /**
-     * Converts the current `QTableD2` instance into a `QTableD5` instance with the specified shape.
+     * Converts the current object into a QTableD5 instance with the specified dimensions and configuration.
      *
-     * The resulting `QTableD5` instance will maintain the same data and properties, such as determinism,
-     * tolerance, and default Q-value, while updating the structure and dimensionality to a 6-dimensional Q-table.
-     *
-     * @param shape The shape of the new `QTableD5` instance. It must consist of exactly 6 dimensions.
-     * @return A new `QTableD5` instance with the specified shape and the same underlying data and properties.
-     * @throws IllegalArgumentException If the provided shape does not have exactly 6 dimensions.
+     * @param rowSize The size of the rows in the QTableD5.
+     * @param colSize The size of the columns in the QTableD5.
+     * @param layerSize The size of the layers in the QTableD5.
+     * @param featureSize The size of the features in the QTableD5.
+     * @param channelSize The size of the channels in the QTableD5.
+     * @param actionSize The number of actions represented in the QTableD5.
+     * @return A QTableD5 instance configured with the input dimensions and properties.
      */
-    fun asQTableD5(vararg shape: Int): QTableD5 =
+    fun asQTableD5(rowSize: Int,
+                   colSize: Int,
+                   layerSize: Int,
+                   featureSize: Int,
+                   channelSize: Int,
+                   actionSize: Int): QTableD5 =
         QTableD5(
-            shape = shape,
+            rowSize = rowSize,
+            colSize = colSize,
+            layerSize = layerSize,
+            featureSize = featureSize,
+            channelSize = channelSize,
+            actionSize = actionSize,
             deterministic = deterministic,
             tolerance = tolerance,
             defaultQValue = defaultQValue
@@ -205,13 +295,11 @@ class QTableD2(
         }
 
     /**
-     * Converts the current `QTableD2` instance into a `QTableDN` instance with the specified shape.
+     * Converts the current object into a QTableDN with the provided shape and
+     * copies the data from the base table into the new QTableDN instance.
      *
-     * The resulting `QTableDN` instance will inherit the same data and properties, such as determinism,
-     * tolerance, and default Q-value, while allowing for an arbitrary dimensional shape.
-     *
-     * @param shape The shape of the new `QTableDN` instance, specified as a variable number of dimensions.
-     * @return A new `QTableDN` instance with the specified shape and the same underlying data and properties.
+     * @param shape Variadic parameter representing the dimensions of the QTableDN.
+     * @return A QTableDN instance with the specified shape and copied data.
      */
     fun asQTableDN(vararg shape: Int): QTableDN =
         QTableDN(

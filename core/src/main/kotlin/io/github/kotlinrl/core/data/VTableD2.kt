@@ -1,29 +1,43 @@
 package io.github.kotlinrl.core.data
 
 import io.github.kotlinrl.core.*
+import org.jetbrains.kotlinx.multik.api.*
 import org.jetbrains.kotlinx.multik.ndarray.data.*
-import org.jetbrains.kotlinx.multik.ndarray.operations.toIntArray
+import org.jetbrains.kotlinx.multik.ndarray.operations.*
 
 /**
- * Represents a two-dimensional implementation of an enumerable value function.
- * This class allows storing and managing state-value pairs for an environment
- * where the state space has a fixed two-dimensional shape.
+ * A two-dimensional value table (VTable) implementation that defines a mapping of states to values.
+ * The class provides utilities for accessing, updating, and transforming the table structure while
+ * maintaining compatibility with various dimensional formats.
  *
- * @constructor Initializes a new instance with the specified shape.
- * The shape must consist of exactly two dimensions.
- *
- * @param shape The dimensions for the two-dimensional state space.
- *
- * @throws IllegalArgumentException If the shape does not contain exactly two dimensions.
+ * @constructor Creates a two-dimensional VTable instance with a predefined row and column size.
+ * @param rowSize Number of rows in the table.
+ * @param colSize Number of columns in the table.
  */
 class VTableD2(
-    vararg val shape: Int
+    rowSize: Int,
+    colSize: Int,
 ) : EnumerableValueFunction<NDArray<Int, D1>> {
 
-    init {
-        require(shape.size == 2) { "VTableD2 shape requires exactly 2 arguments" }
-    }
+    /**
+     * Represents the shape of the underlying data structure in the VTable, defined as a two-dimensional array.
+     *
+     * The `shape` variable is an integer array containing two elements:
+     * - The number of rows in the table.
+     * - The number of columns in the table.
+     *
+     * This variable is used to define the dimensions of the VTable for operations such as data access,
+     * updates, and conversions to other VTable formats.
+     */
+    val shape = intArrayOf(rowSize, colSize)
 
+    /**
+     * Represents the base data structure of the VTableD2 instance.
+     *
+     * This internal value is an instance of `VTableDN` initialized with the shape specified by
+     * the `shape` property of the containing `VTableD2` class. It serves as the underlying
+     * data table that manages and manipulates state and value mappings.
+     */
     internal val base = VTableDN(shape = shape)
 
     /**
@@ -36,15 +50,35 @@ class VTableD2(
         base[state.asDNArray()]
 
     /**
-     * Updates the VTable with a new value for the specified state.
+     * Retrieves the value at the specified row and column in the VTable.
+     *
+     * @param row The row index to access.
+     * @param col The column index to access.
+     * @return The `Double` value stored at the specified row and column.
+     */
+    operator fun get(row: Int, col: Int): Double =
+        this[mk.ndarray(mk[row, col])]
+
+    /**
+     * Updates the VTable by setting the specified value at the given state.
      *
      * @param state The state represented as an NDArray of integers with one dimension (D1).
-     * @param value The new value to associate with the given state.
-     * @return A new instance of EnumerableValueFunction with the updated state-value mapping.
+     * @param value The new value to set for the given state.
+     * @return A new instance of VTableD2 with the updated state.
      */
-    override fun update(state: NDArray<Int, D1>, value: Double): EnumerableValueFunction<NDArray<Int, D1>> =
+    override fun update(state: NDArray<Int, D1>, value: Double): VTableD2 =
         copy().also { it.base.table[state.toIntArray()] = value }
 
+    /**
+     * Updates the VTable by setting a specific value at the given row and column.
+     *
+     * @param row The row index to update.
+     * @param col The column index to update.
+     * @param value The new value to set at the specified row and column.
+     * @return A new instance of VTableD2 with the updated state.
+     */
+    fun update(row: Int, col: Int, value: Double): VTableD2 =
+        update(mk.ndarray(mk[row, col]), value)
 
     /**
      * Retrieves all possible states represented as one-dimensional NDArray objects (D1).
@@ -68,7 +102,7 @@ class VTableD2(
      * @return A new `VTableD2` instance with the same structure and data as the original.
      */
     fun copy(): VTableD2 =
-        VTableD2(*shape).also {
+        VTableD2(rowSize = shape[0], colSize = shape[1]).also {
             base.table.data.copyInto(it.base.table.data)
         }
 
@@ -99,41 +133,77 @@ class VTableD2(
     fun print() = base.print()
 
     /**
-     * Converts the current VTableD2 instance into a new VTableD3 instance with the specified shape.
-     * Copies the internal data from the current VTableD2 instance into the created VTableD3 instance.
+     * Converts the current `VTableD2` instance into a `VTableD3` with the specified dimensions.
+     * Copies the internal data from the current instance into the new `VTableD3` instance.
      *
-     * @param shape The shape of the new VTableD3 instance. Must contain exactly 3 integer dimensions.
-     * @return A new VTableD3 instance with the specified shape, containing data copied from the current instance.
-     * @throws IllegalArgumentException If the provided shape does not have exactly 3 dimensions.
+     * @param rowSize The number of rows in the resulting `VTableD3`.
+     * @param colSize The number of columns in the resulting `VTableD3`.
+     * @param layerSize The number of layers in the resulting `VTableD3`.
+     * @return A new `VTableD3` instance with the specified dimensions, containing data copied from the current instance.
      */
-    fun asVTable3(vararg shape: Int): VTableD3 =
-        VTableD3(*shape).also {
+    fun asVTable3(
+        rowSize: Int,
+        colSize: Int,
+        layerSize: Int
+    ): VTableD3 =
+        VTableD3(
+            rowSize = rowSize,
+            colSize = colSize,
+            layerSize = layerSize
+        ).also {
             base.table.data.copyInto(it.base.table.data)
         }
 
     /**
-     * Converts the current instance into a new `VTableD4` with the specified shape.
-     * Copies the internal data from the current instance into the new `VTableD4` instance.
+     * Converts the current instance into a `VTableD4` with the specified dimensions.
+     * Copies the internal data from the current instance into the new `VTableD4`.
      *
-     * @param shape The shape of the new `VTableD4` instance. Must contain exactly 4 integer dimensions.
-     * @return A new `VTableD4` instance with the specified shape, containing data copied from the current instance.
-     * @throws IllegalArgumentException If the provided shape does not have exactly 4 dimensions.
+     * @param rowSize The size of the rows in the resulting `VTableD4`.
+     * @param colSize The size of the columns in the resulting `VTableD4`.
+     * @param layerSize The number of layers in the resulting `VTableD4`.
+     * @param featureSize The number of features in the resulting `VTableD4`.
+     * @return A new `VTableD4` instance with the specified dimensions, containing data copied from the current instance.
      */
-    fun asVTable4(vararg shape: Int): VTableD4 =
-        VTableD4(*shape).also {
+    fun asVTable4(
+        rowSize: Int,
+        colSize: Int,
+        layerSize: Int,
+        featureSize: Int
+    ): VTableD4 =
+        VTableD4(
+            rowSize = rowSize,
+            colSize = colSize,
+            layerSize = layerSize,
+            featureSize = featureSize
+        ).also {
             base.table.data.copyInto(it.base.table.data)
         }
 
     /**
-     * Converts the current instance into a new `VTableD5` with the specified shape.
+     * Converts the current instance into a new `VTableD5` with the specified dimensions.
      * Copies the internal data from the current instance into the new `VTableD5` instance.
      *
-     * @param shape The shape of the new `VTableD5` instance. Must contain exactly 4 integer dimensions.
-     * @return A new `VTableD5` instance with the specified shape, containing data copied from the current instance.
-     * @throws IllegalArgumentException If the provided shape does not have exactly 4 dimensions.
+     * @param rowSize The size of the rows in the resulting `VTableD5`.
+     * @param colSize The size of the columns in the resulting `VTableD5`.
+     * @param layerSize The number of layers in the resulting `VTableD5`.
+     * @param featureSize The number of features in the resulting `VTableD5`.
+     * @param channelSize The number of channels in the resulting `VTableD5`.
+     * @return A new `VTableD5` instance with the specified dimensions, containing data copied from the current instance.
      */
-    fun asVTable5(vararg shape: Int): VTableD5 =
-        VTableD5(*shape).also {
+    fun asVTable5(
+        rowSize: Int,
+        colSize: Int,
+        layerSize: Int,
+        featureSize: Int,
+        channelSize: Int
+    ): VTableD5 =
+        VTableD5(
+            rowSize = rowSize,
+            colSize = colSize,
+            layerSize = layerSize,
+            featureSize = featureSize,
+            channelSize = channelSize
+        ).also {
             base.table.data.copyInto(it.base.table.data)
         }
 

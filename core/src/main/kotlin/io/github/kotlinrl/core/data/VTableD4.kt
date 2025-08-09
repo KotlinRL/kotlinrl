@@ -1,28 +1,45 @@
 package io.github.kotlinrl.core.data
 
 import io.github.kotlinrl.core.*
+import org.jetbrains.kotlinx.multik.api.mk
+import org.jetbrains.kotlinx.multik.api.ndarray
 import org.jetbrains.kotlinx.multik.ndarray.data.*
 import org.jetbrains.kotlinx.multik.ndarray.operations.toIntArray
 
 /**
- * A specialized implementation of `EnumerableValueFunction` for 4-dimensional state spaces,
- * represented as `NDArray<Int, D3>`. This class encapsulates a value table for states with
- * exactly 4 dimensions and provides operations to retrieve, update, and save state values.
+ * A class representing a 4-dimensional value table. This class organizes data in a multidimensional array
+ * with dimensions defined by rows, columns, layers, and features. It extends the `EnumerableValueFunction`
+ * interface for multidimensional states represented as `NDArray<Int, D3>`.
  *
- * @constructor
- * Initializes the instance with the specified shape. The shape must include exactly 4 dimensions.
- * Throws an `IllegalArgumentException` if the shape does not contain exactly 4 arguments.
- *
- * @property shape The dimensions of the 4-dimensional state space.
+ * @constructor Initializes the 4-dimensional value table with the specified dimensions for rows, columns, layers, and features.
+ * @param rowSize The number of rows in the value table.
+ * @param colSize The number of columns in the value table.
+ * @param layerSize The number of layers in the value table.
+ * @param featureSize The number of features in the value table.
  */
 class VTableD4(
-    vararg val shape: Int
+    rowSize: Int,
+    colSize: Int,
+    layerSize: Int,
+    featureSize: Int
 ) : EnumerableValueFunction<NDArray<Int, D3>> {
 
-    init {
-        require(shape.size == 4) { "VTableD4 shape requires exactly 4 arguments" }
-    }
+    /**
+     * Defines the shape of the 4-dimensional table in the form of an integer array.
+     * The dimensions are represented as `[rowSize, colSize, layerSize, featureSize]`.
+     *
+     * - `rowSize`: Represents the number of rows in the table.
+     * - `colSize`: Represents the number of columns in the table.
+     * - `layerSize`: Represents the number of layers in the table.
+     * - `featureSize`: Represents the number of features in the table.
+     */
+    val shape = intArrayOf(rowSize, colSize, layerSize, featureSize)
 
+    /**
+     * Represents the base value for the `VTableD4` instance.
+     * This is an internal property initialized as a `VTableDN` with the same shape as the `VTableD4` object.
+     * It serves as a foundational data structure within the multidimensional value table system.
+     */
     internal val base = VTableDN(shape = shape)
 
     /**
@@ -31,19 +48,47 @@ class VTableD4(
      * @param state The 4-dimensional state to retrieve the value for. Must be an instance of `NDArray<Int, D3>`.
      * @return The value associated with the provided state as a `Double`.
      */
-    override fun get(state: NDArray<Int, D3>): Double =
+    override operator fun get(state: NDArray<Int, D3>): Double =
         base[state.asDNArray()]
 
     /**
-     * Updates the value associated with a given 4-dimensional state represented as `NDArray<Int, D3>`.
-     * The updated value is stored in the internal table of the copied instance of the VTableD4 object.
+     * Retrieves the value at the specified 4-dimensional position.
      *
-     * @param state The 4-dimensional state to be updated. Must be an instance of `NDArray<Int, D3>`.
-     * @param value The new value to associate with the provided state.
-     * @return A new instance of `EnumerableValueFunction<NDArray<Int, D3>>` with the updated value.
+     * @param row The row index of the desired position.
+     * @param col The column index of the desired position.
+     * @param layer The layer index of the desired position.
+     * @param feature The feature index of the desired position.
+     * @return The value at the specified position as a Double.
      */
-    override fun update(state: NDArray<Int, D3>, value: Double): EnumerableValueFunction<NDArray<Int, D3>> =
+    operator fun get(row: Int, col: Int, layer: Int, feature: Int): Double =
+        this[mk.ndarray(mk[mk[mk[row, col, layer, feature]]])]
+
+
+    /**
+     * Updates the value associated with the specified 4-dimensional state in this `VTableD4` instance.
+     * The state is identified by an `NDArray` of integers, and the provided value is applied at the mapped position.
+     * A new instance of `VTableD4` with the updated value is returned.
+     *
+     * @param state The 4-dimensional state to update, represented as an `NDArray<Int, D3>` instance.
+     * @param value The new value to assign to the specified state.
+     * @return A new `VTableD4` instance containing the updated value at the specified state.
+     */
+    override fun update(state: NDArray<Int, D3>, value: Double): VTableD4 =
         copy().also { it.base.table[state.toIntArray()] = value }
+
+    /**
+     * Updates the value at the specified 4-dimensional position (row, column, layer, feature)
+     * with the given value. The result is a new instance of `VTableD4` with the updated value.
+     *
+     * @param row The row index of the position to update.
+     * @param col The column index of the position to update.
+     * @param layer The layer index of the position to update.
+     * @param feature The feature index of the position to update.
+     * @param value The new value to assign to the specified position.
+     * @return A new `VTableD4` instance with the updated value.
+     */
+    fun update(row: Int, col: Int, layer: Int, feature: Int, value: Double): VTableD4 =
+        update(mk.ndarray(mk[mk[mk[row, col, layer, feature]]]), value)
 
     /**
      * Retrieves all possible 3-dimensional states represented as `NDArray<Int, D3>`.
@@ -69,7 +114,12 @@ class VTableD4(
      * @return A new `VTableD4` instance with copied internal data.
      */
     fun copy(): VTableD4 =
-        VTableD4(*shape).also {
+        VTableD4(
+            rowSize = shape[0],
+            colSize = shape[1],
+            layerSize = shape[2],
+            featureSize = shape[3]
+        ).also {
             base.table.data.copyInto(it.base.table.data)
         }
 
@@ -98,15 +148,29 @@ class VTableD4(
     fun print() = base.print()
 
     /**
-     * Converts the current `VTableD4` instance into a `VTableD5` instance with the specified shape.
-     * The method initializes a new `VTableD5` object, copies the data from the current table into the new table,
-     * and returns the created instance.
+     * Converts the current 4-dimensional `VTableD4` instance into a 5-dimensional `VTableD5` instance.
+     * The method creates a new `VTableD5` object with the specified dimensions, copies the data
+     * from the current table into the new table, and returns the created instance.
      *
-     * @param shape The dimensions for the new VTableD5. The provided arguments must form a valid 4-dimensional shape.
-     * @return A new instance of `VTableD5` with the specified shape and copied data from the current instance.
+     * @param rowSize The size of the first dimension (rows) of the new `VTableD5` instance.
+     * @param colSize The size of the second dimension (columns) of the new `VTableD5` instance.
+     * @param layerSize The size of the third dimension (layers) of the new `VTableD5` instance.
+     * @param featureSize The size of the fourth dimension (features) of the new `VTableD5` instance.
+     * @param channelSize The size of the fifth dimension (channels) of the new `VTableD5` instance.
+     * @return A `VTableD5` instance with the specified dimensions and the data copied from the current `VTableD4` instance.
      */
-    fun asVTable5(vararg shape: Int): VTableD5 =
-        VTableD5(*shape).also {
+    fun asVTable5(rowSize: Int,
+                  colSize: Int,
+                  layerSize: Int,
+                  featureSize: Int,
+                  channelSize: Int): VTableD5 =
+        VTableD5(
+            rowSize = rowSize,
+            colSize = colSize,
+            layerSize = layerSize,
+            featureSize = featureSize,
+            channelSize = channelSize
+            ).also {
             base.table.data.copyInto(it.base.table.data)
         }
 
