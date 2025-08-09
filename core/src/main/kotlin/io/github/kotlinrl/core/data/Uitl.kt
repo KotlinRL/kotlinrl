@@ -20,8 +20,8 @@ internal fun mk.writeCsvSafely(path: String, ndarray: NDArray<Double, DN>): Unit
     CSVFormat.DEFAULT.print(FileWriter(path)).use { printer ->
         val shape = ndarray.shape
         val dim = ndarray.dim
-        when (dim) {
-            D1 -> ndarray.forEach { printer.printRecord(it) }
+        when (dim.d) {
+            1 -> ndarray.forEach { printer.printRecord(it) }
             else -> {
                 val numRows = shape.dropLast(1).reduce(Int::times)
                 val rowLength = shape.last()
@@ -45,6 +45,8 @@ internal fun mk.writeCsvSafely(path: String, ndarray: NDArray<Double, DN>): Unit
  * @throws IOException If an error occurs while reading the file.
  */
 internal fun mk.readCsvSafely(path: String): NDArray<Double, DN> {
+    if(File(path).exists().not()) throw IllegalArgumentException("File does not exist")
+
     val data = mutableListOf<DoubleArray>()
 
     CSVFormat.DEFAULT.parse(FileReader(path)).use { parser ->
@@ -53,9 +55,33 @@ internal fun mk.readCsvSafely(path: String): NDArray<Double, DN> {
 
     val colCount = data.firstOrNull()?.size ?: 0
 
+    require(data.isNotEmpty()) {
+        "File is empty, cannot read CSV"
+    }
+
     require(data.all { it.size == colCount }) {
         "Inconsistent number of columns in CSV"
     }
 
     return mk.ndarray(data.toTypedArray()).asDNArray()
+}
+
+/**
+ * Converts a flat integer array `index` into a nested multi-dimensional array (NDArray)
+ * with the specified rank.
+ *
+ * @param index The input array of integers to be converted into a nested NDArray.
+ * @param rank The number of dimensions (rank) for the resulting NDArray.
+ * @return A nested NDArray of integers with the specified rank.
+ */
+fun toNestedNDArray(index: IntArray, rank: Int): NDArray<Int, DN> {
+    return when (rank) {
+        1 -> mk.ndarray(mk[index[0]]).asDNArray()
+        2 -> mk.ndarray(mk[index[0], index[1]]).asDNArray()
+        3 -> mk.ndarray(mk[mk[index[0], index[1], index[2]]]).asDNArray()
+        4 -> mk.ndarray(mk[mk[mk[index[0], index[1], index[2], index[3]]]]).asDNArray()
+        5 -> mk.ndarray(mk[mk[mk[mk[index[0], index[1], index[2], index[3], index[4]]]]]).asDNArray()
+        else -> mk.ndarray(index).reshape(index[0], index[1], index[2],
+            index[3], *index.copyOfRange(4, index.size)).asDNArray()
+    }
 }

@@ -1,31 +1,54 @@
 package io.github.kotlinrl.core.data
 
 import io.github.kotlinrl.core.*
+import org.jetbrains.kotlinx.multik.api.mk
+import org.jetbrains.kotlinx.multik.api.ndarray
 import org.jetbrains.kotlinx.multik.ndarray.data.*
-import org.jetbrains.kotlinx.multik.ndarray.operations.toIntArray
+import org.jetbrains.kotlinx.multik.ndarray.operations.*
 
 /**
- * Represents a specialized value table for a 4-dimensional state space with an additional shape-level abstraction.
- * This class is designed to store and manage value functions for states represented as `NDArray<Int, D4>`.
- * It provides operations to access, update, and manipulate the values associated with each state in an enumerable state space.
+ * A multi-dimensional table representation with 5 dimensions. Each dimension is specified
+ * by its size upon initialization. The class provides methods to retrieve, update, and manipulate
+ * values based on the table's 5-dimensional structure.
  *
- * This table is a specific extension of `VTableDN`, which supports arbitrary-dimensional state spaces.
- * The implementation enforces a shape of size 4 for the state space and maps into a general-purpose `VTableDN` for internal operations.
+ * This implementation stores data in an underlying `VTableDN` instance and supports operations
+ * such as querying maximum values, retrieving all states, saving and loading table data, and
+ * converting the table into a more generalized representation.
  *
- * @constructor Initializes a new instance of the `VTableD5` class with the specified shape.
- * The provided shape must be an array of 4 integers.
- * @param shape The dimensions of the `VTableD5`. Must contain exactly 4 integers.
- *
- * @throws IllegalArgumentException If the provided shape does not have exactly 4 integers.
+ * @param rowSize The size of the row dimension of the table.
+ * @param colSize The size of the column dimension of the table.
+ * @param layerSize The size of the layer dimension of the table.
+ * @param featureSize The size of the feature dimension of the table.
+ * @param channelSize The size of the channel dimension of the table.
  */
 class VTableD5(
-    vararg val shape: Int
+    rowSize: Int,
+    colSize: Int,
+    layerSize: Int,
+    featureSize: Int,
+    channelSize: Int
 ) : EnumerableValueFunction<NDArray<Int, D4>> {
 
-    init {
-        require(shape.size == 4) { "VTableD5 shape requires exactly 4 arguments" }
-    }
+    /**
+     * Represents the shape of a 5-dimensional data structure in the form of an integer array.
+     *
+     * Each element in the array corresponds to the size of a specific dimension:
+     * - The first element (`rowSize`) defines the number of rows.
+     * - The second element (`colSize`) defines the number of columns.
+     * - The third element (`layerSize`) defines the number of layers.
+     * - The fourth element (`featureSize`) defines the number of features.
+     * - The fifth element (`channelSize`) defines the number of channels.
+     */
+    val shape = intArrayOf(rowSize, colSize, layerSize, featureSize, channelSize)
 
+    /**
+     * Represents the underlying base table data structure used by the `VTableD5` class.
+     * This internal value is initialized as a `VTableDN` instance with a shape corresponding
+     * to the dimensions of the current multi-dimensional table.
+     *
+     * This field provides the storage mechanism for the table and supports operations such as retrieving,
+     * updating, and transforming table data.
+     */
     internal val base = VTableDN(shape = shape)
 
     /**
@@ -34,19 +57,48 @@ class VTableD5(
      * @param state The NDArray representing the state for which the value is to be retrieved.
      * @return The value corresponding to the provided state as a Double.
      */
-    override fun get(state: NDArray<Int, D4>): Double =
+    override operator fun get(state: NDArray<Int, D4>): Double =
         base[state.asDNArray()]
 
     /**
-     * Updates the value associated with the given state in the underlying data structure
-     * and returns an updated instance of `EnumerableValueFunction`.
+     * Retrieves the value at the specified multi-dimensional coordinates in the table.
      *
-     * @param state The NDArray representing the state for which the value is to be updated.
-     * @param value The new value to associate with the given state.
-     * @return An updated instance of `EnumerableValueFunction<NDArray<Int, D4>>` reflecting the changes.
+     * @param row The index of the row dimension.
+     * @param col The index of the column dimension.
+     * @param layer The index of the layer dimension.
+     * @param feature The index of the feature dimension.
+     * @param channel The index of the channel dimension.
+     * @return The value located at the specified coordinates as a Double.
      */
-    override fun update(state: NDArray<Int, D4>, value: Double): EnumerableValueFunction<NDArray<Int, D4>> =
+    operator fun get(row: Int, col: Int, layer: Int, feature: Int, channel: Int): Double =
+        this[mk.ndarray(mk[mk[mk[mk[row, col, layer, feature, channel]]]])]
+
+    /**
+     * Updates the value at the specified state in the underlying data structure and returns
+     * an updated instance of `VTableD5`.
+     *
+     * @param state The NDArray representing the state to be updated. The indices in the array
+     * correspond to the multi-dimensional coordinates of the table.
+     * @param value The new value to be set at the specified state.
+     * @return An updated instance of `VTableD5` reflecting the change in value at the specified state.
+     */
+    override fun update(state: NDArray<Int, D4>, value: Double): VTableD5 =
         copy().also { it.base.table[state.toIntArray()] = value }
+
+    /**
+     * Updates the value at the specified multi-dimensional coordinates in the underlying data structure
+     * and returns an updated instance of `VTableD5`.
+     *
+     * @param row The index of the row dimension.
+     * @param col The index of the column dimension.
+     * @param layer The index of the layer dimension.
+     * @param feature The index of the feature dimension.
+     * @param channel The index of the channel dimension.
+     * @param value The new value to associate with the specified location.
+     * @return An updated instance of `VTableD5` reflecting the changes at the specified location.
+     */
+    fun update(row: Int, col: Int, layer: Int, feature: Int, channel: Int, value: Double): VTableD5 =
+        update(mk.ndarray(mk[mk[mk[mk[row, col, layer, feature, channel]]]]), value)
 
     /**
      * Retrieves all possible states represented as a list of 4-dimensional NDArrays.
@@ -76,7 +128,13 @@ class VTableD5(
      * @return A new `VTableD5` instance that is a copy of the current object.
      */
     fun copy(): VTableD5 =
-        VTableD5(*shape).also {
+        VTableD5(
+            rowSize = shape[0],
+            colSize = shape[1],
+            layerSize = shape[2],
+            featureSize = shape[3],
+            channelSize = shape[4]
+        ).also {
             base.table.data.copyInto(it.base.table.data)
         }
 

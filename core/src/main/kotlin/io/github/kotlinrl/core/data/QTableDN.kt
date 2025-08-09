@@ -8,53 +8,52 @@ import org.jetbrains.kotlinx.multik.ndarray.operations.*
 import kotlin.math.*
 
 /**
- * Represents a Q-table implementation for deterministic or non-deterministic environments
- * where states and actions are described as an NDArray of integers. The table organizes
- * Q-values as an NDArray with a shape derived from the input dimensions, where the last
- * dimension corresponds to actions.
+ * A Q-table representation for reinforcement learning with support for multidimensional states
+ * using `NDArray` data structures. The `QTableDN` class provides methods for managing state-action
+ * relationships, calculating optimal actions, and updating the `Q-values`, while supporting both deterministic
+ * and non-deterministic behavior.
  *
- * @constructor Initializes a Q-table with a given shape, a deterministic or probabilistic
- * selection strategy for actions, a tolerance for approximate matches, and an optional
- * default Q-value.
- *
- * @param shape The dimensions of the Q-table, where the last dimension corresponds to the
- * available actions. Requires at least 2 dimensions (state dimensions + actions).
- * @param deterministic If `true`, selects actions deterministically based on the highest
- * Q-value. If `false`, considers approximate matches based on the tolerance.
- * @param tolerance If `deterministic` is `false`, allows actions within this range of the
- * highest Q-value to be considered equivalently.
- * @param defaultQValue The default Q-value assigned to all state-action pairs at initialization.
- *
- * @throws IllegalArgumentException if the shape has fewer than 2 dimensions.
+ * @property shape The dimensions of the Q-table, where the last dimension represents the action space.
+ * @property deterministic Indicates whether the `bestAction` method selects the action deterministically or
+ * considers probabilistic action selection with tolerance.
+ * @property tolerance A tolerance value used when selecting actions probabilistically. It determines how similar
+ * Q-values should be considered when choosing among near-optimal actions in non-deterministic mode.
+ * @property defaultQValue The default value assigned to Q-value entries in the table when initialized.
  */
 class QTableDN(
     vararg val shape: Int,
-    private val deterministic: Boolean = true,
-    private val tolerance: Double = 1e-6,
-    private val defaultQValue: Double = 0.0
+    val deterministic: Boolean = true,
+    val tolerance: Double = 1e-6,
+    val defaultQValue: Double = 0.0
 ) : EnumerableQFunction<NDArray<Int, DN>, Int> {
 
     init {
         require(shape.size >= 2) { "QTableDN shape requires at least 2 arguments" }
     }
 
+    /**
+     * Represents a multidimensional array used to store Q-values for state-action pairs in the Q-learning algorithm.
+     * The array is initialized with default Q-values and follows a shape defined by the state and action dimensions.
+     *
+     * This variable is internal to the `QTableDN` class and is accessed and modified through various methods
+     * to perform operations such as retrieving Q-values, updating specific entries, and converting the Q-table.
+     */
     internal var table: NDArray<Double, DN> = mk.dnarray<Double, DN>(shape) { defaultQValue }.asDNArray()
 
     /**
-     * Converts the current Q-table into a value function representation.
+     * Converts the current QTableDN instance into a VTableDN instance by computing the maximum
+     * Q-value for each state across all possible actions.
      *
-     * The method iterates over all states, computes the maximum Q-value for each state,
-     * and stores these as values in a value function.
-     *
-     * @return An instance of `EnumerableValueFunction` containing the maximum Q-values for all states.
+     * @return A new VTableDN instance where each state's value is defined as the maximum Q-value
+     *         for that state in the current Q-table.
      */
     @Suppress("DuplicatedCode")
-    override fun toV(): EnumerableValueFunction<NDArray<Int, DN>> {
+    override fun toV(): VTableDN {
         val Q = (if (deterministic) this else copy(true))
         val shape = Q.shape.dropLast(1).toIntArray()
         var V = VTableDN(shape = shape)
         for (state in allStates()) {
-            V = V.update(state, Q.maxValue(state)) as VTableDN
+            V = V.update(state, Q.maxValue(state))
         }
         return V
     }
@@ -70,6 +69,15 @@ class QTableDN(
         table[state.toIntArray() + action]
 
     /**
+     * Retrieves an element from the internal Q-table based on the given state-action pair.
+     *
+     * @param stateAction A variable number of integers representing the state-action combination
+     *                    for which the Q-value needs to be fetched.
+     * @return The value associated with the specified state-action pair in the Q-table.
+     */
+    operator fun get(vararg stateAction: Int) = table[stateAction]
+
+    /**
      * Updates the Q-value for a specific state-action pair in the Q-table.
      *
      * @param state The state represented as an NDArray of integers.
@@ -81,7 +89,7 @@ class QTableDN(
         state: NDArray<Int, DN>,
         action: Int,
         value: Double
-    ): EnumerableQFunction<NDArray<Int, DN>, Int> =
+    ): QTableDN =
         copy().also { it.table[state.toIntArray() + action] = value }
 
     /**
@@ -91,9 +99,16 @@ class QTableDN(
      * @return A list of states, where each state is represented as an NDArray of integers.
      */
     override fun allStates(): List<NDArray<Int, DN>> {
-        val stateShape = shape.dropLast(1) // all but action dimension
-        val rawStates = cartesianProduct(*stateShape.map { 0 until it }.toTypedArray())
-        return rawStates.map { mk.ndarray(it).asDNArray() }
+        val stateShape = shape.dropLast(1).toIntArray()
+        val stateRank = stateShape.size
+        val allStates = mutableSetOf<NDArray<Int, DN>>()
+
+        for (index in table.multiIndices) {
+            val stateIndex = index.dropLast(1).toIntArray()
+            allStates += toNestedNDArray(stateIndex, stateRank)
+        }
+
+        return allStates.toList()
     }
 
     /**
@@ -103,8 +118,24 @@ class QTableDN(
      * @return An NDArray of doubles containing the Q-values for the given state.
      */
     private fun qValues(state: NDArray<Int, DN>): NDArray<Double, D1> {
-        val axes = IntArray(state.shape[0]) { it }
-        return table.view(state.toIntArray(), axes).asDNArray().asD1Array()
+        val idx = state.toIntArray()              // length should be stateRank (4 for QTableD5)
+        val stateRank = shape.size - 1            // last dim is actions
+
+        require(idx.size == stateRank) {
+            "State rank mismatch: got ${idx.size} indices but Q has $stateRank state dims. Q.shape=${shape.contentToString()}"
+        }
+
+        // Iteratively index each state axis; after each view, remaining state axes shift to axis 0
+        var slice = table
+        for (i in 0 until stateRank) {
+            slice = slice.view(index = idx[i], axis = 0).asDNArray()
+        }
+
+        // Now only the action dim should remain
+        require(slice.dim.d == 1) {
+            "Expected 1D action vector, got ${slice.dim.d}D with shape ${slice.shape.contentToString()}"
+        }
+        return slice.asDNArray().asD1Array()
     }
 
     /**
@@ -191,19 +222,4 @@ class QTableDN(
         ).also {
             table.data.copyInto(it.table.data)
         }
-
-    /**
-     * Computes the Cartesian product of multiple input ranges.
-     *
-     * This method takes a variable number of iterable ranges, where each range is an iterable collection of integers,
-     * and generates all possible combinations of integers, one from each range, arranged as arrays.
-     *
-     * @param ranges A variable number of iterable ranges, each representing a collection of integers.
-     * @return A list of integer arrays, where each array represents one combination of integers selected from the input ranges.
-     */
-    private fun cartesianProduct(vararg ranges: Iterable<Int>): List<IntArray> {
-        return ranges.fold(listOf(IntArray(0))) { acc, range ->
-            acc.flatMap { prefix -> range.map { i -> prefix + i } }
-        }
-    }
 }

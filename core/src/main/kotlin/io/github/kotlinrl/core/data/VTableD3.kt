@@ -1,27 +1,51 @@
 package io.github.kotlinrl.core.data
 
 import io.github.kotlinrl.core.*
+import org.jetbrains.kotlinx.multik.api.*
 import org.jetbrains.kotlinx.multik.ndarray.data.*
-import org.jetbrains.kotlinx.multik.ndarray.operations.toIntArray
+import org.jetbrains.kotlinx.multik.ndarray.operations.*
 
 /**
- * Represents a specialized 3-dimensional value table that conforms to the `EnumerableValueFunction` interface.
- * A `VTableD3` maintains an enumerable mapping of 3-dimensional states to their associated values.
- * Each state is represented by a 2-dimensional numerical array, and values are stored in a backing `VTableDN`.
+ * Represents a three-dimensional value table with operations and utilities for managing and transforming
+ * data within a structured grid-like format.
  *
- * @constructor Initializes the `VTableD3` with a specific shape.
- * The shape must have exactly three dimensions. Throws an exception if the size of `shape` is not 3.
+ * This class is designed to handle and manipulate three-dimensional data, with each dimension corresponding
+ * to rows, columns, and layers. It provides methods for data retrieval, updates, state enumeration, and
+ * dimensional transformations, serving use cases that require multi-dimensional numerical computation or analysis.
  *
- * @property shape The dimensions of the 3-dimensional value table.
+ * The underlying data structure for the value table is based on an internal implementation of `VTableDN`,
+ * and the class offers a range of operations optimized for three-dimensional contexts.
+ *
+ * @param rowSize The size of the first dimension representing the number of rows.
+ * @param colSize The size of the second dimension representing the number of columns.
+ * @param layerSize The size of the third dimension representing the number of layers.
  */
 class VTableD3(
-    vararg val shape: Int
+    rowSize: Int,
+    colSize: Int,
+    layerSize: Int
 ) : EnumerableValueFunction<NDArray<Int, D2>> {
 
-    init {
-        require(shape.size == 3) { "VTableD3 shape requires exactly 3 arguments" }
-    }
+    /**
+     * Represents the shape of the underlying 3-dimensional value table.
+     *
+     * This array specifies the dimensions of the value table, where:
+     * - The first element corresponds to the number of rows.
+     * - The second element corresponds to the number of columns.
+     * - The third element corresponds to the number of layers.
+     */
+    val shape = intArrayOf(rowSize, colSize, layerSize)
 
+    /**
+     * Represents the foundational data structure that supports the functionality of the VTableD3 class.
+     *
+     * Holds an instance of `VTableDN` initialized with the given shape. This serves as the underlying value table,
+     * enabling higher-dimensional operations and transformations within the context of the `VTableD3` class.
+     *
+     * The `base` variable provides core data manipulation capabilities, such as retrieving, updating, and transforming
+     * the value table across multiple dimensions. It is integral to the class's implementation and its ability to manage
+     * complex multi-dimensional state representations and operations.
+     */
     internal val base = VTableDN(shape = shape)
 
     /**
@@ -31,19 +55,43 @@ class VTableD3(
      *              for which the value is to be retrieved.
      * @return The value of type Double corresponding to the provided state.
      */
-    override fun get(state: NDArray<Int, D2>): Double =
+    override operator fun get(state: NDArray<Int, D2>): Double =
         base[state.asDNArray()]
 
     /**
-     * Updates the value in the value table for a specific 2-dimensional state.
+     * Retrieves the value from the value table at the specified row, column, and layer.
+     *
+     * @param row The row index of the value to be retrieved.
+     * @param col The column index of the value to be retrieved.
+     * @param layer The layer index of the value to be retrieved.
+     * @return The value of type Double at the specified row, column, and layer indices.
+     */
+    operator fun get(row: Int, col: Int, layer: Int): Double =
+        this[mk.ndarray(mk[mk[row, col, layer]])]
+
+    /**
+     * Updates the value in the value table for the specified 2-dimensional state.
      *
      * @param state The 2-dimensional numerical array (NDArray) representing the state
-     *              for which the value needs to be updated.
-     * @param value The new double value to be associated with the provided state.
-     * @return An updated instance of EnumerableValueFunction containing the updated value table.
+     *              whose value needs to be updated.
+     * @param value The new value to assign to the specified state.
+     * @return A new instance of VTableD3 with the updated value.
      */
-    override fun update(state: NDArray<Int, D2>, value: Double): EnumerableValueFunction<NDArray<Int, D2>> =
+    override fun update(state: NDArray<Int, D2>, value: Double): VTableD3 =
         copy().also { it.base.table[state.toIntArray()] = value }
+
+
+    /**
+     * Updates the value in the value table at the specified row, column, and layer with the given value.
+     *
+     * @param row The row index where the value needs to be updated.
+     * @param col The column index where the value needs to be updated.
+     * @param layer The layer index where the value needs to be updated.
+     * @param value The new value to be set at the specified position.
+     * @return A new instance of VTableD3 with the updated value.
+     */
+    fun update(row: Int, col: Int, layer: Int, value: Double): VTableD3 =
+        update(mk.ndarray(mk[mk[row, col, layer]]), value)
 
     /**
      * Retrieves all possible 2-dimensional states represented as NDArrays of integers.
@@ -71,7 +119,11 @@ class VTableD3(
      * @return A new instance of VTableD3 containing the same data as the current instance.
      */
     fun copy(): VTableD3 =
-        VTableD3(*shape).also {
+        VTableD3(
+            rowSize = shape[0],
+            colSize = shape[1],
+            layerSize = shape[2]
+        ).also {
             base.table.data.copyInto(it.base.table.data)
         }
 
@@ -108,30 +160,58 @@ class VTableD3(
     fun print() = base.print()
 
     /**
-     * Converts the current value table to a 4-dimensional value table (`VTableD4`) with the specified shape.
+     * Converts a 3-dimensional value table into a 4-dimensional value table with the specified dimensions.
      *
-     * Creates a new instance of `VTableD4` with the provided shape arguments. The internal data is copied
-     * from the current value table to the newly created value table.
+     * This method creates a new instance of `VTableD4` with the provided dimensions (`rowSize`, `colSize`, `layerSize`, `featureSize`).
+     * The internal data of the current value table is copied into the new instance to ensure consistency.
      *
-     * @param shape The dimensions for the 4-dimensional value table. Must contain exactly 4 arguments.
-     * @return A new instance of `VTableD4` representing the converted 4-dimensional value table.
-     */
-    fun asVTable4(vararg shape: Int): VTableD4 =
-        VTableD4(*shape).also {
+     * @param rowSize The size of the first dimension (rows) in the resulting 4-dimensional value table.
+     * @param colSize The size of the second dimension (columns) in the resulting 4-dimensional value table.
+     * @param layerSize The``` sizek ofotlin the
+    third*/
+    fun asVTable4(
+        rowSize: Int,
+        colSize: Int,
+        layerSize: Int,
+        featureSize: Int
+    ): VTableD4 =
+        VTableD4(
+            rowSize = rowSize,
+            colSize = colSize,
+            layerSize = layerSize,
+            featureSize = featureSize
+        ).also {
             base.table.data.copyInto(it.base.table.data)
         }
 
     /**
-     * Converts the current value table to a 5-dimensional value table (`VTableD5`) with the specified shape.
+     * Converts a 3-dimensional value table into a 5-dimensional value table with the specified dimensions.
      *
-     * This function creates a new instance of `VTableD5` with the provided shape arguments. The internal
-     * data from the current value table is copied into the new 5-dimensional value table instance.
+     * This method creates a new instance of `VTableD5` with the provided dimensions (`rowSize`, `colSize`,
+     * `layerSize`, `featureSize`, `channelSize`). The internal data of the current value table is copied
+     * into the new instance to ensure consistency.
      *
-     * @param shape The dimensions for the 5-dimensional value table. Must contain exactly 4 arguments.
+     * @param rowSize The size of the first dimension (rows) in the resulting 5-dimensional value table.
+     * @param colSize The size of the second dimension (columns) in the resulting 5-dimensional value table.
+     * @param layerSize The size of the third dimension (layers) in the resulting 5-dimensional value table.
+     * @param featureSize The size of the fourth dimension (features) in the resulting 5-dimensional value table.
+     * @param channelSize The size of the fifth dimension (channels) in the resulting 5-dimensional value table.
      * @return A new instance of `VTableD5` representing the converted 5-dimensional value table.
      */
-    fun asVTable5(vararg shape: Int): VTableD5 =
-        VTableD5(*shape).also {
+    fun asVTable5(
+        rowSize: Int,
+        colSize: Int,
+        layerSize: Int,
+        featureSize: Int,
+        channelSize: Int
+    ): VTableD5 =
+        VTableD5(
+            rowSize = rowSize,
+            colSize = colSize,
+            layerSize = layerSize,
+            featureSize = featureSize,
+            channelSize = channelSize
+        ).also {
             base.table.data.copyInto(it.base.table.data)
         }
 

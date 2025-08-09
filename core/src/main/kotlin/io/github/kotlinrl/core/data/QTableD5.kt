@@ -1,45 +1,81 @@
 package io.github.kotlinrl.core.data
 
 import io.github.kotlinrl.core.*
+import org.jetbrains.kotlinx.multik.api.*
 import org.jetbrains.kotlinx.multik.ndarray.data.*
 import org.jetbrains.kotlinx.multik.ndarray.operations.*
 
 /**
- * Represents a multi-dimensional Q-table implementation for reinforcement learning tasks with six dimensions.
+ * Represents a specific implementation of an enumerable Q-function for a Q-table
+ * with a 5-dimensional state-action space. It provides support for operations such as
+ * retrieving Q-values, updating Q-values, enumerating all possible states, and
+ * exporting to other related structures like value tables.
  *
- * This class provides functionality to represent, update, and manipulate Q-values associated with
- * state-action pairs and supports features like determining the best action, computing maximum Q-values, and
- * exporting/importing the table data. It extends the `EnumerableQFunction` interface, allowing the representation
- * of enumerable state spaces and providing efficient state-action value updates.
+ * @constructor
+ * Initializes a new instance of `QTableD5` with the specified shape, determinism,
+ * tolerance, and default Q-value.
  *
- * @constructor Initializes a QTableD5 object with the specified dimensions, deterministic behavior, tolerance, and
- * default Q-value for uninitialized entries.
- *
- * @param shape The dimensions of the Q-table as a vararg of integers. Must have exactly 6 entries.
- * @param deterministic A boolean flag indicating whether updates are deterministic. Defaults to true.
- * @param tolerance A double value specifying the tolerance for numerical comparisons. Defaults to 1e-6.
- * @param defaultQValue The default Q-value assigned to all state-action pairs during initialization. Defaults to 0.0.
+ * @param deterministic Indicates whether deterministic updates are enabled. Defaults to `true`.
+ * @param tolerance Specifies the tolerance level for numerical calculations. Defaults to `1e-6`.
+ * @param defaultQValue The initial default Q-value for all state-action pairs. Defaults to `0.0`.
  */
 class QTableD5(
-    vararg val shape: Int,
-    private val deterministic: Boolean = true,
-    private val tolerance: Double = 1e-6,
-    private val defaultQValue: Double = 0.0
+    rowSize: Int,
+    colSize: Int,
+    layerSize: Int,
+    featureSize: Int,
+    channelSize: Int,
+    actionSize: Int,
+    val deterministic: Boolean = true,
+    val tolerance: Double = 1e-6,
+    val defaultQValue: Double = 0.0
 ) : EnumerableQFunction<NDArray<Int, D4>, Int> {
 
-    init {
-        require(shape.size == 6) { "QTableD5 shape requires exactly 6 arguments" }
-    }
+    /**
+     * Represents the dimensional structure of the Q-table in a 6D space.
+     *
+     * The array defines the size of each dimension:
+     * - `rowSize`: The number of rows in the Q-table.
+     * - `colSize`: The number of columns in the Q-table.
+     * - `layerSize`: The number of layers in the Q-table.
+     * - `featureSize`: The number of features in the Q-table.
+     * - `channelSize`: The number of channels in the Q-table.
+     * - `actionSize`: The number of actions available per state.
+     */
+    val shape = intArrayOf(rowSize, colSize, layerSize, featureSize, channelSize, actionSize)
 
+    /**
+     * Represents the core data structure used for storing Q-values in the context of
+     * the QTableD5 class. This property is initialized with specific parameters
+     * including the shape, determinism, tolerance, and a default Q-value.
+     *
+     * Acts as the internal storage mechanism for Q-values, enabling operations
+     * such as querying, updating, and managing Q-values in a multi-dimensional
+     * state-action space.
+     *
+     * This property is immutable and encapsulates all fundamental behaviors
+     * necessary for Q-value management within the QTableD5 class.
+     */
     internal val base = QTableDN(shape = shape, deterministic, tolerance, defaultQValue)
 
+    /**
+     * Converts the current QTableD5 instance to a VTableD5 object by computing the maximum
+     * Q-value for all possible states and storing these values in a new VTableD5 instance.
+     *
+     * @return A VTableD5 instance where each state corresponds to the maximum Q-value
+     *         from the current QTableD5 instance.
+     */
     @Suppress("DuplicatedCode")
-    override fun toV(): EnumerableValueFunction<NDArray<Int, D4>> {
+    override fun toV(): VTableD5 {
         val Q = (if (deterministic) this else copy(true))
-        val shape = Q.shape.dropLast(1).toIntArray()
-        var V = VTableD5(shape = shape)
+        var V = VTableD5(
+            rowSize = Q.shape[0],
+            colSize = Q.shape[1],
+            layerSize = Q.shape[2],
+            featureSize = Q.shape[3],
+            channelSize = Q.shape[4])
         for (state in allStates()) {
-            V = V.update(state, Q.maxValue(state)) as VTableD5
+            V = V.update(state, Q.maxValue(state))
         }
         return V
     }
@@ -54,6 +90,20 @@ class QTableD5(
     override fun get(state: NDArray<Int, D4>, action: Int): Double = base[state.asDNArray(), action]
 
     /**
+     * Retrieves the Q-value corresponding to the specified state and action.
+     *
+     * @param row The row index of the state.
+     * @param col The column index of the state.
+     * @param layer The layer index of the state.
+     * @param feature The feature index of the state.
+     * @param channel The channel index of the state.
+     * @param action The action index for which the Q-value is requested.
+     * @return The Q-value as a Double for the specified state and action.
+     */
+    operator fun get(row: Int, col: Int, layer: Int, feature: Int, channel: Int, action: Int): Double =
+        this[mk.ndarray(mk[mk[mk[mk[row, col, layer, feature, channel]]]]), action]
+
+    /**
      * Updates the Q-value for a given state and action with the specified value.
      *
      * @param state The NDArray of type Int with 4 dimensions, representing the current state.
@@ -65,9 +115,23 @@ class QTableD5(
         state: NDArray<Int, D4>,
         action: Int,
         value: Double
-    ): EnumerableQFunction<NDArray<Int, D4>, Int> =
+    ): QTableD5 =
         copy().also { it.base.table[state.toIntArray() + action] = value }
 
+    /**
+     * Updates the Q-value for a specific state and action with the given value.
+     *
+     * @param row The row index of the state.
+     * @param col The column index of the state.
+     * @param layer The layer index of the state.
+     * @param feature The feature index of the state.
+     * @param channel The channel index of the state.
+     * @param action The action index for which the Q-value is updated.
+     * @param value The new Q-value to be set for the specified state and action.
+     * @return A new instance of QTableD5 with the updated Q-value applied.
+     */
+    fun update(row: Int, col: Int, layer: Int, feature: Int, channel: Int, action: Int, value: Double): QTableD5 =
+        update(mk.ndarray(mk[mk[mk[mk[row, col, layer, feature, channel]]]]), action, value)
 
     /**
      * Retrieves all possible states as a list of 4-dimensional NDArrays.
@@ -90,6 +154,19 @@ class QTableD5(
         base.maxValue(state.asDNArray())
 
     /**
+     * Computes the maximum Q-value for the specified state parameters.
+     *
+     * @param row The row index of the state.
+     * @param col The column index of the state.
+     * @param layer The layer index of the state.
+     * @param feature The feature index of the state.
+     * @param channel The channel index of the state.
+     * @return The maximum Q-value as a Double for the specified state.
+     */
+    fun maxValue(row: Int, col: Int, layer: Int, feature: Int, channel: Int): Double =
+        maxValue(mk.ndarray(mk[mk[mk[mk[row, col, layer, feature, channel]]]]))
+
+    /**
      * Determines the best action to take in a given state based on the Q-values.
      *
      * @param state The NDArray of type Int with 4 dimensions, representing the current state.
@@ -97,6 +174,19 @@ class QTableD5(
      */
     override fun bestAction(state: NDArray<Int, D4>): Int =
         base.bestAction(state.asDNArray())
+
+    /**
+     * Determines the best action to take for a specific state, defined by the given indices, based on the Q-values.
+     *
+     * @param row The row index of the state.
+     * @param col The column index of the state.
+     * @param layer The layer index of the state.
+     * @param feature The feature index of the state.
+     * @param channel The channel index of the state.
+     * @return The integer representing the optimal action for the specified state.
+     */
+    fun bestAction(row: Int, col: Int, layer: Int, feature: Int, channel: Int): Int =
+        bestAction(mk.ndarray(mk[mk[mk[mk[row, col, layer, feature, channel]]]])).toInt()
 
     /**
      * Creates a copy of the current QTableD5 instance, optionally overriding the `deterministic` flag.
@@ -108,7 +198,12 @@ class QTableD5(
      */
     fun copy(deterministic: Boolean = this.deterministic): QTableD5 =
         QTableD5(
-            shape = shape,
+            rowSize = shape[0],
+            colSize = shape[1],
+            layerSize = shape[2],
+            featureSize = shape[3],
+            channelSize = shape[4],
+            actionSize = shape[5],
             deterministic = deterministic,
             tolerance = tolerance,
             defaultQValue = defaultQValue
