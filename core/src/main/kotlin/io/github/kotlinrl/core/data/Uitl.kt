@@ -45,7 +45,7 @@ internal fun mk.writeCsvSafely(path: String, ndarray: NDArray<Double, DN>): Unit
  * @throws IOException If an error occurs while reading the file.
  */
 internal fun mk.readCsvSafely(path: String): NDArray<Double, DN> {
-    if(File(path).exists().not()) throw IllegalArgumentException("File does not exist")
+    require(File(path).exists()) { "File does not exist" }
 
     val data = mutableListOf<DoubleArray>()
 
