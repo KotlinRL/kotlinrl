@@ -1,4 +1,4 @@
-#!/usr/bin/env kotlin -Djavafx.platform=mac-aarch64 -Djava.awt.headless=false -Dprism.order=sw
+#!/usr/bin/env kotlin -Djava.awt.headless=false -Dprism.order=sw
 
 @file:Repository("https://repo1.maven.org/maven2")
 @file:Repository("https://central.sonatype.com/repository/maven-snapshots/")
