@@ -39,7 +39,7 @@ class ValueIteration(
      *         - A pi policy derived from the final Q-function.
      *         - The final value function as a mapping from states to their values.
      */
-    override fun invoke(MDP: TabularMDP): Pair<PTable, VTable> {
+    override fun plan(MDP: TabularMDP): Pair<PTable, VTable> {
         val (_, _, R, T, gamma)  = MDP
         val S = T.shape[0]
         val A = T.shape[1]

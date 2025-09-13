@@ -4,9 +4,9 @@ include(
     "core",   //Core API
     "tabular",
     "envs",                 //Environment Implementations
-//    "examples",
+    "examples",
 //    "deep",
-//    "rendering",
+    "rendering",
     "integration"           //Integration tools - Gymnasium, etc.
 )
 

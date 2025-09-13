@@ -1,5 +1,6 @@
 package io.github.kotlinrl.core.algorithm
 
+import io.github.kotlinrl.core.PolicyUpdate
 import io.github.kotlinrl.core.api.*
 import kotlin.random.*
 
@@ -16,7 +17,7 @@ import kotlin.random.*
  */
 abstract class BaseAlgorithm<State, Action>(
     initialPolicy: Policy<State, Action>,
-    protected val onPolicyUpdate: PolicyUpdate<State, Action> ,
+    protected val onPolicyUpdate: PolicyUpdate<State, Action>,
     protected val rng: Random,
 ) : LearningAlgorithm<State, Action> {
 

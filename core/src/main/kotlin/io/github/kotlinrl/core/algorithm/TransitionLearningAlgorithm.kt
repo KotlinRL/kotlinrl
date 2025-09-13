@@ -1,5 +1,6 @@
 package io.github.kotlinrl.core.algorithm
 
+import io.github.kotlinrl.core.PolicyUpdate
 import io.github.kotlinrl.core.agent.*
 import io.github.kotlinrl.core.api.*
 import kotlin.random.*

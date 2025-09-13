@@ -36,7 +36,7 @@ class PolicyIteration(
      * @return A pair consisting of the optimal policy and the corresponding value function
      *         derived from the policy iteration algorithm.
      */
-    override fun invoke(MDP: TabularMDP): Pair<PTable, VTable> {
+    override fun plan(MDP: TabularMDP): Pair<PTable, VTable> {
         val (_, _, R, T, gamma)  = MDP
         var V = mk.zeros<Double>(T.shape[0])
         var policy = mk.rand<Int, D1>(dims = intArrayOf(T.shape[0]), from = 0, until = T.shape[1])

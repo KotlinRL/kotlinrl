@@ -1,6 +1,5 @@
 package io.github.kotlinrl.tabular
 
-import io.github.kotlinrl.core.api.*
 import io.github.kotlinrl.core.model.TabularMDP
 
 /**
@@ -28,5 +27,5 @@ interface PolicyPlanner {
      * - The first element of the pair is the `Policy` that maps states to actions.
      * - The second element is the `VTable` providing the expected value for each state.
      */
-    operator fun invoke(MDP: TabularMDP): Pair<PTable, VTable>
+    fun plan(MDP: TabularMDP): Pair<PTable, VTable>
 }

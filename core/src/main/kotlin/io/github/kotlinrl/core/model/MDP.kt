@@ -1,5 +1,7 @@
 package io.github.kotlinrl.core.model
 
+import io.github.kotlinrl.core.R
+import io.github.kotlinrl.core.T
 import io.github.kotlinrl.core.api.*
 
 /**

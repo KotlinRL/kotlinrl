@@ -1,5 +1,49 @@
-package io.github.kotlinrl.core.api
+package io.github.kotlinrl.core
 
+/**
+ * Type alias for `io.github.kotlinrl.core.api.Actions`, representing a functional interface
+ * for associating actions with a specific state.
+ *
+ * This alias simplifies the reference to the `Actions` functional interface, which is often
+ * utilized in contexts such as decision-making or reinforcement learning to dynamically determine
+ * the available actions for a given state.
+ *
+ * @param State The type representing the state for which actions are defined.
+ * @param Action The type representing the actions associated with the state.
+ */
+typealias Actions<State, Action> = io.github.kotlinrl.core.api.Actions<State, Action>
+/**
+ * Type alias for `io.github.kotlinrl.core.api.Parameter`.
+ *
+ * Represents a parameter that tracks values such as the current state,
+ * previous state, and minimum allowable value. Typically utilized
+ * in iterative processes like parameter scheduling, optimization
+ * algorithms, or reinforcement learning scenarios. Provides an alias
+ * to simplify references to the `Parameter` class within the codebase.
+ */
+typealias Parameter = io.github.kotlinrl.core.api.Parameter
+/**
+ * Typealias for `io.github.kotlinrl.core.api.Policy`, representing a decision-making policy
+ * in reinforcement learning or similar frameworks.
+ *
+ * The `Policy` maps a given state to an action or a probability distribution over possible actions,
+ * offering an interface for deterministic or probabilistic action selection.
+ *
+ * @param State The type representing the states over which the policy operates.
+ * @param Action The type representing the actions determined by the policy.
+ */
+typealias Policy<State, Action> = io.github.kotlinrl.core.api.Policy<State, Action>
+/**
+ * Type alias for `io.github.kotlinrl.core.api.States`.
+ *
+ * Represents a collection of states in a reinforcement learning environment or similar systems.
+ * This alias is primarily used to provide a more concise reference to the `States` interface,
+ * which includes properties and methods for working with finite or infinite state spaces,
+ * checking state membership, and iterating over states.
+ *
+ * @param State The type representing the states in the environment.
+ */
+typealias States<State> = io.github.kotlinrl.core.api.States<State>
 /**
  * A type alias representing a value function in reinforcement learning.
  *

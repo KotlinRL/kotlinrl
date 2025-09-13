@@ -1,5 +1,6 @@
 package io.github.kotlinrl.tabular.td.classic
 
+import io.github.kotlinrl.core.PolicyUpdate
 import io.github.kotlinrl.core.agent.*
 import io.github.kotlinrl.core.algorithm.TransitionLearningAlgorithm
 import io.github.kotlinrl.core.api.*

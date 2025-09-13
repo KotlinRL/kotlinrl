@@ -1,5 +1,7 @@
 package io.github.kotlinrl.core.api
 
+import io.github.kotlinrl.core.ParameterScheduleDecay
+
 /**
  * Represents a parameter schedule used to dynamically adjust a specific parameter
  * within reinforcement learning algorithms. The schedule is defined as a function

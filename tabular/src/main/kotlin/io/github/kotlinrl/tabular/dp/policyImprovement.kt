@@ -16,8 +16,8 @@ object policyImprovement {
     operator fun invoke(R: D2Array<Double>, T: D3Array<Double>, V: D1Array<Double>, gamma: Double): D1Array<Int> {
         val S = T.shape[0]
         val A = T.shape[1]
-        val Q = mk.ndarray(IntRange(0,S).map { s ->
-            IntRange(0, A).map { a ->
+        val Q = mk.ndarray((0 until S).map { s ->
+            (0 until A).map { a ->
                 bellmanBackup(s, a, R, T, gamma, V)
             }
         })

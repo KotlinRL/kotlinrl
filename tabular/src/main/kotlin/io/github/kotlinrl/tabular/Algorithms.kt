@@ -1,5 +1,6 @@
 package io.github.kotlinrl.tabular
 
+import io.github.kotlinrl.core.model.TabularMDP
 import io.github.kotlinrl.tabular.dp.*
 
 /**
@@ -17,7 +18,7 @@ import io.github.kotlinrl.tabular.dp.*
  *         convergence threshold.
  */
 fun policyIteration(
-    theta: Double = 1e-6
+    theta: Double = 1e-6,
 ): PolicyPlanner = PolicyIteration(theta)
 
 /**

@@ -146,7 +146,7 @@ fun <Num : Number, D : Dimension> clipToBox(
 private val digits = 5
 private val numberFormat = "%0${digits}d"
 
-internal fun episodeFolderName(episode: Int) =
+fun episodeFolderName(episode: Int) =
     "episode_${numberFormat.format(episode)}"
 
 /**
