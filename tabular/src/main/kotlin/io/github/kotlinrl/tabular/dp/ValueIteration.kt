@@ -40,7 +40,7 @@ class ValueIteration(
      *         - A pi policy derived from the final Q-function.
      *         - The final value function as a mapping from states to their values.
      */
-    override fun invoke(MDP: TabularMDP): Pair<Policy<Int, Int>, VTable> {
+    override fun invoke(MDP: TabularMDP): Pair<PTable, VTable> {
         val (_, _, R, T, gamma)  = MDP
         val S = T.shape[0]
         val A = T.shape[1]
@@ -60,6 +60,6 @@ class ValueIteration(
             V = newV
         }
         val policy = mk.ndarray(IntRange(0, S).map { Q[it].argMax() })
-        return policy.pi() to V
+        return policy to V
     }
 }
