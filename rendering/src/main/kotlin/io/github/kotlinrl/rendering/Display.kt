@@ -84,25 +84,28 @@ fun displayVideo(file: File): Any {
         </video>"""
         )
     } else {
-        try {
-            if (!JavaFXState.launched) {
-                JavaFXState.launched = true
-                Thread {
-                    Application.launch(FramePlayer::class.java)
-                }.start()
-                Thread.sleep(500)
-            }
-            Platform.runLater {
-                FramePlayer.play(file)
-            }
-        } catch (e: Throwable) {
-            // Fallback
+        val fallback: () -> Unit = {
             if (Desktop.isDesktopSupported()) {
-                Desktop.getDesktop().open(file)
+                Desktop.getDesktop().open(File("${file}.mp4"))
             } else {
                 println("MP4 saved to: ${file.absolutePath}")
                 println("Please open it with your video player.")
             }
+        }
+        try {
+            // Initialize JavaFX exactly once (no Application.launch thread)
+            JavaFXState.ensureStartup()
+
+            // Now schedule the UI work
+            Platform.runLater {
+                try {
+                    FramePlayer.play(file)
+                } catch (t: Throwable) {
+                    fallback()
+                }
+            }
+        } catch (t: Throwable) {
+            fallback()
         }
     }
 }
@@ -133,7 +136,23 @@ fun Rendering.RenderFrame.toBufferedImage(): BufferedImage = renderFrameToBuffer
 private object JavaFXState {
     @Volatile
     var launched = false
-}
+
+    fun ensureStartup() {
+        if (!launched) {
+            synchronized(this) {
+                if (!launched) {
+                    // Platform.startup can be called once; if already initialized elsewhere,
+                    // it throws IllegalStateException—just treat that as "launched".
+                    try {
+                        Platform.startup { /* FX ready */ }
+                    } catch (_: IllegalStateException) {
+                        // already started
+                    }
+                    launched = true
+                }
+            }
+        }
+    }}
 
 /**
  * A JavaFX application that plays a sequence of image frames as an animation. The application provides
