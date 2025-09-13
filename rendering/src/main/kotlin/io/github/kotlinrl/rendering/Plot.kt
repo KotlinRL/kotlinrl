@@ -18,8 +18,7 @@ fun plotPolicyStateValueGrid(
     policy: D1Array<Int>,
     vTable: D1Array<Double>,
     size: Int,
-    actionSymbols: Map<Int, String>,
-    title: String? = null,
+    actionSymbols: Map<Int, String>
 ) = run {
     require(policy.size == size * size) {
         "Policy length ${policy.size} doesn't match grid size $size×$size"
