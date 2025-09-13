@@ -53,16 +53,26 @@ KotlinRL enables JVM developers to:
 ## Initial Algorithms (Phase 1)
 
 - Dynamic Programming 
-  - Bellman equations
+  - Policy Evaluation
+  - Policy Improvement
+  - Value Iteration
 - Monte Carlo Control
   - On Policy
   - Off Policy
   - Incremental
+- Temporal-Difference Learning
+  - Sarsa
+  - Q-Learning
+  - Expected Sarsa
+- N-Step Bootstrapping
+  - Sarsa
 - Tabular Q-learning
   - QLearning
   - SARSA
   - ExpectedSARSA
   - NStepSARSA
+
+## Initial Algorithms (Phase 1)
 - Policy Gradient (REINFORCE)
 - PPO-lite (Proximal Policy Optimization)
 - Advantage Estimation

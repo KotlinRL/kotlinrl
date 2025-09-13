@@ -21,14 +21,6 @@ interface Distribution<T> {
     fun prob(t: T): Double
 
     /**
-     * Retrieves the probability of a given element `t` using the underlying probability calculation method.
-     *
-     * @param t The element for which the probability is to be retrieved.
-     * @return The probability of the given element `t` as a value between 0.0 and 1.0.
-     */
-    operator fun get(t: T): Double = prob(t)
-
-    /**
      * Retrieves the support set, which is the set of all elements with non-zero probability in
      * the distribution or probability model.
      *
