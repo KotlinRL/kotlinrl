@@ -4,11 +4,11 @@ import org.jetbrains.kotlinx.multik.ndarray.data.*
 import kotlin.math.*
 
 
-fun printTabularPolicy(
+fun printPolicyGrid(
     policy: D1Array<Int>,
+    size: Int,
     actionSymbols: Map<Int, String>
 ) {
-    val size = 5
     val cellW = max(1, actionSymbols.values.maxOfOrNull { it.length } ?: 1)
 
     for (row in 0 until size) {

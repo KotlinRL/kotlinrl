@@ -184,6 +184,10 @@ fun saveFrameAsPng(frame: Rendering.RenderFrame, folder: String, episode: Int, f
     val img = renderFrameToBufferedImage(frame)
     val pngFile = File(folder, "${episodeFolderName(episode)}/frame_${numberFormat.format(frameIdx)}.png")
     pngFile.parentFile?.mkdirs()
+    saveBufferedImageAsPng(img, pngFile)
+}
+
+fun saveBufferedImageAsPng(img: BufferedImage, pngFile: File) {
     ImageIO.write(img, "png", pngFile)
 }
 

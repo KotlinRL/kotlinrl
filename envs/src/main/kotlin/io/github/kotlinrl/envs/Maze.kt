@@ -249,15 +249,18 @@ class Maze(
         return TabularMDP(
             S = FiniteStates(size * size),
             A = FixedIntActions(4),
-            RA = mk.d2arrayIndices<Double>(size * size, 4) { s, a ->
+            RA = mk.d2arrayIndices<Double>(size * size, 4) { s, _ ->
                 val sRC  = decode(s)
-                val nsRC = nextState(sRC, a)
-                computeReward(nsRC)                       // reward for s'
+                computeReward(sRC)
             },
             TA = mk.d3arrayIndices<Double>(size * size, 4, size * size) { s, a, sP ->
                 val state = decode(s)
-                val nextState = nextState(state, a)
-                if (encode(nextState) == sP) 1.0 else 0.0
+                if (state == goal)
+                    if(sP == s) 1.0 else 0.0
+                else {
+                    val nextState = nextState(state, a)
+                    if (encode(nextState) == sP) 1.0 else 0.0
+                }
             },
             gamma = gamma,
         )
