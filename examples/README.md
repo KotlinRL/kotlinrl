@@ -74,17 +74,27 @@ docker run --rm -p 50051:50051 kotlinrl/open-rl-gymnasium-grpc-server:latest
 
 ### The Kotlin Notebooks in this package demonstrate classic RL techniques against Gymnasium Environments
 Dynamic Programming
-- [MazeValueIteration](dynamic_programming/MazeValueIteration.ipynb)
-- [MazePolicyIteration](dynamic_programming/MazePolicyIteration.ipynb)
 
-Monte Carlo Control
-- [MazeOnPolicyMonteCarloControl](monte_carlo_control/MazeOnPolicyMonteCarloControl.ipynb)
-- [MazeOffPolicyMonteCarloControl](monte_carlo_control/MazeOffPolicyMonteCarloControl.ipynb)
-- [MazeConstantAlphaMonteCarloControl](monte_carlo_control/MazeConstantAlphaMonteCarloControl.ipynb)
+[//]: # (- [MazeValueIteration]&#40;dynamic_programming/MazeValueIteration.ipynb&#41;)
+- [MazePolicyIteration](dynamic_programming/MazePolicyIteration.ipynb) 
 
-Temporal Difference Learning
-- [FrozenLakeExpectedSARA](toy_text/FrozenLakeExpectedSARSA.ipynb)
-- [FrozenLakeNStepSARSA](toy_text/FrozenLakeNStepSARSA.ipynb)
-- [FrozenLakeQLearning](toy_text/FrozenLakeQLearning.ipynb)
-- [FrozenLakeSARSA](toy_text/FrozenLakeSARSA.ipynb)
-- [CliffWalkingQLearning](toy_text/CliffWalkingQLearning.ipynb)
+[//]: # (Monte Carlo Control)
+
+[//]: # (- [MazeOnPolicyMonteCarloControl]&#40;monte_carlo_control/MazeOnPolicyMonteCarloControl.ipynb&#41;)
+
+[//]: # (- [MazeOffPolicyMonteCarloControl]&#40;monte_carlo_control/MazeOffPolicyMonteCarloControl.ipynb&#41;)
+
+[//]: # (- [MazeConstantAlphaMonteCarloControl]&#40;monte_carlo_control/MazeConstantAlphaMonteCarloControl.ipynb&#41;)
+
+[//]: # ()
+[//]: # (Temporal Difference Learning)
+
+[//]: # (- [FrozenLakeExpectedSARA]&#40;toy_text/FrozenLakeExpectedSARSA.ipynb&#41;)
+
+[//]: # (- [FrozenLakeNStepSARSA]&#40;toy_text/FrozenLakeNStepSARSA.ipynb&#41;)
+
+[//]: # (- [FrozenLakeQLearning]&#40;toy_text/FrozenLakeQLearning.ipynb&#41;)
+
+[//]: # (- [FrozenLakeSARSA]&#40;toy_text/FrozenLakeSARSA.ipynb&#41;)
+
+[//]: # (- [CliffWalkingQLearning]&#40;toy_text/CliffWalkingQLearning.ipynb&#41;)
