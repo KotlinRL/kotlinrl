@@ -1,7 +1,6 @@
 package io.github.kotlinrl.tabular.dp
 
-import io.github.kotlinrl.core.api.*
-import io.github.kotlinrl.core.model.TabularMDP
+import io.github.kotlinrl.core.model.*
 import io.github.kotlinrl.tabular.*
 import org.jetbrains.kotlinx.multik.api.*
 import org.jetbrains.kotlinx.multik.api.math.*

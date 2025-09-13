@@ -9,32 +9,21 @@ import org.jetbrains.kotlinx.multik.ndarray.operations.*
 import kotlin.math.*
 
 /**
- * Implements the Policy Iteration algorithm for Markov Decision Processes (MDPs).
+ * Implements the Policy Iteration algorithm for solving a given Markov Decision Process (MDP).
  *
- * Policy Iteration is an iterative method for generating optimal policies in
- * environments defined by MDP models. The algorithm alternates between two main
- * steps: policy evaluation and policy improvement. During policy evaluation,
- * the value function for the current policy is computed. In the policy improvement
- * step, the current policy is updated to be pi with respect to the evaluated
- * value function. This process continues until the policy converges to the optimal
- * policy, or a specified convergence threshold is met.
+ * Policy Iteration is an iterative method used to compute the optimal policy and value function
+ * for a given environment. It alternates between two key steps:
+ * - Policy Evaluation: Computes the value function for a fixed policy.
+ * - Policy Improvement: Updates the policy based on the computed value function.
  *
- * Key features:
- * - Supports customizable convergence criteria through a threshold parameter (theta).
- * - Includes a configurable maximum number of iterations to ensure termination.
- * - Allows integration of a random number generator for generating random policies.
+ * The algorithm continues this alternating process until convergence, where no further updates
+ * to the policy are needed.
  *
- * @param State The type representing the states within the MDP.
- * @param Action The type representing the actions available within the MDP.
- * @param theta The convergence threshold for stopping policy iteration. The algorithm
- *              halts when the maximum change in the value function across all states
- *              is less than this threshold. Default is 1e-6.
- * @param maxIterations The maximum number of iterations allowed during policy evaluation
- *                      or improvement before termination. Default is 10000.
- * @param rng Random number generator used for creating initial random policies.
+ * @property theta A convergence threshold. The algorithm iterates until the difference between
+ *                 consecutive policies is less than this value.
  */
 class PolicyIteration(
-    private val theta: Double = 1e-6,
+    private val theta: Double,
 ) : PolicyPlanner {
 
     /**
