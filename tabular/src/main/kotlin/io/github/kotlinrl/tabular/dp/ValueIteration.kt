@@ -43,22 +43,22 @@ class ValueIteration(
         val (_, _, R, T, gamma)  = MDP
         val S = T.shape[0]
         val A = T.shape[1]
-        var V = mk.zeros<Double>(A)
+        var V = mk.zeros<Double>(S)
         val Q = mk.zeros<Double>(S, A)
         var norm = Double.POSITIVE_INFINITY
         while (norm > theta) {
-            val newV = mk.ndarray(IntRange(0, S).map { s ->
-                IntRange(0, A).maxOf { a ->
+            val newV = mk.ndarray((0 until S).map { s ->
+                (0 until  A).maxOf { a ->
                     val backup = bellmanBackup(s, a, R, T, gamma, V)
                     Q[s, a] = backup
                     backup
                 }
             })
             val diff = V - newV
-            norm = IntRange(0, diff.size).maxOf { abs(diff[it]) }
+            norm = (0 until diff.size).maxOf { abs(diff[it]) }
             V = newV
         }
-        val policy = mk.ndarray(IntRange(0, S).map { Q[it].argMax() })
+        val policy = mk.ndarray((0 until S).map { Q[it].argMax() })
         return policy to V
     }
 }
