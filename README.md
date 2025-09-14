@@ -61,30 +61,30 @@ KotlinRL enables JVM developers to:
   - Off Policy
   - Incremental
 - Temporal-Difference Learning
-  - Sarsa
+  - SARSA
   - Q-Learning
-  - Expected Sarsa
+  - Expected SARSA
 - N-Step Bootstrapping
-  - Sarsa
-- Tabular Q-learning
-  - QLearning
   - SARSA
   - ExpectedSARSA
-  - NStepSARSA
+  - Q-sigma
+- Planning and Learning
+  - Dyna-Q
+  - Prioritized Sweeping
 
-## Initial Algorithms (Phase 1)
+## Deep Algorithms (Phase 2)
+- DQN
 - Policy Gradient (REINFORCE)
-- PPO-lite (Proximal Policy Optimization)
 - Advantage Estimation
-- SAC (future phase)
-
+- PPO
+- SAC
 ---
 
 ## Why KotlinRL?
 
 - JVM production systems need adaptive control agents.
 - Python-based RL frameworks introduce complexity when embedding into JVM stacks.
-- DJL gives us modern tensor and streaming data structures — KotlinRL builds the control logic on top.
+- KTTorch (DJL internal with PyTorch engine) gives us modern tensor and streaming data structures — KotlinRL builds the control logic on top.
 
 ---
 
