@@ -26,10 +26,10 @@ import kotlin.random.*
  */
 class TDZero(
     initialPolicy: Policy<Int, Int>,
-    onPolicyUpdate: PolicyUpdate<Int, Int>,
+    onPolicyUpdate: PolicyUpdate<Int, Int> = {},
     rng: Random,
     private val V: VTable,
-    private val onVUpdate: VTableUpdate,
+    private val onVUpdate: VTableUpdate = {},
     private val alpha: ParameterSchedule,
     private val gamma: Double,
 ) : TransitionLearningAlgorithm<Int, Int>(initialPolicy, onPolicyUpdate, rng) {
@@ -48,7 +48,7 @@ class TDZero(
     override fun observe(transition: Transition<Int, Int>) {
         val (s, _, reward, sPrime, _, _, isTerminal) = transition
         val nextV = if (isTerminal) 0.0 else V[sPrime]
-        val alpha = alpha().current
+        val (alpha) = alpha()
         V[s] = V[s] + alpha * (reward + gamma * nextV - V[s])
         onVUpdate(V)
     }

@@ -45,10 +45,10 @@ import kotlin.random.*
  */
 class IncrementalMonteCarloControl(
     initialPolicy: Policy<Int, Int>,
-    onPolicyUpdate: PolicyUpdate<Int, Int>,
+    onPolicyUpdate: PolicyUpdate<Int, Int> = {},
     rng: Random = Random.Default,
     private val Q: QTable,
-    private val onQUpdate: QTableUpdate,
+    private val onQUpdate: QTableUpdate = {},
     private val alpha: ParameterSchedule,
     private val gamma: Double,
     private val firstVisitOnly: Boolean,
@@ -70,7 +70,7 @@ class IncrementalMonteCarloControl(
 
             if (firstVisitOnly && !seen.add(key(state, action))) continue
 
-            val alpha = alpha().current
+            val (alpha) = alpha()
             val oldQ = Q[state, action]
             Q[state, action] = oldQ + alpha * (G - oldQ)
         }

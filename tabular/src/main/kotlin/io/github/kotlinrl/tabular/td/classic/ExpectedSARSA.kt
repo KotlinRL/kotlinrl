@@ -37,10 +37,10 @@ import kotlin.random.*
  */
 class ExpectedSARSA(
     initialPolicy: Policy<Int, Int>,
-    onPolicyUpdate: PolicyUpdate<Int, Int>,
+    onPolicyUpdate: PolicyUpdate<Int, Int> = {},
     rng: Random,
     private val Q: QTable,
-    private val onQUpdate: QTableUpdate,
+    private val onQUpdate: QTableUpdate = {},
     private val alpha: ParameterSchedule,
     private val gamma: Double,
 ) : TransitionLearningAlgorithm<Int, Int>(initialPolicy, onPolicyUpdate, rng) {
@@ -62,7 +62,7 @@ class ExpectedSARSA(
      */
     override fun observe(transition: Transition<Int, Int>) {
         val (state, action, reward, sPrime, _, _, isTerminal) = transition
-        val alpha = alpha().current
+        val (alpha) = alpha()
         val distribution = policy[sPrime]
         val expectedQ = if (isTerminal) 0.0
         else Q[sPrime].mapIndexed { aPrime, _ ->

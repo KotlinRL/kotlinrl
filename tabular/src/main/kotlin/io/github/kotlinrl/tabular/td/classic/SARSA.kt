@@ -24,10 +24,10 @@ import kotlin.random.*
  */
 class SARSA(
     initialPolicy: Policy<Int, Int>,
-    onPolicyUpdate: PolicyUpdate<Int, Int>,
+    onPolicyUpdate: PolicyUpdate<Int, Int> = {},
     rng: Random,
     private val Q: QTable,
-    private val onQUpdate: QTableUpdate,
+    private val onQUpdate: QTableUpdate = {},
     private val alpha: ParameterSchedule,
     private val gamma: Double,
 ) : TransitionLearningAlgorithm<Int, Int>(initialPolicy, onPolicyUpdate, rng) {
@@ -55,7 +55,7 @@ class SARSA(
         val (s, a, reward) = bootstrap
         val (sPrime, aPrime, _, _, _, _, isTerminal) = transition
         val nextQ = if (isTerminal) 0.0 else Q[sPrime, aPrime]
-        val alpha = alpha().current
+        val (alpha) = alpha()
         Q[s, a] = Q[s, a] + alpha * (reward + gamma * nextQ - Q[s, a])
         if (isTerminal) previous = null
         onQUpdate(Q)

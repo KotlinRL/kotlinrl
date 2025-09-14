@@ -5,6 +5,7 @@ import io.github.kotlinrl.core.agent.*
 import io.github.kotlinrl.core.algorithm.*
 import io.github.kotlinrl.core.api.*
 import io.github.kotlinrl.tabular.*
+import org.jetbrains.kotlinx.multik.api.math.argMax
 import org.jetbrains.kotlinx.multik.ndarray.data.*
 import org.jetbrains.kotlinx.multik.ndarray.operations.*
 import kotlin.random.*
@@ -37,10 +38,10 @@ import kotlin.random.*
  */
 class QLearning(
     initialPolicy: Policy<Int, Int>,
-    onPolicyUpdate: PolicyUpdate<Int, Int>,
+    onPolicyUpdate: PolicyUpdate<Int, Int> = {},
     rng: Random,
     private val Q: QTable,
-    private val onQUpdate: QTableUpdate,
+    private val onQUpdate: QTableUpdate = {},
     private val alpha: ParameterSchedule,
     private val gamma: Double,
 ) : TransitionLearningAlgorithm<Int, Int>(initialPolicy, onPolicyUpdate, rng) {
@@ -59,7 +60,7 @@ class QLearning(
      */
     override fun observe(transition: Transition<Int, Int>) {
         val (state, action, reward, sPrime, _, _, isTerminal) = transition
-        val alpha = alpha().current
+        val (alpha) = alpha()
         val maxQ = if (isTerminal) 0.0 else Q[sPrime].max() ?: 0.0
         Q[state, action] = Q[state, action] + alpha * (reward + gamma * maxQ - Q[state, action])
         onQUpdate(Q)

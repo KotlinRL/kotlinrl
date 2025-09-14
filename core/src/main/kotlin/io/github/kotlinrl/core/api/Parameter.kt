@@ -13,7 +13,7 @@ package io.github.kotlinrl.core.api
  * @property minValue The minimum allowed value for the parameter, ensuring it does not fall below this threshold.
  */
 data class Parameter(
-    val previous: Double,
     val current: Double,
+    val previous: Double,
     val minValue: Double,
 )

@@ -34,11 +34,11 @@ import kotlin.random.*
  * in a trajectory is used for updates.
  */
 class OnPolicyMonteCarloControl(
-    onPolicyUpdate: PolicyUpdate<Int, Int>,
-    rng: Random = Random.Default,
     initialPolicy: Policy<Int, Int>,
+    onPolicyUpdate: PolicyUpdate<Int, Int> = {},
+    rng: Random = Random.Default,
     private val Q: QTable,
-    private val onQUpdate: QTableUpdate,
+    private val onQUpdate: QTableUpdate = {},
     private val gamma: Double,
     private val firstVisitOnly: Boolean,
 ) : TrajectoryLearningAlgorithm<Int, Int>(initialPolicy, onPolicyUpdate, rng) {
