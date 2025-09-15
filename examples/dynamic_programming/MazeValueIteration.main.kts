@@ -7,10 +7,6 @@
 @file:DependsOn("io.github.kotlinrl:tabular:0.1.0-SNAPSHOT")
 @file:DependsOn("io.github.kotlinrl:envs:0.1.0-SNAPSHOT")
 @file:DependsOn("io.github.kotlinrl:rendering:0.1.0-SNAPSHOT")
-@file:DependsOn("org.openjfx:javafx-base:17.0.10")
-@file:DependsOn("org.openjfx:javafx-graphics:17.0.10")
-@file:DependsOn("org.openjfx:javafx-controls:17.0.10")
-@file:DependsOn("org.openjfx:javafx-media:17.0.10")
 
 import io.github.kotlinrl.core.*
 import io.github.kotlinrl.core.wrapper.saveBufferedImageAsPng
@@ -24,7 +20,7 @@ import java.io.*
 val testEpisodes = 3
 
 val env = Maze(render = true)
-val recordEnv = RecordVideo(env, folder = "./videos/maze_policy_iteration")
+val recordEnv = RecordVideo(env, folder = "./videos/maze_value_iteration")
 
 val planner = valueIteration()
 val (policy, vTable) = planner.plan(env.asMDP(0.9))
