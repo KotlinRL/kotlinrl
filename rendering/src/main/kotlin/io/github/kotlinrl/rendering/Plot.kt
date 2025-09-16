@@ -17,16 +17,17 @@ import kotlin.math.roundToInt
 fun plotPolicyStateValueGrid(
     policy: D1Array<Int>,
     vTable: D1Array<Double>,
-    size: Int,
+    rows: Int,
+    columns: Int,
     actionSymbols: Map<Int, String>
 ) = run {
-    require(policy.size == size * size) {
-        "Policy length ${policy.size} doesn't match grid size $size×$size"
+    require(policy.size == rows * columns) {
+        "Policy length ${policy.size} doesn't match grid size $rows×$columns"
     }
     val stateDf = buildList {
-        for (row in 0 until size) {
-            for (col in 0 until size) {
-                val state = row * size + col
+        for (row in 0 until rows) {
+            for (col in 0 until columns) {
+                val state = row * columns + col
                 val value = (vTable[state] * 100).roundToInt() / 100.0
                 val action = policy[state]
                 val arrow = actionSymbols[action] ?: "?"

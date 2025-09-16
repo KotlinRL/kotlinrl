@@ -3,45 +3,52 @@ package io.github.kotlinrl.tabular.mc
 import io.github.kotlinrl.core.*
 import io.github.kotlinrl.core.agent.Trajectory
 import io.github.kotlinrl.core.algorithm.TrajectoryLearningAlgorithm
-import io.github.kotlinrl.core.api.Policy
+import io.github.kotlinrl.core.api.ParameterSchedule
 import io.github.kotlinrl.tabular.*
 import org.jetbrains.kotlinx.multik.ndarray.data.*
 import kotlin.random.*
 
 /**
- * On-policy Monte Carlo control algorithm implementation for reinforcement learning.
+ * Implements an on-policy Monte Carlo control algorithm for reinforcement learning.
  *
- * This algorithm is designed to optimize a policy using the Monte Carlo method to estimate
- * action values (Q-values) based on observed trajectories of state-action-reward interactions.
- * It updates the Q-table iteratively and adjusts the policy to become greedy with respect to
- * the updated Q-values.
+ * The algorithm estimates optimal policies and action-value functions (Q-values)
+ * by processing complete episodic experiences (trajectories). It updates Q-values
+ * based on the rewards obtained over the entire trajectory, enabling improvements
+ * in the policy that governs action selection.
  *
- * Key features of the algorithm:
- * - Supports both first-visit and every-visit Monte Carlo methods for Q-value updates.
- * - Uses a Q-table to store Q-values for state-action pairs.
- * - Allows custom policy updates via a provided `PolicyUpdate` function.
- * - Processes entire trajectories to derive cumulative rewards (returns) and update Q-values.
+ * This implementation uses an epsilon-greedy policy for exploration during learning,
+ * allowing a trade-off between exploration and exploitation. The exploration rate
+ * (epsilon) is dynamically adjusted using a parameter schedule. The algorithm also
+ * supports updates based on either every visit to a state-action pair or only the
+ * first visit, depending on the configuration.
  *
- * @param onPolicyUpdate the function invoked to update the policy based on the learned Q-values.
- * @param rng random number generator used for probabilistic processes.
- * Defaults to `Random.Default`.
- * @param initialPolicy the starting policy used by the algorithm to select actions.
- * @param Q the Q-table for storing action-value estimates.
- * @param onQUpdate the callback function triggered after updates to the Q-table.
- * @param gamma the discount factor for future rewards, used in return calculations.
- * @param firstVisitOnly determines whether the algorithm uses the first-visit
- * Monte Carlo method. When `true`, only the first occurrence of each state-action pair
- * in a trajectory is used for updates.
+ * @constructor Creates an instance of OnPolicyMonteCarloControl.
+ *
+ * @param onPolicyUpdate A callback invoked whenever the policy is updated. By default, it does nothing.
+ *                       The callback can be customized to handle events triggered by policy updates.
+ * @param rng The random number generator used for stochastic processes within the epsilon-greedy policy.
+ *            Defaults to Kotlin's Random.Default.
+ * @param epsilon A parameter schedule defining how the exploration rate evolves over time during learning.
+ *                This schedule is used by the epsilon-greedy policy to balance exploration and exploitation.
+ * @param Q The Q-table maintaining the action-value estimates. This table is updated using the Monte Carlo
+ *          control method based on episodic rewards.
+ * @param onQTableUpdate A callback invoked whenever the Q-table is updated. By default, it does nothing.
+ *                       This callback can be used to monitor or log changes to the Q-values.
+ * @param gamma The discount factor for future rewards. It determines the weight of future rewards when
+ *              computing the return for a state-action pair.
+ * @param firstVisitOnly Indicates whether the updates to the Q-function should be based only on the first
+ *                       visit to each state-action pair in a trajectory. If `true`, only the first encounter
+ *                       of each state-action pair is used for updates; otherwise, all visits are used.
  */
 class OnPolicyMonteCarloControl(
-    initialPolicy: Policy<Int, Int>,
     onPolicyUpdate: PolicyUpdate<Int, Int> = {},
     rng: Random = Random.Default,
+    epsilon: ParameterSchedule,
     private val Q: QTable,
-    private val onQUpdate: QTableUpdate = {},
+    private val onQTableUpdate: QTableUpdate = {},
     private val gamma: Double,
     private val firstVisitOnly: Boolean,
-) : TrajectoryLearningAlgorithm<Int, Int>(initialPolicy, onPolicyUpdate, rng) {
+) : TrajectoryLearningAlgorithm<Int, Int>(initialPolicy = Q.epsilonGreedy(epsilon, rng), onPolicyUpdate, rng) {
     private val N: MutableMap<Long, Int> = mutableMapOf()
 
     /**
@@ -70,7 +77,7 @@ class OnPolicyMonteCarloControl(
             val oldQ = Q[state, action]
             Q[state, action] = oldQ + (G - oldQ) / N[sa]!!
         }
-        onQUpdate(Q)
+        onQTableUpdate(Q)
     }
 }
 

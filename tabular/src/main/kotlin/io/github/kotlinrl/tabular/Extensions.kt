@@ -77,7 +77,7 @@ typealias QTableUpdate = (QTable) -> Unit
  */
 fun QTable.epsilonGreedy(
     epsilon: ParameterSchedule,
-    rng: Random,
+    rng: Random = Random.Default,
 ): Policy<Int, Int> {
     val Q = this;
 
@@ -99,7 +99,7 @@ fun QTable.epsilonGreedy(
                 val base = e / n
                 val probs = mk.d1array<Double>(n) { base }
                 probs[greedy] = 1.0 - e + base
-                return Distribution.categorical(IntRange(0, n).toList(), probs)
+                return Distribution.categorical((0 until n).toList(), probs)
             }
         }
     }

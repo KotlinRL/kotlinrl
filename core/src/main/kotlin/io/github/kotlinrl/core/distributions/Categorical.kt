@@ -20,44 +20,39 @@ class Categorical<T>(
     private val outcomes: List<T>,
     private val probs: D1Array<Double>
 ) : Distribution<T> {
+    private val cum: DoubleArray
+
     init {
         require(outcomes.isNotEmpty())
         require(outcomes.size == probs.size)
-        val s = probs.sum();
-        require(abs(s - 1.0) < 1e-9) { "Probs sum=$s" }
         require(probs.all { it >= 0.0 })
+
+        val s = probs.sum()
+        require(s > 0.0) { "All probabilities are zero." }
+        val norm = probs / s
+        val tmp = DoubleArray(norm.size)
+        var acc = 0.0
+        for (i in 0 until norm.size) {
+            acc += norm[i]
+            tmp[i] = acc
+        }
+        tmp[tmp.lastIndex] = 1.0
+        cum = tmp
     }
 
-    private val cum = probs.toDoubleArray()
-
-    /**
-     * Computes the probability of the specified outcome in the distribution.
-     *
-     * @param t The outcome for which the probability is to be computed.
-     * @return The probability of the specified outcome. Returns 0.0 if the outcome is not present in the distribution.
-     */
     override fun prob(t: T): Double {
-        val idx = outcomes.indexOf(t);
-        return if (idx >= 0) probs[idx] else 0.0
+        val idx = outcomes.indexOf(t)
+        if (idx < 0) return 0.0
+        val prev = if (idx == 0) 0.0 else cum[idx - 1]
+        return cum[idx] - prev
     }
 
-    /**
-     * Returns the set of all distinct outcomes present in the distribution.
-     *
-     * @return A set containing all unique outcomes supported by the distribution.
-     */
-    override fun support(): Set<T> = outcomes.filterIndexed { i, _ -> probs[i] > 0.0 }.toSet()
+    override fun support(): Set<T> =
+        outcomes.filterIndexed { i, _ -> (if (i == 0) cum[i] else cum[i] - cum[i - 1]) > 0.0 }.toSet()
 
-    /**
-     * Samples a random outcome from the categorical distribution based on the provided random number generator.
-     * The method uses the cumulative probability distribution to select an outcome corresponding to the sampled value.
-     *
-     * @param rng A random number generator used to sample the outcome.
-     * @return A randomly sampled outcome of type `T` from the categorical distribution.
-     */
     override fun sample(rng: Random): T {
-        val r = rng.nextDouble()
+        val r = rng.nextDouble() // in [0,1)
         val i = cum.binarySearch(r).let { if (it < 0) -(it + 1) else it }
-        return outcomes[min(i, outcomes.lastIndex)]
+        return outcomes[i]
     }
 }

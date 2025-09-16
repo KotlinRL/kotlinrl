@@ -39,6 +39,6 @@ repeat(testEpisodes) {
         folder = recordEnv.folder
     )
 }
-printPolicyGrid(policy, 5, mapOf(0 to "↑", 1 to "→", 2 to "↓", 3 to "←"))
-val plot = plotPolicyStateValueGrid(policy, vTable, 5, mapOf(0 to "↑", 1 to "→", 2 to "↓", 3 to "←"))
+printPolicyGrid(policy, 5, 5, mapOf(0 to "↑", 1 to "→", 2 to "↓", 3 to "←"))
+val plot = plotPolicyStateValueGrid(policy, vTable, 5, 5, mapOf(0 to "↑", 1 to "→", 2 to "↓", 3 to "←"))
 saveBufferedImageAsPng(plot.toBufferedImage(), File(recordEnv.folder, "policy_grid.png"))

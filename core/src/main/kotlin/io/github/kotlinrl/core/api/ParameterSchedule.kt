@@ -58,7 +58,47 @@ fun interface ParameterSchedule {
                     current = (current - decayRate).coerceAtLeast(minValue)
                 }
                 decayStep++
-                callback(decayStep, Parameter(previous, current, minValue))
+                callback(decayStep, Parameter(current, previous, minValue))
+            }
+
+            return schedule to decay
+        }
+
+        /**
+         * Creates a geometric decay schedule for parameter adjustment, commonly used in optimization or reinforcement learning.
+         * This function computes a parameter schedule and a decay mechanism based on the initial value, decay rate,
+         * minimum value, and an optional burn-in period. A callback function is provided to monitor decay step changes.
+         *
+         * @param initialValue the initial value of the parameter before decay begins.
+         * @param decayRate the rate of decay applied to the parameter in each step.
+         * @param minValue the minimum allowable value for the parameter during decay.
+         * @param burnInEpisodes the number of steps to skip before starting decay (default is 0).
+         * @param callback a function invoked on each decay step with the current step number and the parameter state (default is a no-op).
+         * @return a pair of `ParameterSchedule` and `ParameterScheduleDecay` for managing and applying the decay schedule.
+         */
+        fun geometricDecay(
+            initialValue: Double,
+            decayRate: Double,
+            minValue: Double,
+            burnInEpisodes: Int = 0,
+            callback: (Int, Parameter) -> Unit = { _, _ -> }
+        ): Pair<ParameterSchedule, ParameterScheduleDecay> {
+
+            var decayStep = 0
+            var previous = initialValue
+            var current = initialValue
+
+            val schedule = ParameterSchedule {
+                Parameter(previous, current, minValue)
+            }
+
+            val decay: ParameterScheduleDecay = {
+                previous = current
+                if (decayStep >= burnInEpisodes) {
+                    current = (current * decayRate).coerceAtLeast(minValue)
+                }
+                decayStep++
+                callback(decayStep, Parameter(current, previous, minValue))
             }
 
             return schedule to decay

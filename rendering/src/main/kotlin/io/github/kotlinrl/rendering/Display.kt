@@ -34,12 +34,18 @@ import java.io.*
 fun displayVideo(
     folder: String,
     episode: Int
-): Any? {
+): Any {
     return displayVideo(File(folder, episodeFolderName(episode)))
 }
 
-fun displayVideos(path: String) {
-    val folder = File("videos/$path")
+/**
+ * Displays all video directories within the specified folder.
+ * For each directory found, the method delegates video rendering to the `displayVideo` function.
+ *
+ * @param file the path to a folder that contains video directories
+ */
+fun displayVideos(file: String) {
+    val folder = File(file)
     for (file in folder.listFiles()!!.filter { it.isDirectory }) {
         displayVideo(File(folder, file.name))
     }
