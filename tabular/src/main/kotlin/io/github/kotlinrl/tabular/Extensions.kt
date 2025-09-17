@@ -91,9 +91,9 @@ fun QTable.epsilonGreedy(
             val n = row.size
             require(n > 0) { "No actions available" }
             val greedy = row.argMax()
-            val (current, _, final) = epsilon()
-            val e = current.coerceIn(0.0, 1.0)
-            if (e == final || n == 1) {
+            val (epsilon) = epsilon()
+            val e = epsilon.coerceIn(0.0, 1.0)
+            if (e == 0.0 || n == 1) {
                 return Distribution.delta(greedy)
             } else {
                 val base = e / n

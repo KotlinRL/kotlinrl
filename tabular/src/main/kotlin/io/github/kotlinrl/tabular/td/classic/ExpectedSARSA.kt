@@ -65,9 +65,9 @@ class ExpectedSARSA(
         val (alpha) = alpha()
         val distribution = policy[sPrime]
         val expectedQ = if (isTerminal) 0.0
-        else Q[sPrime].mapIndexed { aPrime, _ ->
+        else Q[sPrime].indices.sumOf { aPrime ->
             distribution.prob(aPrime) * Q[sPrime, aPrime]
-        }.max() ?: 0.0
+        }
         Q[state, action] = Q[state, action] + alpha * (reward + gamma * expectedQ - Q[state, action])
         onQUpdate(Q)
     }
