@@ -12,16 +12,13 @@ fun printPolicyGrid(
     columns: Int,
     actionSymbols: Map<Int, String>
 ) {
-    val cellW = max(1, actionSymbols.values.maxOfOrNull { it.length } ?: 1)
-
     for (row in 0 until rows) {
-        val line = StringBuilder()
         for (col in 0 until columns) {
             val a = policy[row * columns + col]
             val sym = actionSymbols[a]!!
-            line.append(sym.padEnd(cellW)).append(' ')
+            print("  ${sym} ")
         }
-        println(line.toString().trimEnd())
+        println()
     }
 }
 
