@@ -24,7 +24,7 @@ import kotlin.random.*
  */
 class SARSA(
     onPolicyUpdate: PolicyUpdate<Int, Int> = {},
-    rng: Random,
+    rng: Random = Random.Default,
     epsilon: ParameterSchedule,
     private val Q: QTable,
     private val onQUpdate: QTableUpdate = {},

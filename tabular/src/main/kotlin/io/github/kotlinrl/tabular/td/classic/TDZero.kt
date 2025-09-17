@@ -27,7 +27,7 @@ import kotlin.random.*
 class TDZero(
     initialPolicy: Policy<Int, Int>,
     onPolicyUpdate: PolicyUpdate<Int, Int> = {},
-    rng: Random,
+    rng: Random = Random.Default,
     private val V: VTable,
     private val onVUpdate: VTableUpdate = {},
     private val alpha: ParameterSchedule,
