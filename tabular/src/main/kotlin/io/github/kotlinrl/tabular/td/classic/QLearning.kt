@@ -11,40 +11,35 @@ import org.jetbrains.kotlinx.multik.ndarray.operations.*
 import kotlin.random.*
 
 /**
- * Implementation of the Q-Learning algorithm for reinforcement learning.
+ * Implements the Q-Learning algorithm for reinforcement learning tasks.
  *
- * Q-Learning is an off-policy temporal-difference learning algorithm that learns the value
- * of actions in a given state. The algorithm updates the Q-value for a state-action pair based
- * on the observed reward and the maximum Q-value of the subsequent state, using the following equation:
+ * Q-Learning is an off-policy temporal-difference control algorithm used to learn the
+ * optimal action-value function, enabling an agent to act optimally in a given environment.
+ * The algorithm updates Q-values based on transitions observed during interaction with the
+ * environment, using a Bellman equation with a learning rate (alpha) and a discount factor (gamma).
  *
- * Q(s, a) <- Q(s, a) + α * (r + γ * max_a' Q(s', a') - Q(s, a))
+ * This implementation supports:
+ * - Epsilon-greedy exploration, governed by a schedule for dynamically adjusting the value of epsilon.
+ * - Customizable hooks for handling policy updates and Q-value updates when changes occur.
  *
- * where:
- * - Q(s, a) is the current Q-value for state `s` and action `a`.
- * - α (alpha) is the learning rate that controls the extent to which newly acquired
- *   information overrides the previous Q-value.
- * - γ (gamma) is the discount factor, determining the importance of future rewards.
- * - r is the observed reward after taking action `a` in state `s`.
- * - max_a' Q(s', a') is the maximum Q-value for actions in the next state `s'`.
- *
- * @constructor Creates an instance of the QLearning class.
- * @param initialPolicy the initial decision-making policy used to select actions in each state.
- * @param onPolicyUpdate callback function called when the policy is updated.
- * @param rng the random number generator used in the algorithm.
- * @param Q the Q-value table representing the value estimates for each state-action pair.
- * @param onQUpdate callback function called when the Q-value table is updated.
- * @param alpha the schedule controlling the learning rate (α) during the algorithm's execution.
- * @param gamma the discount factor (γ), determining the importance of future rewards.
+ * @param onPolicyUpdate Function invoked when the policy is updated. Can be used to monitor or log
+ * policy updates. Defaults to an empty function.
+ * @param rng Random number generator used for exploration actions during epsilon-greedy policy.
+ * @param epsilon A schedule governing the value of epsilon for the epsilon-greedy exploration strategy.
+ * @param Q Q-value table representing the state-action value function.
+ * @param onQUpdate Function invoked when Q-values are updated. Can be used for monitoring, logging, or other side effects.
+ * @param alpha A schedule for dynamically adjusting the learning rate (alpha) during training.
+ * @param gamma The discount factor used to weigh future rewards. Defines the agent's consideration for long-term rewards relative to immediate rewards.
  */
 class QLearning(
-    initialPolicy: Policy<Int, Int>,
     onPolicyUpdate: PolicyUpdate<Int, Int> = {},
-    rng: Random,
+    rng: Random = Random.Default,
+    epsilon: ParameterSchedule,
     private val Q: QTable,
     private val onQUpdate: QTableUpdate = {},
     private val alpha: ParameterSchedule,
     private val gamma: Double,
-) : TransitionLearningAlgorithm<Int, Int>(initialPolicy, onPolicyUpdate, rng) {
+) : TransitionLearningAlgorithm<Int, Int>(Q.epsilonGreedy(epsilon, rng), onPolicyUpdate, rng) {
 
     /**
      * Observes a transition in the environment and updates the Q-value function

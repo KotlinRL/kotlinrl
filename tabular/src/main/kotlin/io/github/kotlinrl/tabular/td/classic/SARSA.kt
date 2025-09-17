@@ -23,14 +23,14 @@ import kotlin.random.*
  * @param gamma the discount factor, which determines the importance of future rewards.
  */
 class SARSA(
-    initialPolicy: Policy<Int, Int>,
     onPolicyUpdate: PolicyUpdate<Int, Int> = {},
     rng: Random,
+    epsilon: ParameterSchedule,
     private val Q: QTable,
     private val onQUpdate: QTableUpdate = {},
     private val alpha: ParameterSchedule,
     private val gamma: Double,
-) : TransitionLearningAlgorithm<Int, Int>(initialPolicy, onPolicyUpdate, rng) {
+) : TransitionLearningAlgorithm<Int, Int>(Q.epsilonGreedy(epsilon, rng), onPolicyUpdate, rng) {
     private var previous: Transition<Int, Int>? = null
 
     /**

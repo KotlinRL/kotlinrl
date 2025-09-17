@@ -36,14 +36,14 @@ import kotlin.random.*
  * @param gamma the discount factor, controlling the weight given to future rewards.
  */
 class ExpectedSARSA(
-    initialPolicy: Policy<Int, Int>,
     onPolicyUpdate: PolicyUpdate<Int, Int> = {},
     rng: Random,
+    epsilon: ParameterSchedule,
     private val Q: QTable,
     private val onQUpdate: QTableUpdate = {},
     private val alpha: ParameterSchedule,
     private val gamma: Double,
-) : TransitionLearningAlgorithm<Int, Int>(initialPolicy, onPolicyUpdate, rng) {
+) : TransitionLearningAlgorithm<Int, Int>(Q.epsilonGreedy(epsilon, rng), onPolicyUpdate, rng) {
     /**
      * Observes a transition in the environment and updates the Q-value function based on the
      * expected SARSA (State-Action-Reward-State-Action) algorithm.

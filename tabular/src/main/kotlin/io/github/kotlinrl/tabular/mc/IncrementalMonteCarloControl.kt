@@ -36,7 +36,7 @@ class IncrementalMonteCarloControl(
     private val alpha: ParameterSchedule,
     private val gamma: Double,
     private val firstVisitOnly: Boolean,
-) : TrajectoryLearningAlgorithm<Int, Int>(Q.epsilonGreedy(epsilon), onPolicyUpdate, rng) {
+) : TrajectoryLearningAlgorithm<Int, Int>(Q.epsilonGreedy(epsilon, rng), onPolicyUpdate, rng) {
 
     /**
      * Observes a trajectory and updates the Q-function based on the Monte Carlo control strategy.

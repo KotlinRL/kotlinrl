@@ -26,6 +26,9 @@ fun plotPolicyStateValueGrid(
     require(policy.size == rows * columns) {
         "Policy length ${policy.size} doesn't match grid size $rows×$columns"
     }
+
+    val panelCols = if(columns > rows) 1 else 2
+
     val stateDf = buildList {
         for (row in 0 until rows) {
             for (col in 0 until columns) {
@@ -70,7 +73,7 @@ fun plotPolicyStateValueGrid(
             x.axis.name = "x"
             y.axis.name = "y"
         }
-    })
+    }, nCol = panelCols)
 }
 
 fun plotPolicyActionValueGrid(
@@ -82,6 +85,9 @@ fun plotPolicyActionValueGrid(
     require(qTable.shape[0] == rows * columns) {
         "QTable length ${qTable.shape[0]} doesn't match grid size $rows×$columns"
     }
+
+    val panelCols = if(columns > rows) 1 else 2
+
     val stateDf = buildList {
         for (row in 0 until rows) {
             for (col in 0 until columns) {
@@ -126,5 +132,5 @@ fun plotPolicyActionValueGrid(
             x.axis.name = "x"
             y.axis.name = "y"
         }
-    })
+    }, nCol = panelCols)
 }
