@@ -31,7 +31,7 @@ val epsilonDecayRate = 0.000625
 val minEpsilon = 0.05
 val alpha = 0.5
 val gamma = 0.99
-val fileName = "CliffWalkingQLearning.npy"
+val fileName = "CliffWalkingExpectedSARSA.npy"
 val actionSymbols = mapOf(
     3 to "←",
     2 to "↓",
@@ -39,9 +39,11 @@ val actionSymbols = mapOf(
     0 to "↑"
 )
 
-val env = gymnasium.make<CliffWalkingEnv>(CliffWalking_v0, render = true, options = mapOf(
-    "is_slippery" to false
-))
+val env = gymnasium.make<CliffWalkingEnv>(
+    CliffWalking_v0, render = true, options = mapOf(
+        "is_slippery" to false
+    )
+)
 
 var trainingQtable: QTable = mk.d2array(48, 4) { 0.0 }
 
@@ -60,7 +62,7 @@ val trainer = episodicTrainer(
     env = env,
     agent = learningAgent(
         id = "training",
-        algorithm = QLearning(
+        algorithm = ExpectedSARSA(
             Q = trainingQtable,
             epsilon = epsilonSchedule,
             alpha = ParameterSchedule.constant(alpha),
@@ -80,7 +82,7 @@ mk.writeNPY(fileName, trainingQtable)
 
 val testingQtable = mk.readNPY<Double, D2>(fileName).asD2Array()
 
-val recordEnv = RecordVideo(env = env, folder = "videos/cliff_walking_q_learning", testEpisodes / 3)
+val recordEnv = RecordVideo(env = env, folder = "videos/cliff_walking_expected_sarsa", testEpisodes / 3)
 val tester = episodicTrainer(
     env = recordEnv,
     agent = policyAgent(
@@ -100,5 +102,5 @@ println("Test average reward: ${test.totalAverageReward}")
 
 printQTable(testingQtable, 4, 12, actionSymbols = actionSymbols)
 displayVideos(recordEnv.folder)
-val plot = plotPolicyActionValueGrid(testingQtable, 4, 12, actionSymbols )
+val plot = plotPolicyActionValueGrid(testingQtable, 4, 12, actionSymbols)
 saveBufferedImageAsPng(plot.toBufferedImage(), File(recordEnv.folder, "policy_grid.png"))

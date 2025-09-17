@@ -31,7 +31,7 @@ val epsilonDecayRate = 0.000625
 val minEpsilon = 0.05
 val alpha = 0.5
 val gamma = 0.99
-val fileName = "CliffWalkingQLearning.npy"
+val fileName = "CliffWalkingSARSA.npy"
 val actionSymbols = mapOf(
     3 to "←",
     2 to "↓",
@@ -60,7 +60,7 @@ val trainer = episodicTrainer(
     env = env,
     agent = learningAgent(
         id = "training",
-        algorithm = QLearning(
+        algorithm = SARSA(
             Q = trainingQtable,
             epsilon = epsilonSchedule,
             alpha = ParameterSchedule.constant(alpha),
@@ -80,7 +80,7 @@ mk.writeNPY(fileName, trainingQtable)
 
 val testingQtable = mk.readNPY<Double, D2>(fileName).asD2Array()
 
-val recordEnv = RecordVideo(env = env, folder = "videos/cliff_walking_q_learning", testEpisodes / 3)
+val recordEnv = RecordVideo(env = env, folder = "videos/cliff_walking_sarsa", testEpisodes / 3)
 val tester = episodicTrainer(
     env = recordEnv,
     agent = policyAgent(
