@@ -52,7 +52,6 @@ class OnlineEpisodicTrainer<State, Action>(
             callbacks.forEach { it.onEpisodeStart(episode) }
 
             val transitions = mutableListOf<Transition<State, Action>>()
-            val actions = mutableListOf<Action>()
 
             var state = env.reset().state
             var totalReward = 0.0
@@ -78,8 +77,6 @@ class OnlineEpisodicTrainer<State, Action>(
                     agent.observe(transition)
 
                     transitions += transition
-                    actions += action
-
                     state = transition.nextState
                     done = transition.done
                 } catch (e: Exception) {
@@ -95,6 +92,9 @@ class OnlineEpisodicTrainer<State, Action>(
                 info = exception?.let { mapOf("exception" to it) } ?: emptyMap()
             )
             agent.observe(transitions, episode)
+            if(!transitions.last().terminated) {
+                println("Episode $episode failed to terminate and was cut short. maxStepsPerEpisode=$maxStepsPerEpisode  truncated=${transitions.last().truncated}")
+            }
             episodeStats += stats
             val result = TrainingResult(episodeStats)
             callbacks.forEach { it.onEpisodeEnd(result) }
