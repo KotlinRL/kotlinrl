@@ -51,8 +51,18 @@ fun Map<String, Any?>.toStruct(): Struct {
     return structBuilder.build()
 }
 
-fun Struct.toMap(): Map<String, Any> {
-    return this.fieldsMap.mapValues { (_, v) -> v.stringValue }
+fun Value.asKotlin(): Any? = when (this.kindCase) {
+    Value.KindCase.NULL_VALUE   -> null
+    Value.KindCase.BOOL_VALUE   -> this.boolValue
+    Value.KindCase.NUMBER_VALUE -> this.numberValue      // always Double
+    Value.KindCase.STRING_VALUE -> this.stringValue
+    Value.KindCase.LIST_VALUE   -> this.listValue.valuesList.map { it.asKotlin() }
+    Value.KindCase.STRUCT_VALUE -> this.structValue.fieldsMap.mapValues { it.value.asKotlin() }
+    Value.KindCase.KIND_NOT_SET -> null
+}
+
+fun Struct.toMap(): Map<String, Any?> {
+    return this.fieldsMap.mapValues { (_, v) -> v.asKotlin() }
 }
 
 @Suppress("UNCHECKED_CAST")

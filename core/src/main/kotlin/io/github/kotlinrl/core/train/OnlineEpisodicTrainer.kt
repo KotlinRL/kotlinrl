@@ -93,7 +93,11 @@ class OnlineEpisodicTrainer<State, Action>(
             )
             agent.observe(transitions, episode)
             if(!transitions.last().terminated) {
-                println("Episode $episode failed to terminate and was cut short. maxStepsPerEpisode=$maxStepsPerEpisode  truncated=${transitions.last().truncated}")
+                if (transitions.last().truncated) {
+                    println("Episode $episode truncated=${transitions.last().truncated}")
+                } else {
+                    println("Episode $episode failed to terminate and was cut short. maxStepsPerEpisode=$maxStepsPerEpisode")
+                }
             }
             episodeStats += stats
             val result = TrainingResult(episodeStats)
