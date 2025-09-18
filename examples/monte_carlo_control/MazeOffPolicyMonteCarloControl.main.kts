@@ -9,18 +9,14 @@
 @file:DependsOn("io.github.kotlinrl:rendering:0.1.0-SNAPSHOT")
 
 import io.github.kotlinrl.core.*
-import io.github.kotlinrl.core.RecordVideo
-import io.github.kotlinrl.core.api.*
-import io.github.kotlinrl.core.wrapper.*
 import io.github.kotlinrl.envs.*
 import io.github.kotlinrl.rendering.*
 import io.github.kotlinrl.tabular.*
-import io.github.kotlinrl.tabular.mc.*
 import org.jetbrains.kotlinx.kandy.letsplot.export.*
 import org.jetbrains.kotlinx.multik.api.*
 import org.jetbrains.kotlinx.multik.api.io.*
 import org.jetbrains.kotlinx.multik.ndarray.data.*
-import org.jetbrains.kotlinx.multik.ndarray.operations.max
+import org.jetbrains.kotlinx.multik.ndarray.operations.*
 import java.io.*
 
 

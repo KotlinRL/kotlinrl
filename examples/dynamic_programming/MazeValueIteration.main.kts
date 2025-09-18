@@ -9,7 +9,6 @@
 @file:DependsOn("io.github.kotlinrl:rendering:0.1.0-SNAPSHOT")
 
 import io.github.kotlinrl.core.*
-import io.github.kotlinrl.core.wrapper.saveBufferedImageAsPng
 import io.github.kotlinrl.envs.*
 import io.github.kotlinrl.rendering.*
 import io.github.kotlinrl.tabular.*
