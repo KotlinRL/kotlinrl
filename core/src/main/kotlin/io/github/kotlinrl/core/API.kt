@@ -23,6 +23,17 @@ typealias Actions<State, Action> = io.github.kotlinrl.core.api.Actions<State, Ac
  */
 typealias Parameter = io.github.kotlinrl.core.api.Parameter
 /**
+ * Type alias for `io.github.kotlinrl.core.api.ParameterSchedule`.
+ *
+ * Represents a schedule function used in reinforcement learning to dynamically compute
+ * parameter values based on specific defined schedules. This might be utilized for
+ * managing values like learning rates, exploration parameters, or other time/iteration-dependent
+ * configurations.
+ *
+ * Provides a simplified reference to the `ParameterSchedule` type in the codebase.
+ */
+typealias ParameterSchedule = io.github.kotlinrl.core.api.ParameterSchedule
+/**
  * Typealias for `io.github.kotlinrl.core.api.Policy`, representing a decision-making policy
  * in reinforcement learning or similar frameworks.
  *
