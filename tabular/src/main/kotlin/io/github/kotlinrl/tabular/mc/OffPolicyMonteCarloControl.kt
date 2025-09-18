@@ -3,7 +3,6 @@ package io.github.kotlinrl.tabular.mc
 import io.github.kotlinrl.core.*
 import io.github.kotlinrl.core.agent.Trajectory
 import io.github.kotlinrl.core.algorithm.TrajectoryLearningAlgorithm
-import io.github.kotlinrl.core.api.*
 import io.github.kotlinrl.tabular.*
 import org.jetbrains.kotlinx.multik.api.math.*
 import org.jetbrains.kotlinx.multik.ndarray.data.*
