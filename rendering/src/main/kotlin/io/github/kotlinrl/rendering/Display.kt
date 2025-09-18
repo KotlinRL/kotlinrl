@@ -1,8 +1,6 @@
 package io.github.kotlinrl.rendering
 
-
-import io.github.kotlinrl.core.env.Rendering
-import io.github.kotlinrl.core.wrapper.*
+import io.github.kotlinrl.core.*
 import javafx.animation.*
 import javafx.application.*
 import javafx.event.*
@@ -122,7 +120,7 @@ fun displayVideo(file: File): Any {
  *
  * @return A `BufferedImage` generated from this `RenderFrame`.
  */
-fun Rendering.RenderFrame.toBufferedImage(): BufferedImage = renderFrameToBufferedImage(this)
+fun RenderFrame.toBufferedImage(): BufferedImage = renderFrameToBufferedImage(this)
 
 /**
  * A singleton object serving as a state tracker for JavaFX-related initialization.

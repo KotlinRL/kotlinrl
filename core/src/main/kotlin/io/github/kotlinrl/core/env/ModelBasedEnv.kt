@@ -1,7 +1,6 @@
 package io.github.kotlinrl.core.env
 
-import io.github.kotlinrl.core.model.*
-import io.github.kotlinrl.core.space.*
+import io.github.kotlinrl.core.*
 
 /**
  * A specialized type of environment where the transition dynamics are explicitly defined

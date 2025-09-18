@@ -1,7 +1,6 @@
 package io.github.kotlinrl.core.wrapper
 
-import io.github.kotlinrl.core.env.*
-import io.github.kotlinrl.core.space.*
+import io.github.kotlinrl.core.*
 
 /**
  * A wrapper class that applies a transformation to the state of an environment.

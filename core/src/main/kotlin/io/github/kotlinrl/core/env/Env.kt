@@ -1,6 +1,6 @@
 package io.github.kotlinrl.core.env
 
-import io.github.kotlinrl.core.space.*
+import io.github.kotlinrl.core.*
 import kotlin.random.*
 
 /**

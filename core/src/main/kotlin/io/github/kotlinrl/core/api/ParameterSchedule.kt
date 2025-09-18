@@ -1,6 +1,6 @@
 package io.github.kotlinrl.core.api
 
-import io.github.kotlinrl.core.ParameterScheduleDecay
+import io.github.kotlinrl.core.*
 
 /**
  * Represents a parameter schedule used to dynamically adjust a specific parameter

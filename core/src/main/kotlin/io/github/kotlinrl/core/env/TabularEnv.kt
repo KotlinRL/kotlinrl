@@ -1,6 +1,6 @@
 package io.github.kotlinrl.core.env
 
-import io.github.kotlinrl.core.space.Discrete
+import io.github.kotlinrl.core.*
 
 /**
  * Represents a tabular environment where both the state and action spaces are discrete.

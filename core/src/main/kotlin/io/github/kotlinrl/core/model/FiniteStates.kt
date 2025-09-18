@@ -1,6 +1,6 @@
 package io.github.kotlinrl.core.model
 
-import io.github.kotlinrl.core.api.*
+import io.github.kotlinrl.core.*
 
 /**
  * Represents a finite set of integer states, commonly used in reinforcement learning environments

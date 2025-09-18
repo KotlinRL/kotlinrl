@@ -2,7 +2,6 @@ package io.github.kotlinrl.core.distributions
 
 import org.jetbrains.kotlinx.multik.ndarray.data.*
 import org.jetbrains.kotlinx.multik.ndarray.operations.*
-import kotlin.math.*
 import kotlin.random.*
 
 /**

@@ -1,7 +1,6 @@
 package io.github.kotlinrl.core.wrapper
 
-import io.github.kotlinrl.core.env.*
-import io.github.kotlinrl.core.space.*
+import io.github.kotlinrl.core.*
 
 /**
  * A wrapper that filters the observations from the environment to include only a specified subset

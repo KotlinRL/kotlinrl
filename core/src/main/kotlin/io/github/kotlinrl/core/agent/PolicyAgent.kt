@@ -1,7 +1,6 @@
 package io.github.kotlinrl.core.agent
 
-import io.github.kotlinrl.core.api.*
-import kotlin.random.*
+import io.github.kotlinrl.core.*
 
 /**
  * Represents an agent that follows a defined policy for decision-making in a reinforcement learning setting.

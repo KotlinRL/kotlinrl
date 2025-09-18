@@ -3,6 +3,17 @@ package io.github.kotlinrl.core
 import java.util.*
 
 /**
+ * Represents a trajectory in a reinforcement learning context, which is a sequence of transitions
+ * observed during an episode of interaction between an agent and the environment.
+ *
+ * A trajectory comprises a list of transitions, where each transition contains information about
+ * the state, action, reward, next state, and termination or truncation status.
+ *
+ * @param State The type representing the state space of the environment.
+ * @param Action The type representing the action space of the environment.
+ */
+typealias Trajectory<State, Action> = List<io.github.kotlinrl.core.agent.Transition<State, Action>>
+/**
  * A type alias for the `Agent` interface, representing an abstraction for agents interacting with environments
  * in a reinforcement learning setup. This alias serves to simplify usage references within the primary codebase.
  *

@@ -1,6 +1,6 @@
 package io.github.kotlinrl.core.train
 
-import io.github.kotlinrl.core.agent.*
+import io.github.kotlinrl.core.*
 
 /**
  * Defines a functional interface for evaluating whether a given transition

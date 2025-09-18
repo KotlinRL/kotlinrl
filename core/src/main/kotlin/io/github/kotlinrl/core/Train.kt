@@ -5,7 +5,6 @@ import kotlin.math.*
 typealias OnlineEpisodicTrainer<State, Action> = io.github.kotlinrl.core.train.OnlineEpisodicTrainer<State, Action>
 typealias EpisodeCallback<State, Action> = io.github.kotlinrl.core.train.EpisodeCallback<State, Action>
 typealias Trainer = io.github.kotlinrl.core.train.Trainer
-typealias Trajectory<State, Action> = io.github.kotlinrl.core.agent.Trajectory<State, Action>
 typealias TrainingResult = io.github.kotlinrl.core.train.TrainingResult
 typealias TrainingStopCondition = io.github.kotlinrl.core.train.TrainingStopCondition
 typealias SuccessfulTermination<State, Action> = io.github.kotlinrl.core.train.SuccessfulTermination<State, Action>

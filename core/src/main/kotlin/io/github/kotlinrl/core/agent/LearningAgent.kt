@@ -1,6 +1,6 @@
 package io.github.kotlinrl.core.agent
 
-import io.github.kotlinrl.core.algorithm.LearningAlgorithm
+import io.github.kotlinrl.core.*
 
 /**
  * Represents a learning agent capable of interacting with an environment

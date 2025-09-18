@@ -1,6 +1,6 @@
 package io.github.kotlinrl.core.algorithm
 
-import io.github.kotlinrl.core.agent.*
+import io.github.kotlinrl.core.*
 
 /**
  * Represents a contract for reinforcement learning algorithms.

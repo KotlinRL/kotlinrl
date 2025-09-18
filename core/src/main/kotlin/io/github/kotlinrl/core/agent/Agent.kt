@@ -1,5 +1,7 @@
 package io.github.kotlinrl.core.agent
 
+import io.github.kotlinrl.core.*
+
 /**
  * Represents an abstraction for agents interacting with environments in a reinforcement learning setup.
  *

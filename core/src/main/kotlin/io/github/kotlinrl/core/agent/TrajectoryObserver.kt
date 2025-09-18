@@ -1,5 +1,7 @@
 package io.github.kotlinrl.core.agent
 
+import io.github.kotlinrl.core.*
+
 /**
  * A functional interface for observing trajectories in reinforcement learning environments.
  *

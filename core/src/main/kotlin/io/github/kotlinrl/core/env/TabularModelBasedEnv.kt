@@ -1,7 +1,6 @@
 package io.github.kotlinrl.core.env
 
-import io.github.kotlinrl.core.model.*
-import io.github.kotlinrl.core.space.*
+import io.github.kotlinrl.core.*
 
 /**
  * Represents a tabular, model-based environment with explicit state and action spaces, and

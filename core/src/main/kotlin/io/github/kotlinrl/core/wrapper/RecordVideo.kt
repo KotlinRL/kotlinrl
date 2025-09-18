@@ -1,7 +1,6 @@
 package io.github.kotlinrl.core.wrapper
 
-import io.github.kotlinrl.core.env.*
-import io.github.kotlinrl.core.space.*
+import io.github.kotlinrl.core.*
 import java.io.*
 
 /**
@@ -105,7 +104,7 @@ class RecordVideo<State, Action, ObservationSpace : Space<State>, ActionSpace : 
     private fun maybeCaptureFrame() {
         if (!record) return
         val rendering = env.render()
-        if (rendering is Rendering.RenderFrame) {
+        if (rendering is RenderFrame) {
             saveFrameAsPng(rendering, folder, episodeCount, frameCount++)
         }
     }

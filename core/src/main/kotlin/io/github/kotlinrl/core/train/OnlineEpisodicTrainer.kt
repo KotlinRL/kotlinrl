@@ -1,7 +1,6 @@
 package io.github.kotlinrl.core.train
 
-import io.github.kotlinrl.core.agent.*
-import io.github.kotlinrl.core.env.*
+import io.github.kotlinrl.core.*
 
 /**
  * Trains a reinforcement learning agent through episodes within a given environment.

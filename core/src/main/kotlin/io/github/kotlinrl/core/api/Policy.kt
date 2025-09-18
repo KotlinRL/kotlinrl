@@ -1,6 +1,6 @@
 package io.github.kotlinrl.core.api
 
-import io.github.kotlinrl.core.distributions.*
+import io.github.kotlinrl.core.*
 
 /**
  * Represents a decision-making policy in reinforcement learning or similar frameworks
