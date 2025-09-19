@@ -28,6 +28,7 @@ fun <State, Action> episodicTrainer(
     agent: Agent<State, Action>,
     maxStepsPerEpisode: Int = Int.MAX_VALUE,
     successfulTermination: SuccessfulTermination<State, Action>,
+    warnOnTruncationOrMax: Boolean = false,
     closeOnSuccess: Boolean = false,
     callbacks: List<EpisodeCallback<State, Action>> = emptyList()
 ): Trainer = OnlineEpisodicTrainer(
@@ -35,6 +36,7 @@ fun <State, Action> episodicTrainer(
     agent = agent,
     maxStepsPerEpisode = maxStepsPerEpisode,
     successfulTermination = successfulTermination,
+    warnOnTruncationOrMax = warnOnTruncationOrMax,
     closeOnSuccess = closeOnSuccess,
     callbacks = callbacks
 )

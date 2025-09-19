@@ -1,19 +1,20 @@
 package io.github.kotlinrl.core.api
 
 /**
- * Represents a parameter state with values for tracking progression or adjustments
- * during iterative processes, such as parameter scheduling in algorithms.
+ * Represents a parameter configuration with current and previous values,
+ * alongside constraints and decay characteristic.
  *
- * The `Parameter` class is typically used to encapsulate a parameter's current value,
- * its previous value, and an enforced minimum value. It is primarily utilized in dynamic
- * parameter management scenarios, such as reinforcement learning or optimization tasks.
+ * This data class is designed to be used in scenarios where tracking and updating
+ * parameters over time is necessary, such as reinforcement learning or optimization processes.
  *
- * @property previous The parameter value from the previous iteration or step.
- * @property current The current parameter value at this stage of the process.
- * @property minValue The minimum allowed value for the parameter, ensuring it does not fall below this threshold.
+ * @property current The current value of the parameter.
+ * @property previous The previous value the parameter held.
+ * @property minValue The minimum allowed value for the parameter as a constraint.
+ * @property decayStep The step at which the parameter decays, typically indicative of iterations or timeframes.
  */
 data class Parameter(
     val current: Double,
     val previous: Double,
     val minValue: Double,
+    val decayStep: Int
 )

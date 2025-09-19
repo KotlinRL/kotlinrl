@@ -22,7 +22,7 @@ fun interface ParameterSchedule {
          * @param value The constant value to be used for the parameter schedule.
          * @return A `ParameterSchedule` that evaluates to the specified constant value.
          */
-        fun constant(value: Double): ParameterSchedule = ParameterSchedule { Parameter(value, value, value) }
+        fun constant(value: Double): ParameterSchedule = ParameterSchedule { Parameter(value, value, value, 0) }
 
         /**
          * Creates a linear decay schedule for a parameter, where the value decreases linearly
@@ -49,7 +49,7 @@ fun interface ParameterSchedule {
             var current = initialValue
 
             val schedule = ParameterSchedule {
-                Parameter(previous, current, minValue)
+                Parameter(previous, current, minValue, decayStep)
             }
 
             val decay: ParameterScheduleDecay = {
@@ -58,7 +58,7 @@ fun interface ParameterSchedule {
                     current = (current - decayRate).coerceAtLeast(minValue)
                 }
                 decayStep++
-                callback(decayStep, Parameter(current, previous, minValue))
+                callback(decayStep, Parameter(current, previous, minValue, decayStep))
             }
 
             return schedule to decay
@@ -89,7 +89,7 @@ fun interface ParameterSchedule {
             var current = initialValue
 
             val schedule = ParameterSchedule {
-                Parameter(previous, current, minValue)
+                Parameter(previous, current, minValue, decayStep)
             }
 
             val decay: ParameterScheduleDecay = {
@@ -98,7 +98,7 @@ fun interface ParameterSchedule {
                     current = (current * decayRate).coerceAtLeast(minValue)
                 }
                 decayStep++
-                callback(decayStep, Parameter(current, previous, minValue))
+                callback(decayStep, Parameter(current, previous, minValue, decayStep))
             }
 
             return schedule to decay

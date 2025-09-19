@@ -3,28 +3,39 @@ package io.github.kotlinrl.core.train
 import io.github.kotlinrl.core.*
 
 /**
- * Trains a reinforcement learning agent through episodes within a given environment.
+ * Manages the episodic training of a reinforcement learning agent in an environment.
  *
- * This class facilitates episodic training by orchestrating interactions between an environment,
- * an agent, and episode callbacks. It supports customizable stopping conditions,
- * maximum steps per episode, and an optional successful termination criterion.
+ * This class facilitates the learning process of an agent by executing a series of episodes
+ * in a given environment. Each episode consists of interactions between the agent and the
+ * environment, where the agent observes the state, selects actions, and receives feedback
+ * in the form of rewards. The training process continues until a defined stopping condition
+ * is met.
  *
- * Generic parameters:
+ * Generic Parameters:
  * @param State The type representing the state in the environment.
- * @param Action The type representing the action taken by the agent.
+ * @param Action The type representing the actions performed by the agent.
  *
- * @property env The environment in which the agent interacts and learns.
- * @property agent The learning agent that selects actions and observes transitions during training.
- * @property successfulTermination Function that evaluates whether an episode has reached a successful outcome.
- * @property closeOnSuccess Whether the environment should be closed if the training completes successfully.
+ * @property env The environment in which the agent interacts during training episodes.
+ *               It provides observations, updates through actions, and rewards.
+ * @property agent The reinforcement learning agent being trained.
+ *                 The agent learns from the state transitions and rewards provided by the environment.
+ * @property successfulTermination A functional interface defining the criteria for successful episode termination.
+ *                                  Used to evaluate whether a specific state transition meets success conditions.
+ * @property closeOnSuccess Whether the environment should be closed automatically upon meeting a success condition.
+ *                          Defaults to `false`.
+ * @property warnOnTruncationOrMax Whether a warning should be displayed if an episode exceeds the maximum step limit
+ *                                 or truncates. Defaults to `false`.
  * @property maxStepsPerEpisode The maximum number of steps allowed in a single episode.
- * @property callbacks List of callbacks to monitor and handle events during each episode.
+ *                              If this limit is reached, the episode is truncated. Defaults to 10,000.
+ * @property callbacks A list of callbacks invoked during the start and end of episodes.
+ *                     Provides hooks for monitoring or reacting to training progress.
  */
 class OnlineEpisodicTrainer<State, Action>(
     private val env: Env<State, Action, *, *>,
     private val agent: Agent<State, Action>,
     private val successfulTermination: SuccessfulTermination<State, Action>,
     private val closeOnSuccess: Boolean = false,
+    private val warnOnTruncationOrMax: Boolean = false,
     private val maxStepsPerEpisode: Int = 10_000,
     private val callbacks: List<EpisodeCallback<State, Action>> = emptyList(),
 ) : Trainer {
@@ -91,7 +102,7 @@ class OnlineEpisodicTrainer<State, Action>(
                 info = exception?.let { mapOf("exception" to it) } ?: emptyMap()
             )
             agent.observe(transitions, episode)
-            if(!transitions.last().terminated) {
+            if(!transitions.last().terminated && warnOnTruncationOrMax) {
                 if (transitions.last().truncated) {
                     println("Episode $episode truncated=${transitions.last().truncated}")
                 } else {
