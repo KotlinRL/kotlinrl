@@ -3,7 +3,7 @@ package io.github.kotlinrl.tabular
 import io.github.kotlinrl.core.api.*
 import io.github.kotlinrl.core.distributions.*
 import org.jetbrains.kotlinx.multik.api.*
-import org.jetbrains.kotlinx.multik.api.math.*
+import org.jetbrains.kotlinx.multik.api.math.argMax
 import org.jetbrains.kotlinx.multik.ndarray.data.*
 import org.jetbrains.kotlinx.multik.ndarray.operations.*
 import kotlin.math.*
@@ -80,15 +80,9 @@ typealias QTableUpdate = (QTable) -> Unit
 fun QTable.epsilonGreedy(
     epsilon: ParameterSchedule,
     rng: Random = Random.Default,
-    tieTol: Double = 1e-12,
 ): Policy<Int, Int> {
     val Q = this;
 
-    fun argmaxTies(row: MultiArray<Double, D1>): List<Int> {
-        val m = row.max()!!
-        val ties = row.indices.filter { abs(row[it] - m) <= tieTol }
-        return ties
-    }
 
     return object : Policy<Int, Int> {
         override fun invoke(state: Int): Int {
@@ -99,18 +93,15 @@ fun QTable.epsilonGreedy(
             val row = Q[state]
             val n = row.size
             require(n > 0) { "No actions available" }
-            val ties = argmaxTies(row)
-            val k = ties.size
+            val greedy = row.argMax()
             val (epsilon) = epsilon()
             val e = epsilon.coerceIn(0.0, 1.0)
             if (e == 0.0 || n == 1) {
-                val pick = if (k == 1) ties[0] else ties[rng.nextInt(k)]
-                return Distribution.delta(pick)
+                return Distribution.delta(greedy)
             } else {
                 val base = e / n
                 val probs = mk.d1array<Double>(n) { base }
-                val extra = (1.0 - e) / k
-                for (i in ties) probs[i] = base + extra
+                probs[greedy] = 1.0 - e + base
                 return Distribution.categorical((0 until n).toList(), probs)
             }
         }
@@ -127,7 +118,9 @@ fun QTable.epsilonGreedy(
  * @return a Policy that maps states to actions by selecting the action
  * with the highest Q-value for each state.
  */
-fun QTable.greedy(): Policy<Int, Int> {
+fun QTable.greedy(
+    rng: Random = Random.Default,
+): Policy<Int, Int> {
     val Q = this
 
     return object : Policy<Int, Int> {
@@ -165,4 +158,3 @@ fun PTable.pi(): Policy<Int, Int> {
         }
     }
 }
-
