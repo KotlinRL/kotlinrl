@@ -47,17 +47,16 @@ class SARSA(
      * reward received, next state, and whether the episode ended.
      */
     override fun observe(transition: Transition<Int, Int>) {
-        val bootstrap = previous
-        previous = transition
-
-        if (bootstrap == null) return
-
-        val (s, a, reward) = bootstrap
-        val (sPrime, aPrime, _, _, _, _, isTerminal) = transition
-        val nextQ = if (isTerminal) 0.0 else Q[sPrime, aPrime]
+        val t = transition
         val (alpha) = alpha()
-        Q[s, a] = Q[s, a] + alpha * (reward + gamma * nextQ - Q[s, a])
-        if (isTerminal) previous = null
-        onQUpdate(Q)
+        previous?.let { p ->
+            Q[p.state, p.action] = Q[p.state, p.action] + alpha * (p.reward + gamma * Q[t.state, t.action] - Q[p.state, p.action])
+            onQUpdate(Q)
+        }
+        previous = if(t.done) {
+            Q[t.state, t.action] = Q[t.state, t.action] + alpha * (t.reward  - Q[t.state, t.action])
+            onQUpdate(Q)
+            null
+        } else t
     }
 }

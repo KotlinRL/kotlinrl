@@ -6,7 +6,6 @@ import io.github.kotlinrl.core.algorithm.*
 import io.github.kotlinrl.core.api.*
 import io.github.kotlinrl.tabular.*
 import org.jetbrains.kotlinx.multik.ndarray.data.*
-import org.jetbrains.kotlinx.multik.ndarray.operations.*
 import kotlin.random.*
 
 /**
@@ -44,6 +43,9 @@ class ExpectedSARSA(
     private val alpha: ParameterSchedule,
     private val gamma: Double,
 ) : TransitionLearningAlgorithm<Int, Int>(Q.epsilonGreedy(epsilon, rng), onPolicyUpdate, rng) {
+    private var previous: Transition<Int, Int>? = null
+
+
     /**
      * Observes a transition in the environment and updates the Q-value function based on the
      * expected SARSA (State-Action-Reward-State-Action) algorithm.
@@ -61,14 +63,23 @@ class ExpectedSARSA(
      * and whether the episode terminated.
      */
     override fun observe(transition: Transition<Int, Int>) {
-        val (state, action, reward, sPrime, _, _, isTerminal) = transition
+        val t = transition
         val (alpha) = alpha()
-        val distribution = policy[sPrime]
-        val expectedQ = if (isTerminal) 0.0
-        else Q[sPrime].indices.sumOf { aPrime ->
-            distribution.prob(aPrime) * Q[sPrime, aPrime]
+        previous?.let { p ->
+            val sPrime = p.nextState
+            val dist = policy[sPrime]
+            val expectedQ = Q[sPrime].indices.sumOf { a ->
+                dist.prob(a) * Q[sPrime, a]
+            }
+
+            Q[p.state, p.action] = Q[p.state, p.action] + alpha * (p.reward + gamma * expectedQ - Q[p.state, p.action])
+            onQUpdate(Q)
         }
-        Q[state, action] = Q[state, action] + alpha * (reward + gamma * expectedQ - Q[state, action])
-        onQUpdate(Q)
+
+        previous = if(t.done) {
+            Q[t.state, t.action] = Q[t.state, t.action] + alpha * (t.reward  - Q[t.state, t.action])
+            onQUpdate(Q)
+            null
+        } else t
     }
 }

@@ -54,10 +54,9 @@ class QLearning(
      * next state, and whether the episode ended.
      */
     override fun observe(transition: Transition<Int, Int>) {
-        val (state, action, reward, sPrime, _, _, isTerminal) = transition
+        val (state, action, reward, sPrime) = transition
         val (alpha) = alpha()
-        val maxQ = if (isTerminal) 0.0 else Q[sPrime].max() ?: 0.0
-        Q[state, action] = Q[state, action] + alpha * (reward + gamma * maxQ - Q[state, action])
+        Q[state, action] = Q[state, action] + alpha * (reward + (gamma * (Q[sPrime].max() ?: 0.0)) - Q[state, action])
         onQUpdate(Q)
     }
 }
