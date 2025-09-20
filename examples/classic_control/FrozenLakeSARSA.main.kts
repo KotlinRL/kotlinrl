@@ -18,16 +18,14 @@ import org.jetbrains.kotlinx.multik.api.*
 import org.jetbrains.kotlinx.multik.api.io.*
 import org.jetbrains.kotlinx.multik.ndarray.data.*
 import java.io.*
-import kotlin.math.abs
 
 val maxStepsPerEpisode = 200
-val trainingEpisodes = 50_000
+val trainingEpisodes = 20_000
 val testEpisodes = 50
-val initialEpsilon = 0.6
+val initialEpsilon = 0.9
 val minEpsilon = 0.0
-val epsilonDecayRate = (initialEpsilon - minEpsilon) / (trainingEpisodes * 0.9)
-val alpha = ParameterSchedule.constant(0.2)
-val minAlpha = ParameterSchedule.constant(0.02)
+val epsilonDecayRate = (initialEpsilon - minEpsilon) / (trainingEpisodes * 0.8)
+val alpha = 0.2
 val gamma = 0.99
 val fileName = "FrozenLakeSARSA.npy"
 val actionSymbols = mapOf(
@@ -37,10 +35,12 @@ val actionSymbols = mapOf(
     3 to "↑"
 )
 
-val env = gymnasium.make<FrozenLakeEnv>(FrozenLake_v1, render = true, options = mapOf(
-    "is_slippery" to false,
-    "map_name" to "8x8"
-))
+val env = gymnasium.make<FrozenLakeEnv>(
+    FrozenLake_v1, render = true, options = mapOf(
+        "is_slippery" to false,
+        "map_name" to "8x8"
+    )
+)
 
 val trainingQtable: QTable = mk.rand<Double, D2>(from = 0.24, until = 0.26, dims = intArrayOf(64, 4))
 
@@ -52,39 +52,21 @@ val (epsilonSchedule, epsilonDecrement) = ParameterSchedule.linearDecay(
         if (episode % 1000 == 0) {
             println("Episode: $episode, Epsilon: $parameter")
         }
-    })
-val phi = mk.d1array(64) { state ->
-    (1.0 - gamma) * -(abs(7 - state / 8) + abs(7 - state % 8)).toDouble()
-}
-
-var currentState = 0
-val trainer = episodicTrainer(
-    env = TransformReward(env, transform = {
-        val state = currentState
-        val nextState = it.state
-        currentState = if (it.terminated || it.truncated) 0 else nextState
-        val isGoal = it.terminated && it.reward == 1.0
-        val isHole = it.terminated && it.reward == 0.0
-        val isSameState = state == nextState
-        when {
-            isGoal -> 1.0
-            isHole -> -2.0
-            isSameState -> 0.0
-            else -> (50 * (gamma * phi[nextState] - phi[state])).coerceIn(-0.5, 0.5)
-        }
     }
-    ),
+)
+
+val trainer = episodicTrainer(
+    env = env,
     agent = learningAgent(
         id = "training",
         algorithm = SARSA(
             Q = trainingQtable,
             epsilon = epsilonSchedule,
-            alpha = { if (epsilonSchedule().decayStep > 8000) minAlpha() else alpha() },
+            alpha = ParameterSchedule.constant(alpha),
             gamma = gamma,
         )
     ),
     maxStepsPerEpisode = maxStepsPerEpisode,
-    warnOnTruncationOrMax = false,
     successfulTermination = { it.reward == 1.0 },
     callbacks = listOf(
         printEpisodeStart(1000),
