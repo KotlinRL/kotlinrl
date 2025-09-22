@@ -46,10 +46,9 @@ class TDZero(
      * for calculating the temporal difference update.
      */
     override fun observe(transition: Transition<Int, Int>) {
-        val (s, _, reward, sPrime, _, _, isTerminal) = transition
-        val nextV = if (isTerminal) 0.0 else V[sPrime]
+        val (s, _, reward, sPrime) = transition
         val (alpha) = alpha()
-        V[s] = V[s] + alpha * (reward + gamma * nextV - V[s])
+        V[s] = V[s] + alpha * (reward + gamma *  V[sPrime] - V[s])
         onVUpdate(V)
     }
 }
