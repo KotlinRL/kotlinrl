@@ -64,10 +64,16 @@ val trainer = episodicTrainer(
         )
     ),
     maxStepsPerEpisode = maxStepsPerEpisode,
-    successfulTermination = { it.done },
+    successfulTermination = { it.terminated },
     callbacks = listOf(
         printEpisodeStart(100),
-        onEpisodeEnd { epsilonDecrement() }
+        onEpisodeEnd {
+            epsilonDecrement()
+            if (it.totalEpisodes % 100 == 0) {
+                val goalSuccessCount = TrainingResult(it.episodeStats.takeLast(100)).totalGoalSuccessCount
+                println("Current goal success count: $goalSuccessCount, over the last 100 episodes")
+            }
+        }
     )
 )
 println("Starting training")
@@ -84,7 +90,7 @@ val tester = episodicTrainer(
         policy = testingQtable.greedy()
     ),
     maxStepsPerEpisode = maxStepsPerEpisode,
-    successfulTermination = { it.done },
+    successfulTermination = { it.terminated },
     callbacks = listOf(
         printEpisodeStart(10)
     )
