@@ -83,13 +83,14 @@ Monte Carlo Control
 - [MazeOffPolicyMonteCarloControl](monte_carlo_control/MazeOffPolicyMonteCarloControl.ipynb)
 - [MazeOnPolicyMonteCarloControl](monte_carlo_control/MazeOnPolicyMonteCarloControl.ipynb)
 
-Temporal Difference Learning - Classic Control
-- [CliffWalkingExpectedSARSA](classic_control/CliffWalkingExpectedSARSA.ipynb)
-- [CliffWalkingQLearning](classic_control/CliffWalkingQLearning.ipynb)
-- [CliffWalkingSARSA](classic_control/CliffWalkingSARSA.ipynb)
-- [FrozenLakeExpectedSARSA](classic_control/FrozenLakeExpectedSARSA.ipynb)
-- [FrozenLakeQLearning](classic_control/FrozenLakeQLearning.ipynb)
-- [FrozenLakeSARSA](classic_control/FrozenLakeSARSA.ipynb)
-- [TaxiExpectedSARSA](classic_control/TaxiExpectedSARSA.ipynb)
-- [TaxiQLearning](classic_control/TaxiQLearning.ipynb)
-- [TaxiSARSA](classic_control/TaxiSARSA.ipynb)
+Temporal Difference Learning 
+- Classic Control
+  - [CliffWalkingExpectedSARSA](classic_control/CliffWalkingExpectedSARSA.ipynb)
+  - [CliffWalkingQLearning](classic_control/CliffWalkingQLearning.ipynb)
+  - [CliffWalkingSARSA](classic_control/CliffWalkingSARSA.ipynb)
+  - [FrozenLakeExpectedSARSA](classic_control/FrozenLakeExpectedSARSA.ipynb)
+  - [FrozenLakeQLearning](classic_control/FrozenLakeQLearning.ipynb)
+  - [FrozenLakeSARSA](classic_control/FrozenLakeSARSA.ipynb)
+  - [TaxiExpectedSARSA](classic_control/TaxiExpectedSARSA.ipynb)
+  - [TaxiQLearning](classic_control/TaxiQLearning.ipynb)
+  - [TaxiSARSA](classic_control/TaxiSARSA.ipynb)
