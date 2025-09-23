@@ -75,26 +75,21 @@ docker run --rm -p 50051:50051 kotlinrl/open-rl-gymnasium-grpc-server:latest
 ### The Kotlin Notebooks in this package demonstrate classic RL techniques against Gymnasium Environments
 Dynamic Programming
 
-[//]: # (- [MazeValueIteration]&#40;dynamic_programming/MazeValueIteration.ipynb&#41;)
+- [MazeValueIteration](dynamic_programming/MazeValueIteration.ipynb)
 - [MazePolicyIteration](dynamic_programming/MazePolicyIteration.ipynb) 
 
-[//]: # (Monte Carlo Control)
+Monte Carlo Control
+- [MazeIncrementalMonteCarloControl](monte_carlo_control/MazeIncrementalMonteCarloControl.ipynb)
+- [MazeOffPolicyMonteCarloControl](monte_carlo_control/MazeOffPolicyMonteCarloControl.ipynb)
+- [MazeOnPolicyMonteCarloControl](monte_carlo_control/MazeOnPolicyMonteCarloControl.ipynb)
 
-[//]: # (- [MazeOnPolicyMonteCarloControl]&#40;monte_carlo_control/MazeOnPolicyMonteCarloControl.ipynb&#41;)
-
-[//]: # (- [MazeOffPolicyMonteCarloControl]&#40;monte_carlo_control/MazeOffPolicyMonteCarloControl.ipynb&#41;)
-
-[//]: # (- [MazeConstantAlphaMonteCarloControl]&#40;monte_carlo_control/MazeConstantAlphaMonteCarloControl.ipynb&#41;)
-
-[//]: # ()
-[//]: # (Temporal Difference Learning)
-
-[//]: # (- [FrozenLakeExpectedSARA]&#40;toy_text/FrozenLakeExpectedSARSA.ipynb&#41;)
-
-[//]: # (- [FrozenLakeNStepSARSA]&#40;toy_text/FrozenLakeNStepSARSA.ipynb&#41;)
-
-[//]: # (- [FrozenLakeQLearning]&#40;toy_text/FrozenLakeQLearning.ipynb&#41;)
-
-[//]: # (- [FrozenLakeSARSA]&#40;toy_text/FrozenLakeSARSA.ipynb&#41;)
-
-[//]: # (- [CliffWalkingQLearning]&#40;toy_text/CliffWalkingQLearning.ipynb&#41;)
+Temporal Difference Learning - Classic Control
+- [CliffWalkingExpectedSARSA](classic_control/CliffWalkingExpectedSARSA.ipynb)
+- [CliffWalkingQLearning](classic_control/CliffWalkingQLearning.ipynb)
+- [CliffWalkingSARSA](classic_control/CliffWalkingSARSA.ipynb)
+- [FrozenLakeExpectedSARSA](classic_control/FrozenLakeExpectedSARSA.ipynb)
+- [FrozenLakeQLearning](classic_control/FrozenLakeQLearning.ipynb)
+- [FrozenLakeSARSA](classic_control/FrozenLakeSARSA.ipynb)
+- [TaxiExpectedSARSA](classic_control/TaxiExpectedSARSA.ipynb)
+- [TaxiQLearning](classic_control/TaxiQLearning.ipynb)
+- [TaxiSARSA](classic_control/TaxiSARSA.ipynb)
